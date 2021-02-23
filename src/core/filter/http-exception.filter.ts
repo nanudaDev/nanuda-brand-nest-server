@@ -70,7 +70,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
       const errorType = errorResponse.code.split('.')[0];
       const errorKind = errorResponse.code.split('.')[1];
       errorResponse.message = await error[errorType][errorKind];
-      console.log(errorResponse);
     } else if (exception instanceof BadRequestException) {
       // only validation.pipe
       const response = exception.getResponse() as any;

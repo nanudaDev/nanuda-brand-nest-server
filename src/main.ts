@@ -14,10 +14,9 @@ import { ClassTransformOptions } from '@nestjs/common/interfaces/external/class-
 import * as packageInfo from '../package.json';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { getConnection } from 'typeorm';
+import * as cookieParser from 'cookie-parser';
 
-const debug = Debug(
-  `nanuda-brand:${basename(__dirname)}:${basename(__filename)}`,
-);
+const debug = Debug(`brand-ai:${basename(__dirname)}:${basename(__filename)}`);
 const env = process.env.NODE_ENV;
 
 // if no environment set
@@ -44,9 +43,9 @@ async function bootstrap() {
   app.use(urlencoded({ extended: true }));
   app.use(json({ limit: '50mb' }));
   app.disable('x-powered-by');
-  // app.setViewEngine('hbs');
+  app.setViewEngine('hbs');
   app.use(compression());
-  // app.use(cookieParser());
+  app.use(cookieParser());
   app.use(helmet()); // https://helmetjs.github.io/
   app.use(requestIp.mw());
 
@@ -75,10 +74,11 @@ async function bootstrap() {
       .addBearerAuth()
       .build();
     const document = SwaggerModule.createDocument(app, options);
-    SwaggerModule.setup('swagger', app, document);
+    SwaggerModule.setup('brand ai swagger', app, document);
   }
 
-  await app.listen(4200);
+  // 3100 for brand port
+  await app.listen(3100);
 
   const url = await app.getUrl();
   if (process.env.NODE_ENV === ENVIRONMENT.DEVELOPMENT) {
@@ -115,7 +115,6 @@ async function shutdown() {
   }
 }
 
-// catch app is closing
 process.on('exit', code => {
   console.log(`About to exit with code: ${code}`);
 });

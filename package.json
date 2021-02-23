@@ -22,6 +22,7 @@
   "dependencies": {
     "@nestjs/common": "^6.10.14",
     "@nestjs/core": "^6.10.14",
+    "@nestjs/jwt": "^7.2.0",
     "@nestjs/platform-express": "^6.10.14",
     "@nestjs/swagger": "^4.7.13",
     "@nestjs/typeorm": "^7.1.5",
@@ -29,6 +30,7 @@
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
     "compression": "^1.7.4",
+    "cookie-parser": "^1.4.5",
     "debug": "^4.3.1",
     "dotenv": "^8.2.0",
     "express-rate-limit": "^5.2.5",

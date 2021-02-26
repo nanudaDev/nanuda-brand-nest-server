@@ -1,0 +1,4 @@
+export enum UserType {
+  ADMIN = 'ADMIN',
+  NON_REGISTERED_USER = 'NON_REGISTERED_USER',
+}

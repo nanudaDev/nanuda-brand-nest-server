@@ -1,4 +1,12 @@
 {
+    "auth": {
+        "invalidPassword": "비밀번호가 일치하지 않습니다",
+        "noPasswordInput": "비밀번호를 입력해주세요",
+        "noToken": "Token was not provided"
+    },
+    "admin": {
+        "notFound": "관리자가 존재하지 않습니다."
+    },
     "brands": {
         "notFound": "Brand not found"
     },

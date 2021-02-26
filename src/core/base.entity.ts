@@ -2,6 +2,7 @@ import {
   BaseEntity as TyepOrmBaseEntity,
   UpdateDateColumn,
   CreateDateColumn,
+  Column,
 } from 'typeorm';
 import { BaseDto } from './';
 
@@ -36,14 +37,14 @@ export class BaseEntity<Entity> extends TyepOrmBaseEntity {
     return this;
   }
 
-  @CreateDateColumn({
+  @Column({
     name: 'created',
     type: 'datetime',
     default: new Date(),
   })
   created?: Date;
 
-  @UpdateDateColumn({
+  @Column({
     name: 'updated',
     type: 'datetime',
   })

@@ -6,14 +6,16 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmConfigService } from './config';
 import { HttpExceptionFilter, ErrorsInterceptor } from './core';
+import { AdminModule } from './modules';
 
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
       useClass: TypeOrmConfigService,
     }),
+    AdminModule,
   ],
-  controllers: [AppController],
+  controllers: [],
   providers: [
     AppService,
     { provide: APP_FILTER, useClass: HttpExceptionFilter },

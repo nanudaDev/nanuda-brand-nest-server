@@ -1,55 +1,75 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 require('dotenv').config();
-import { NestApplication, NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import Debug from 'debug';
 import { basename } from 'path';
-import { ENVIRONMENT } from './config';
-import { json, urlencoded } from 'body-parser';
-import * as requestIp from 'request-ip';
-import * as helmet from 'helmet';
-import * as compression from 'compression';
+import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { Logger, ValidationPipe } from '@nestjs/common';
-import { ClassTransformOptions } from '@nestjs/common/interfaces/external/class-transform-options.interface';
-import * as packageInfo from '../package.json';
+import { ValidationPipe, Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { json, urlencoded } from 'body-parser';
 import { getConnection } from 'typeorm';
 import * as cookieParser from 'cookie-parser';
+import * as compression from 'compression';
+import * as helmet from 'helmet';
+import * as packageInfo from '../package.json';
+import * as requestIp from 'request-ip';
+import * as csurf from 'csurf';
+import * as rateLimit from 'express-rate-limit';
+import { AppModule } from './app.module';
+import { ClassTransformOptions } from '@nestjs/common/interfaces/external/class-transform-options.interface';
+import * as generate from './generator';
+import { ENVIRONMENT } from './config';
 
-const debug = Debug(`brand-ai:${basename(__dirname)}:${basename(__filename)}`);
+const debug = Debug(`app:${basename(__dirname)}:${basename(__filename)}`);
 const env = process.env.NODE_ENV;
 
-// if no environment set
+// require environment
 if (!env) {
-  console.log('No environments running!');
-  throw new Error('No environment running!');
+  console.log('No environment running');
+  throw new Error('No environment running');
 }
-
 let app: NestExpressApplication;
 declare const module: any;
 
 async function bootstrap() {
-  if (env !== ENVIRONMENT.PRODUCTION) {
-    console.log(`Running in ${env} mode!`);
+  // only if npm run start:
+  // await generate.generate;
+  if (env === ENVIRONMENT.DEVELOPMENT) {
+    console.log('Running in development mode. 개발 모드로 진행중');
     app = await NestFactory.create<NestExpressApplication>(AppModule, {
-      logger: true,
+      // logger: true
     });
   } else {
     app = await NestFactory.create<NestExpressApplication>(AppModule, {
-      // logger: true
+      logger: true,
     });
   }
 
   app.use(urlencoded({ extended: true }));
   app.use(json({ limit: '50mb' }));
   app.disable('x-powered-by');
-  app.setViewEngine('hbs');
+  // app.setViewEngine('hbs');
   app.use(compression());
-  app.use(cookieParser());
+  // app.use(cookieParser());
   app.use(helmet()); // https://helmetjs.github.io/
   app.use(requestIp.mw());
-
+  // Cors
+  // see https://github.com/expressjs/cors#configuration-options
+  // app.enableCors({
+  //   origin: '*',
+  //   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  //   preflightContinue: false,
+  //   optionsSuccessStatus: 204,
+  // });
   app.enableCors();
+  // https://docs.nestjs.com/techniques/security
+  // app.use(csurf({ cookie: true }));
+  app.use(
+    rateLimit({
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      max: 10000, // limit each IP to 100 requests per windowMs
+    }),
+  );
 
   // Validation
   app.useGlobalPipes(
@@ -74,11 +94,10 @@ async function bootstrap() {
       .addBearerAuth()
       .build();
     const document = SwaggerModule.createDocument(app, options);
-    SwaggerModule.setup('brand ai swagger', app, document);
+    SwaggerModule.setup('swagger', app, document);
   }
 
-  // 3100 for brand port
-  await app.listen(3100);
+  await app.listen(4700);
 
   const url = await app.getUrl();
   if (process.env.NODE_ENV === ENVIRONMENT.DEVELOPMENT) {
@@ -115,6 +134,7 @@ async function shutdown() {
   }
 }
 
+// catch app is closing
 process.on('exit', code => {
   console.log(`About to exit with code: ${code}`);
 });

@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
 
 export const Default = (defaultValue: any) => {
-  return Transform((target: any) => target || defaultValue);
+  return Transform((target: any) => target.value || defaultValue.value);
 };

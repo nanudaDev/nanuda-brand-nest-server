@@ -12,7 +12,6 @@ const env = process.env;
 export class TypeOrmConfigService implements TypeOrmOptionsFactory {
   createTypeOrmOptions(): TypeOrmModuleOptions {
     return {
-      name: 'brandDatabase',
       type: 'mysql',
       host: env.DB_HOST,
       port: Number(env.DB_PORT),

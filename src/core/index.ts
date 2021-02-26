@@ -7,3 +7,5 @@ export * from './base.controller';
 export * from './base.service';
 export * from './filter';
 export * from './interceptors';
+export * from './base-user.entity';
+export * from './guards';

@@ -1,8 +1,13 @@
 import { InjectRepository } from '@nestjs/typeorm';
+import { PaginatedRequest, PaginatedResponse } from 'src/common';
 import { BaseService, BrandAiException } from 'src/core';
 import { Repository } from 'typeorm';
 import { CommonCode } from './common-code.entity';
-import { AdminCommonCodeCreateDto, AdminCommonCodeUpdateDto } from './dto';
+import {
+  AdminCommonCodeCreateDto,
+  AdminCommonCodeListDto,
+  AdminCommonCodeUpdateDto,
+} from './dto';
 
 export class CommonCodeService extends BaseService {
   constructor(
@@ -53,5 +58,43 @@ export class CommonCodeService extends BaseService {
       throw new BrandAiException('commonCode.notFound');
     }
     return commonCode;
+  }
+
+  /**
+   * find all for admin
+   * @param adminCommonCodeListDto
+   * @param pagination
+   */
+  async findAllForAdmin(
+    adminCommonCodeListDto: AdminCommonCodeListDto,
+    pagination: PaginatedRequest,
+  ): Promise<PaginatedResponse<CommonCode>> {
+    const qb = this.commonCodeRepo
+      .createQueryBuilder('commonCode')
+      .AndWhereLike(
+        'commonCode',
+        'key',
+        adminCommonCodeListDto.key,
+        adminCommonCodeListDto.exclude('key'),
+      )
+
+      .AndWhereLike(
+        'commonCode',
+        'value',
+        adminCommonCodeListDto.value,
+        adminCommonCodeListDto.exclude('value'),
+      )
+      .AndWhereLike(
+        'commonCode',
+        'category',
+        adminCommonCodeListDto.category,
+        adminCommonCodeListDto.exclude('category'),
+      )
+      .Paginate(pagination)
+      .WhereAndOrder(adminCommonCodeListDto);
+
+    const [items, totalCount] = await qb.getManyAndCount();
+
+    return { items, totalCount };
   }
 }

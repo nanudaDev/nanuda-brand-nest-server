@@ -1,10 +1,9 @@
+require('dotenv').config();
 import {
   ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-
-require('dotenv').config();
 import { AuthGuard } from '@nestjs/passport';
 import { ADMIN_ROLES } from 'src/shared';
 import { ExecutionContextHost } from '@nestjs/core/helpers/execution-context-host';
@@ -26,7 +25,6 @@ export class AuthRolesGuard extends AuthGuard('jwt') {
     if (err || !user) {
       if (process.env.NODE_ENV !== ENVIRONMENT.PRODUCTION) {
         console.log(err, 'err');
-        console.log(user, 'user');
       }
       throw err ||
         new UnauthorizedException({
@@ -38,6 +36,7 @@ export class AuthRolesGuard extends AuthGuard('jwt') {
       debug(this.roles);
       const hasRole = () =>
         this.roles.some(role => user.userRoles.includes(role));
+
       if (!user.userRoles || !hasRole()) {
         throw new ForbiddenException();
       }

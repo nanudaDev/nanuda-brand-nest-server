@@ -1,1 +1,3 @@
 export * from './admin/admin.module';
+export * from './auth/auth.module';
+export * from './common-code/common-code.module';

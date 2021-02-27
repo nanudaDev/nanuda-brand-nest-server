@@ -7,7 +7,7 @@ import { EntityManager } from 'typeorm';
 import { Admin } from '../admin/admin.entity';
 import { AdminLoginDto } from './dto';
 import { PasswordService } from './password.service';
-import { UserSigninPayload } from './types';
+import { UserSigninPayload, UserType } from './types';
 
 @Injectable()
 export class AuthService extends BaseService {
@@ -50,7 +50,6 @@ export class AuthService extends BaseService {
       .getRepository(Admin)
       .findOne({
         phone: adminLoginDto.phone,
-        password: adminLoginDto.password,
       });
     if (!loggedInAdmin) {
       throw new BrandAiException('admin.notFound');
@@ -62,7 +61,7 @@ export class AuthService extends BaseService {
       .createQueryBuilder('admin')
       .update()
       .set({ lastLoginAt: new Date() })
-      .where('id = :id', { no: admin.id })
+      .where('id = :id', { id: admin.id })
       .execute();
     return token;
   }
@@ -101,6 +100,7 @@ export class AuthService extends BaseService {
       name: user.name,
       userRoles: user.userRoles,
       userStatus: user.adminStatus,
+      userType: UserType.ADMIN || UserType.NON_REGISTERED_USER,
     };
     return this.jwtService.sign({ ...userSignInInfo, ...extend }, options);
   }

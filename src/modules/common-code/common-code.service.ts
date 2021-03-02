@@ -106,6 +106,7 @@ export class CommonCodeService extends BaseService {
   async findForAllUsers(
     commonCodeListDto: CommonCodeListDto,
   ): Promise<CommonCode[]> {
+    console.log(commonCodeListDto);
     const qb = this.commonCodeRepo
       .createQueryBuilder('commonCode')
       .AndWhereLike(

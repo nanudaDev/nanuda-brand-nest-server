@@ -1,7 +1,7 @@
 import { BaseEntity } from 'src/core';
-import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity({ name: 'common-code' })
+@Entity({ name: 'common_code' })
 export class CommonCode extends BaseEntity<CommonCode> {
   @PrimaryGeneratedColumn({
     type: 'int',
@@ -33,4 +33,10 @@ export class CommonCode extends BaseEntity<CommonCode> {
     nullable: true,
   })
   comment: string;
+
+  @Column({
+    name: 'display_value',
+    type: 'varchar',
+  })
+  displayName: string;
 }

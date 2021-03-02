@@ -37,14 +37,14 @@ export class BaseEntity<Entity> extends TyepOrmBaseEntity {
     return this;
   }
 
-  @Column({
+  @CreateDateColumn({
     name: 'created',
     type: 'datetime',
     default: new Date(),
   })
   created?: Date;
 
-  @Column({
+  @UpdateDateColumn({
     name: 'updated',
     type: 'datetime',
   })

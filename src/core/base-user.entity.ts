@@ -1,4 +1,4 @@
-import { Exclude } from 'class-transformer';
+import { classToPlain, Exclude } from 'class-transformer';
 import { Column, PrimaryGeneratedColumn } from 'typeorm';
 import { BaseEntity } from './base.entity';
 
@@ -38,4 +38,8 @@ export class BaseUserEntity extends BaseEntity<BaseUserEntity> {
     name: 'last_login_at',
   })
   lastLoginAt?: Date;
+
+  toJSON() {
+    return classToPlain(this);
+  }
 }

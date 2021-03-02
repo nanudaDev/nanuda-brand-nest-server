@@ -1,5 +1,5 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { FaqCreateDto } from './dto';
+import { Body, Controller, Param, Patch, Post } from '@nestjs/common';
+import { FaqCreateDto, FaqUpdateDto } from './dto';
 import { Faq } from './faq.entity';
 import { FaqService } from './faq.service';
 
@@ -13,5 +13,16 @@ export class AdminFaqController {
   @Post('/faq')
   async create(@Body() faqCreateDto: FaqCreateDto): Promise<Faq> {
     return await this.faqService.createFaqForAdmin(faqCreateDto);
+  }
+  /**
+   *
+   * @param faqUpdateDto
+   */
+  @Patch('/faq/:id([0-9]+)')
+  async update(
+    @Param() id: number,
+    @Body() faqUpdateDto: FaqUpdateDto,
+  ): Promise<Faq> {
+    return await this.faqService.updateFaqForAdmin(id, faqUpdateDto);
   }
 }

@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PaginatedRequest, PaginatedResponse } from 'src/common';
 import { BaseService } from 'src/core';
 import { Repository } from 'typeorm';
-import { FaqCreateDto } from './dto';
+import { FaqCreateDto, FaqUpdateDto } from './dto';
 import { Faq } from './faq.entity';
 
 @Injectable()
@@ -22,10 +23,40 @@ export class FaqService extends BaseService {
     faq = await this.FaqRepository.save(faqCreateDto);
     return faq;
   }
+  /**
+   *
+   * @param faqUpdateDto
+   */
+  async updateFaqForAdmin(
+    id: number,
+    faqUpdateDto: FaqUpdateDto,
+  ): Promise<Faq> {
+    let theFaq = await this.findOneForAdmin(id);
+    if (!theFaq) {
+      throw new NotFoundException();
+    }
+    theFaq = theFaq.set(faqUpdateDto);
+    return await this.FaqRepository.save(theFaq);
+  }
+  /**
+   * find one
+   * @param id
+   */
+  async findOneForAdmin(id: number): Promise<Faq> {
+    const theFaq = await this.FaqRepository.createQueryBuilder('faq')
+      .where('faq.id = :id', { id: id })
+      .getOne();
 
-  async findAll(): Promise<Faq[]> {
+    if (!theFaq) {
+      throw new NotFoundException('faq not found');
+    }
+    return theFaq;
+  }
+  async findAll(pagination: PaginatedRequest): Promise<PaginatedResponse<Faq>> {
     const qb = this.FaqRepository.createQueryBuilder();
-    const results = await qb.getMany();
-    return results;
+    qb.Paginate(pagination);
+    const [items, totalCount] = await qb.getManyAndCount();
+
+    return { items, totalCount };
   }
 }

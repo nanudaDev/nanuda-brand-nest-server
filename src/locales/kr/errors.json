@@ -12,5 +12,9 @@
     },
     "commonCode": {
         "notFound": "공통 코드를 찾지 못했습니다."
+    },
+    "question": {
+        "notFound": "Could not find question.",
+        "noMoreQuestions": "There are no more questions"
     }
 }

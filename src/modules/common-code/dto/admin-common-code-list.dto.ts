@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsEAN, IsEnum, IsOptional } from 'class-validator';
+import { IsEnum, IsOptional } from 'class-validator';
 import { Default, ORDER_BY_VALUE } from 'src/common';
 import { BaseDto } from 'src/core';
 import { CommonCode } from '../common-code.entity';

@@ -6,7 +6,12 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmConfigService } from './config';
 import { HttpExceptionFilter, ErrorsInterceptor } from './core';
-import { AdminModule, AuthModule, CommonCodeModule } from './modules';
+import {
+  AdminModule,
+  AuthModule,
+  CommonCodeModule,
+  QuestionModule,
+} from './modules';
 
 @Module({
   imports: [
@@ -16,6 +21,7 @@ import { AdminModule, AuthModule, CommonCodeModule } from './modules';
     AdminModule,
     AuthModule,
     CommonCodeModule,
+    QuestionModule,
   ],
   controllers: [],
   providers: [

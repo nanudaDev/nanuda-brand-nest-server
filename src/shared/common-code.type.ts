@@ -13,6 +13,12 @@ export enum BRAND_CONSULT {
 }
 export const CONST_BRAND_CONSULT  = Object.values(BRAND_CONSULT);
 
+export enum FNB_OWNER {
+  CUR_FNB_OWNER = 'CUR_FNB_OWNER',
+  NEW_FNB_OWNER = 'NEW_FNB_OWNER',
+}
+export const CONST_FNB_OWNER  = Object.values(FNB_OWNER);
+
 export enum IP_STATUS {
   IP_ABUSE = 'IP_ABUSE',
 }

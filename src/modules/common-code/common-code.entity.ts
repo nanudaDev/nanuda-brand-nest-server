@@ -3,12 +3,6 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'common_code' })
 export class CommonCode extends BaseEntity<CommonCode> {
-  @PrimaryGeneratedColumn({
-    type: 'int',
-    unsigned: true,
-  })
-  id: number;
-
   @Column({
     type: 'varchar',
     nullable: false,

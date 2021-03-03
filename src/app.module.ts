@@ -11,6 +11,7 @@ import {
   AuthModule,
   CommonCodeModule,
   QuestionModule,
+  FaqModule,
 } from './modules';
 
 @Module({
@@ -18,6 +19,7 @@ import {
     TypeOrmModule.forRootAsync({
       useClass: TypeOrmConfigService,
     }),
+    FaqModule,
     AdminModule,
     AuthModule,
     CommonCodeModule,

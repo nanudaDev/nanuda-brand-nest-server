@@ -16,6 +16,11 @@ export class QuestionAnsweredDto extends BaseDto<QuestionAnsweredDto>
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
+  givenId: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @Expose()
   @IsIP(null, { message: 'Not a valid IP address' })
   @Default('112.169.101.10')
   ipAddress: string;

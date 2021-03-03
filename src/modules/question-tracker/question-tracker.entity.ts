@@ -27,6 +27,13 @@ export class QuestionTracker extends BaseMapperEntity<QuestionTracker> {
   userType: FNB_OWNER;
 
   @Column({
+    name: 'given_id',
+    type: 'int',
+    nullable: false,
+  })
+  givenId: number;
+
+  @Column({
     name: 'unique_session_id',
     nullable: false,
     type: 'varchar',

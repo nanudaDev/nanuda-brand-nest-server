@@ -10,6 +10,7 @@ import {
   AdminModule,
   AuthModule,
   CommonCodeModule,
+  QuestionModule,
   FaqModule,
 } from './modules';
 
@@ -22,6 +23,7 @@ import {
     AdminModule,
     AuthModule,
     CommonCodeModule,
+    QuestionModule,
   ],
   controllers: [],
   providers: [

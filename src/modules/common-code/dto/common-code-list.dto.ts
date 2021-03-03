@@ -5,7 +5,7 @@ import { Default, ORDER_BY_VALUE } from 'src/common';
 import { BaseDto } from 'src/core';
 import { CommonCode } from '../common-code.entity';
 
-export class AdminCommonCodeListDto extends BaseDto<AdminCommonCodeListDto>
+export class CommonCodeListDto extends BaseDto<CommonCodeListDto>
   implements Partial<CommonCode> {
   @ApiPropertyOptional()
   @IsOptional()

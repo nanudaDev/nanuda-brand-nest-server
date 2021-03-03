@@ -7,6 +7,7 @@ import {
   AdminCommonCodeCreateDto,
   AdminCommonCodeListDto,
   AdminCommonCodeUpdateDto,
+  CommonCodeListDto,
 } from './dto';
 
 export class CommonCodeService extends BaseService {
@@ -96,5 +97,39 @@ export class CommonCodeService extends BaseService {
     const [items, totalCount] = await qb.getManyAndCount();
 
     return { items, totalCount };
+  }
+
+  /**
+   * find all common code for users
+   * @param commonCodeListDto
+   */
+  async findForAllUsers(
+    commonCodeListDto: CommonCodeListDto,
+  ): Promise<CommonCode[]> {
+    console.log(commonCodeListDto);
+    const qb = this.commonCodeRepo
+      .createQueryBuilder('commonCode')
+      .AndWhereLike(
+        'commonCode',
+        'key',
+        commonCodeListDto.key,
+        commonCodeListDto.exclude('key'),
+      )
+      .AndWhereLike(
+        'commonCode',
+        'value',
+        commonCodeListDto.value,
+        commonCodeListDto.exclude('value'),
+      )
+      .AndWhereLike(
+        'commonCode',
+        'category',
+        commonCodeListDto.category,
+        commonCodeListDto.exclude('category'),
+      )
+      .WhereAndOrder(commonCodeListDto)
+      .getMany();
+
+    return await qb;
   }
 }

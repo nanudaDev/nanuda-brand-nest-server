@@ -236,21 +236,31 @@ declare module 'typeorm/query-builder/SelectQueryBuilder' {
     /**
      * find next
      * @param this
-     * @param no
+     * @param id
      */
     AndWhereNext(
       this: SelectQueryBuilder<Entity>,
-      no: number,
+      id: number,
     ): SelectQueryBuilder<Entity>;
 
     /**
      * find previous
      * @param this
-     * @param no
+     * @param id
      */
     AndWherePrevious(
       this: SelectQueryBuilder<Entity>,
-      no: number,
+      id: number,
+    ): SelectQueryBuilder<Entity>;
+
+    /**
+     * find next
+     * @param this
+     * @param id
+     */
+    AndWhereNextOrder(
+      this: SelectQueryBuilder<Entity>,
+      id: number,
     ): SelectQueryBuilder<Entity>;
 
     /**
@@ -431,8 +441,8 @@ SelectQueryBuilder.prototype.AndWhereNext = function<Entity>(
   this: SelectQueryBuilder<Entity>,
   id: number,
 ): SelectQueryBuilder<Entity> {
-  this.andWhere(`${this.alias}.id > :id ORDER BY NO LIMIT 1`, { id: id });
-  this.select([`${this.alias}.id`]);
+  this.andWhere(`${this.alias}.id > :id LIMIT 1`, { id: id });
+  // this.select([`${this.alias}.id`]);
   return this;
 };
 
@@ -445,6 +455,20 @@ SelectQueryBuilder.prototype.AndWherePrevious = function<Entity>(
 ): SelectQueryBuilder<Entity> {
   this.andWhere(`${this.alias}.id < :id ORDER BY id DESC LIMIT 1`, { id: id });
   this.select([`${this.alias}.id`]);
+  return this;
+};
+
+/**
+ * find next
+ */
+SelectQueryBuilder.prototype.AndWhereNextOrder = function<Entity>(
+  this: SelectQueryBuilder<Entity>,
+  order: number,
+): SelectQueryBuilder<Entity> {
+  this.andWhere(`${this.alias}.order > :order ORDER BY id LIMIT 1`, {
+    order: order,
+  });
+  this.select([`${this.alias}.order`]);
   return this;
 };
 
@@ -604,7 +628,7 @@ SelectQueryBuilder.prototype.AndWhereMatchInIds = function<Entity>(
     values.map(value => {
       console.log(value, alias);
       this.andWhere(
-        `${alias}.${property} IN (SELECT NO FROM AMENITY WHERE NO = ${value})`,
+        `${alias}.${property} IN (SELECT id FROM AMENITY WHERE id = ${value})`,
         // {
         //   [`${alias}${ALIAS_DELIMETER}${property}`]: value,
         // },

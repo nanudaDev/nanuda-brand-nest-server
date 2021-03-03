@@ -3,13 +3,6 @@ import { Column, PrimaryGeneratedColumn } from 'typeorm';
 import { BaseEntity } from './base.entity';
 
 export class BaseUserEntity extends BaseEntity<BaseUserEntity> {
-  @PrimaryGeneratedColumn({
-    type: 'int',
-    unsigned: true,
-    name: 'id',
-  })
-  id: number;
-
   @Column({
     type: 'varchar',
     nullable: false,

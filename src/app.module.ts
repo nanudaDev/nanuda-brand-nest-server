@@ -12,6 +12,7 @@ import {
   CommonCodeModule,
   QuestionModule,
   FaqModule,
+  LocationAnalysisModule,
 } from './modules';
 
 @Module({
@@ -24,6 +25,7 @@ import {
     AuthModule,
     CommonCodeModule,
     QuestionModule,
+    LocationAnalysisModule,
   ],
   controllers: [],
   providers: [

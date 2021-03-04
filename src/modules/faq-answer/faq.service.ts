@@ -1,62 +1,122 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { PaginatedRequest, PaginatedResponse } from 'src/common';
 import { BaseService } from 'src/core';
-import { Repository } from 'typeorm';
-import { FaqCreateDto, FaqUpdateDto } from './dto';
+import { EntityManager, Repository } from 'typeorm';
+import { AdminFaqCreateDto, AdminFaqUpdateDto, FaqAnswerListDto } from './dto';
 import { Faq } from './faq.entity';
 
 @Injectable()
 export class FaqService extends BaseService {
   constructor(
     @InjectRepository(Faq)
-    private readonly FaqRepository: Repository<Faq>,
+    private readonly faqRepo: Repository<Faq>,
+    @InjectEntityManager() private readonly entityManager: EntityManager,
   ) {
     super();
   }
-  /**
-   *
-   * @param faqCreateDto
-   */
-  async createFaqForAdmin(faqCreateDto: FaqCreateDto): Promise<Faq> {
-    let faq = new Faq(faqCreateDto);
-    faq = await this.FaqRepository.save(faqCreateDto);
-    return faq;
-  }
-  /**
-   *
-   * @param faqUpdateDto
-   */
-  async updateFaqForAdmin(
-    id: number,
-    faqUpdateDto: FaqUpdateDto,
-  ): Promise<Faq> {
-    let theFaq = await this.findOneForAdmin(id);
-    if (!theFaq) {
-      throw new NotFoundException();
-    }
-    theFaq = theFaq.set(faqUpdateDto);
-    return await this.FaqRepository.save(theFaq);
-  }
-  /**
-   * find one
-   * @param id
-   */
-  async findOneForAdmin(id: number): Promise<Faq> {
-    const theFaq = await this.FaqRepository.createQueryBuilder('faq')
-      .where('faq.id = :id', { id: id })
-      .getOne();
+  // /**
+  //  *
+  //  * @param faqCreateDto
+  //  */
+  // async createFaqForAdmin(faqCreateDto: FaqCreateDto): Promise<Faq> {
+  //   let faq = new Faq(faqCreateDto);
+  //   faq = await this.FaqRepository.save(faqCreateDto);
+  //   return faq;
+  // }
+  // /**
+  //  *
+  //  * @param faqUpdateDto
+  //  */
+  // async updateFaqForAdmin(
+  //   id: number,
+  //   faqUpdateDto: FaqUpdateDto,
+  // ): Promise<Faq> {
+  //   let theFaq = await this.findOneForAdmin(id);
+  //   if (!theFaq) {
+  //     throw new NotFoundException();
+  //   }
+  //   theFaq = theFaq.set(faqUpdateDto);
+  //   return await this.FaqRepository.save(theFaq);
+  // }
+  // /**
+  //  * find one
+  //  * @param id
+  //  */
+  // async findOneForAdmin(id: number): Promise<Faq> {
+  //   const theFaq = await this.FaqRepository.createQueryBuilder('faq')
+  //     .where('faq.id = :id', { id: id })
+  //     .getOne();
 
-    if (!theFaq) {
-      throw new NotFoundException('faq not found');
-    }
-    return theFaq;
-  }
-  async findAll(pagination: PaginatedRequest): Promise<PaginatedResponse<Faq>> {
-    const qb = this.FaqRepository.createQueryBuilder();
-    qb.Paginate(pagination);
-    const [items, totalCount] = await qb.getManyAndCount();
+  //   if (!theFaq) {
+  //     throw new NotFoundException('faq not found');
+  //   }
+  //   return theFaq;
+  // }
+  // async findAll(pagination: PaginatedRequest): Promise<PaginatedResponse<Faq>> {
+  //   const qb = this.FaqRepository.createQueryBuilder();
+  //   qb.Paginate(pagination);
+  //   const [items, totalCount] = await qb.getManyAndCount();
 
-    return { items, totalCount };
+  //   return { items, totalCount };
+  // }
+
+  /**
+   * create new faq for admin
+   * @param adminFaqCreateDto
+   */
+  async createFaq(adminFaqCreateDto: AdminFaqCreateDto): Promise<Faq> {
+    const newFaq = await this.entityManager.transaction(async entityManager => {
+      let newFaq = new Faq(adminFaqCreateDto);
+      newFaq = await entityManager.save(newFaq);
+      const answers = [];
+      if (
+        adminFaqCreateDto.providedAnswers &&
+        adminFaqCreateDto.providedAnswers.length > 0
+      ) {
+        adminFaqCreateDto.providedAnswers.map(answer => {
+          const newAnswer = new Faq(answer);
+          newAnswer.faqParentId = newFaq.id;
+          answers.push(newAnswer);
+        });
+      }
+      await entityManager
+        .createQueryBuilder()
+        .insert()
+        .into(Faq)
+        .values(answers)
+        .execute();
+
+      return newFaq;
+    });
+    return newFaq;
+  }
+
+  /**
+   * get
+   * @param faqAdminListDto
+   */
+  async findAllForUsers(faqAdminListDto: FaqAnswerListDto): Promise<Faq[]> {
+    const qb = this.faqRepo
+      .createQueryBuilder('faq')
+      .select(['faq.faq', 'faq.order', 'faq.id'])
+      .where('faq.order IS NOT NULL');
+    // .WhereAndOrder(faqAdminListDto);
+
+    if (faqAdminListDto.faqParentId) {
+      qb.andWhere('faq.faq IS NULL');
+      qb.addSelect(['faq.answer']);
+      qb.AndWhereEqual(
+        'faq',
+        'faqParentId',
+        faqAdminListDto.faqParentId,
+        faqAdminListDto.exclude('faqParentId'),
+      );
+      qb.WhereAndOrder(faqAdminListDto);
+    } else {
+      qb.andWhere('faq.faq IS NOT NULL');
+      qb.WhereAndOrder(faqAdminListDto);
+    }
+    return qb.getMany();
   }
 }

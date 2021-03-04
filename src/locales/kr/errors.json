@@ -5,16 +5,22 @@
         "noToken": "Token was not provided"
     },
     "admin": {
-        "notFound": "관리자가 존재하지 않습니다."
+        "notFound": "관리자가 존재하지 않습니다"
     },
     "brands": {
         "notFound": "Brand not found"
     },
     "commonCode": {
-        "notFound": "공통 코드를 찾지 못했습니다."
+        "notFound": "공통 코드를 찾지 못했습니다"
+    },
+    "data": {
+        "parameterError": "행정동 값이 필요한 요청입니다"
+    },
+    "faq": {
+        "notFound": "FAQ not found"
     },
     "question": {
-        "notFound": "Could not find question.",
+        "notFound": "Could not find question",
         "noMoreQuestions": "There are no more questions"
     }
 }

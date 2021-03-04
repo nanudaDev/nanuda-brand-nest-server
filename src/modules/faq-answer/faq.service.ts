@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { PaginatedRequest, PaginatedResponse } from 'src/common';
-import { BaseService } from 'src/core';
+import { BaseService, BrandAiException } from 'src/core';
 import { EntityManager, Repository } from 'typeorm';
 import { AdminFaqCreateDto, AdminFaqUpdateDto, FaqAnswerListDto } from './dto';
 import { Faq } from './faq.entity';
@@ -65,7 +65,7 @@ export class FaqService extends BaseService {
    * create new faq for admin
    * @param adminFaqCreateDto
    */
-  async createFaq(adminFaqCreateDto: AdminFaqCreateDto): Promise<Faq> {
+  async createFaqForAdmin(adminFaqCreateDto: AdminFaqCreateDto): Promise<Faq> {
     const newFaq = await this.entityManager.transaction(async entityManager => {
       let newFaq = new Faq(adminFaqCreateDto);
       newFaq = await entityManager.save(newFaq);
@@ -90,6 +90,24 @@ export class FaqService extends BaseService {
       return newFaq;
     });
     return newFaq;
+  }
+
+  /**
+   * update faq for admin
+   * @param id
+   * @param adminFaqUpdateDto
+   */
+  async updateFaqForAdmin(
+    id: number,
+    adminFaqUpdateDto: AdminFaqUpdateDto,
+  ): Promise<Faq> {
+    let faq = await this.faqRepo.findOne(id);
+    if (!faq) {
+      throw new BrandAiException('faq.notFound');
+    }
+    faq = faq.set(adminFaqUpdateDto);
+    faq = await this.faqRepo.save(faq);
+    return faq;
   }
 
   /**

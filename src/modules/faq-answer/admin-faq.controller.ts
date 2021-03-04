@@ -23,21 +23,22 @@ export class AdminFaqController extends BaseController {
   }
   /**
    * create faq for admin
-   * @param faqCreateDto
+   * @param adminFaqCreateDto
    *    */
   @Post('/admin/faq-answer')
   async create(@Body() adminFaqCreateDto: AdminFaqCreateDto): Promise<Faq> {
-    return await this.faqService.createFaq(adminFaqCreateDto);
+    return await this.faqService.createFaqForAdmin(adminFaqCreateDto);
   }
+
   /**
-  //  *
-  //  * @param faqUpdateDto
-  //  */
-  // @Patch('/faq/:id([0-9]+)')
-  // async update(
-  //   @Param() id: number,
-  //   @Body() faqUpdateDto: FaqUpdateDto,
-  // ): Promise<Faq> {
-  //   return await this.faqService.updateFaqForAdmin(id, faqUpdateDto);
-  // }
+   *
+   * @param adminFaqUpdateDto
+   */
+  @Patch('/admin/faq/:id([0-9]+)')
+  async update(
+    @Param() id: number,
+    @Body() adminFaqUpdateDto: AdminFaqUpdateDto,
+  ): Promise<Faq> {
+    return await this.faqService.updateFaqForAdmin(id, adminFaqUpdateDto);
+  }
 }

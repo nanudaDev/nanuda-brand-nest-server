@@ -5,7 +5,7 @@ import { Default } from 'src/common';
 
 export class LocationAnalysisDto {
   @ApiProperty()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: '행정동을 전송해주세요.' })
   @Expose()
   hdongCode: string;
 

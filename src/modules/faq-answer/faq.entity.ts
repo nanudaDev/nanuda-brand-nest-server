@@ -1,5 +1,5 @@
 import { BaseEntity } from 'src/core';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'faq_answer' })
 export class Faq extends BaseEntity<Faq> {

@@ -13,6 +13,10 @@ export class LocationAnalysiController extends BaseController {
     super();
   }
 
+  /**
+   * 지역 최저, 최고 매출 호출
+   * @param locationAnalysisDto
+   */
   @Get('/location-analysis/revenue-data')
   async revenueData(@Query() locationAnalysisDto: LocationAnalysisDto) {
     return await this.locationAnalysisService.getRevenueForLocation(

@@ -111,7 +111,7 @@ export class FaqService extends BaseService {
   }
 
   /**
-   * get
+   * get faqs for users
    * @param faqAdminListDto
    */
   async findAllForUsers(faqAdminListDto: FaqAnswerListDto): Promise<Faq[]> {

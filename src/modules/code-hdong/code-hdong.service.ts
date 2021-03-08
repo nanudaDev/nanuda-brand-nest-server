@@ -3,6 +3,7 @@ import { YN } from 'src/common';
 import { BaseService } from 'src/core';
 import { Repository } from 'typeorm';
 import { CodeHdong } from './code-hdong.entity';
+import { CodeHdongListDto } from './dto';
 
 export class CodeHdongService extends BaseService {
   constructor(
@@ -23,5 +24,85 @@ export class CodeHdongService extends BaseService {
       .getMany();
 
     return await qb;
+  }
+
+  /**
+   * find all
+   * @param codeHdongListDto
+   */
+  async findAllGuNames(
+    codeHdongListDto: CodeHdongListDto,
+  ): Promise<CodeHdong[]> {
+    const qb = this.codeHdongRepo
+      .createQueryBuilder('codeHdong')
+      //   .AndWhereLike(
+      //     'codeHdong',
+      //     'guName',
+      //     codeHdongListDto.guName,
+      //     codeHdongListDto.exclude('guName'),
+      //   )
+      .where('codeHdong.guName IS NOT NULL')
+      .where('codeHdong.hdongName IS NOT NULL')
+      .AndWhereLike(
+        'codeHdong',
+        'sidoName',
+        codeHdongListDto.sidoName,
+        codeHdongListDto.exclude('sidoName'),
+      )
+      .groupBy('codeHdong.guName')
+      //   .AndWhereLike(
+      //     'codeHdong',
+      //     'hdongName',
+      //     codeHdongListDto.hdongName,
+      //     codeHdongListDto.exclude('hdongName'),
+      //   )
+      //   .AndWhereEqual(
+      //     'codeHdong',
+      //     'hdongCode',
+      //     codeHdongListDto.hdongCode,
+      //     codeHdongListDto.exclude('hdongCode'),
+      //   )
+      .getMany();
+
+    return qb;
+  }
+
+  /**
+   * find all
+   * @param codeHdongListDto
+   */
+  async findAllDongs(codeHdongListDto: CodeHdongListDto): Promise<CodeHdong[]> {
+    const qb = this.codeHdongRepo
+      .createQueryBuilder('codeHdong')
+      //   .AndWhereLike(
+      //     'codeHdong',
+      //     'guName',
+      //     codeHdongListDto.guName,
+      //     codeHdongListDto.exclude('guName'),
+      //   )
+      .where('codeHdong.guName IS NOT NULL')
+      .where('codeHdong.hdongName IS NOT NULL')
+      .AndWhereLike(
+        'codeHdong',
+        'guName',
+        codeHdongListDto.guName,
+        codeHdongListDto.exclude('guName'),
+      )
+      .groupBy('codeHdong.hdongName')
+      //   .AndWhereLike(
+      //     'codeHdong',
+      //     'hdongName',
+      //     codeHdongListDto.hdongName,
+      //     codeHdongListDto.exclude('hdongName'),
+      //   )
+      //   .AndWhereEqual(
+      //     'codeHdong',
+      //     'hdongCode',
+      //     codeHdongListDto.hdongCode,
+      //     codeHdongListDto.exclude('hdongCode'),
+      //   )
+      .getMany();
+
+    return qb;
   }
 }

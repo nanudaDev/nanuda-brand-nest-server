@@ -9,3 +9,4 @@ export * from './filter';
 export * from './interceptors';
 export * from './base-user.entity';
 export * from './guards';
+export * from './base-platform.entity';

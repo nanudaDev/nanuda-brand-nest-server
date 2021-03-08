@@ -14,6 +14,8 @@ import {
   QuestionModule,
   FaqModule,
   LocationAnalysisModule,
+  MenuAnalysisModule,
+  CodeHdongModule,
 } from './modules';
 const env = process.env;
 @Module({
@@ -42,12 +44,34 @@ const env = process.env;
       //   Do not turn to true!!!! 나누다 키친 데이터 다 날라가요 ~ ㅠㅠ
       synchronize: false,
     }),
+    TypeOrmModule.forRoot({
+      name: 'platform',
+      type: 'mysql' as 'mysql',
+      host: env.PLATFORM_DB_HOST,
+      port: Number(env.PLATFORM_DB_PORT),
+      username: env.PLATFORM_DB_USERNAME,
+      password: env.PLATFORM_DB_PASSWORD,
+      database: env.PLATFORM_DB_DATABASE,
+      // won't need to keep alive
+      //   keepConnectionAlive: true,
+      bigNumberStrings: false,
+      supportBigNumbers: false,
+      entities: getMetadataArgsStorage().tables.map(tbl => tbl.target),
+
+      // migrations: [],
+      // cli: {},
+      // subscribers: [],
+      //   Do not turn to true!!!! 나누다 키친 데이터 다 날라가요 ~ ㅠㅠ
+      synchronize: false,
+    }),
     FaqModule,
     AdminModule,
     AuthModule,
     CommonCodeModule,
+    CodeHdongModule,
     QuestionModule,
     LocationAnalysisModule,
+    MenuAnalysisModule,
   ],
   controllers: [],
   providers: [

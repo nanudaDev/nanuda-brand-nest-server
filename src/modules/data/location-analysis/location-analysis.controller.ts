@@ -23,4 +23,15 @@ export class LocationAnalysiController extends BaseController {
       locationAnalysisDto,
     );
   }
+
+  /**
+   * 시간대별 데아터
+   * @param locationAnalysisDto
+   */
+  @Get('/location-analysis/revenue-data-hour')
+  async hourlyData(@Query() locationAnalysisDto: LocationAnalysisDto) {
+    return await this.locationAnalysisService.getBestMenuByTime(
+      locationAnalysisDto,
+    );
+  }
 }

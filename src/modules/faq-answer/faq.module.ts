@@ -9,5 +9,6 @@ import { AdminFaqController } from './admin-faq.controller';
   imports: [TypeOrmModule.forFeature([Faq])],
   controllers: [FaqController, AdminFaqController],
   providers: [FaqService],
+  exports: [FaqService],
 })
 export class FaqModule {}

@@ -1,3 +1,4 @@
+import { YN } from 'src/common';
 import { BaseEntity } from 'src/core';
 import { COMMON_CODE_CATEGORY } from 'src/shared';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
@@ -40,4 +41,12 @@ export class CommonCode extends BaseEntity<CommonCode> {
     type: 'varchar',
   })
   additionalDisplayValue: string;
+
+  @Column({
+    name: 'score_code_yn',
+    type: 'char',
+    length: 1,
+    default: () => YN.NO,
+  })
+  scoreCodeYn: YN;
 }

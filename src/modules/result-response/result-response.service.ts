@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { BaseService, BrandAiException } from 'src/core';
 import { EntityManager, Repository } from 'typeorm';
-import { ResultResponseListDto } from './dto';
+import { AdminResultResponseCreateDto, ResultResponseListDto } from './dto';
 import { ResultResponse } from './result-response.entity';
 
 @Injectable()
@@ -13,6 +13,20 @@ export class ResultResponseService extends BaseService {
     @InjectEntityManager() private readonly entityManager: EntityManager,
   ) {
     super();
+  }
+
+  /**
+   * create for admin
+   * @param adminResultResponseCreateDto
+   */
+  async createForAdmin(
+    adminResultResponseCreateDto: AdminResultResponseCreateDto,
+  ): Promise<ResultResponse> {
+    const responseCode = `${adminResultResponseCreateDto.ageGroup}_${adminResultResponseCreateDto.expGroup}_${adminResultResponseCreateDto.skillGroup}_${adminResultResponseCreateDto.howSkillGroup}_${adminResultResponseCreateDto.revenueRange}`;
+    let newResponse = new ResultResponse(adminResultResponseCreateDto);
+    newResponse.responseCode = responseCode;
+    newResponse = await this.resultResponseRepo.save(newResponse);
+    return newResponse;
   }
 
   /**

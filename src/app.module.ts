@@ -16,6 +16,7 @@ import {
   LocationAnalysisModule,
   MenuAnalysisModule,
   CodeHdongModule,
+  ResultResponseModule,
 } from './modules';
 const env = process.env;
 @Module({
@@ -72,6 +73,7 @@ const env = process.env;
     QuestionModule,
     LocationAnalysisModule,
     MenuAnalysisModule,
+    ResultResponseModule,
   ],
   controllers: [],
   providers: [

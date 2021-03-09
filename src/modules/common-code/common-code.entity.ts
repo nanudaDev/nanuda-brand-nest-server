@@ -1,7 +1,7 @@
 import { YN } from 'src/common';
 import { BaseEntity } from 'src/core';
 import { COMMON_CODE_CATEGORY } from 'src/shared';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity } from 'typeorm';
 
 @Entity({ name: 'common_code' })
 export class CommonCode extends BaseEntity<CommonCode> {

@@ -41,6 +41,6 @@ export class QuestionGiven extends BaseEntity<QuestionGiven> {
   question?: Question;
 
   @OneToOne(type => CommonCode)
-  @JoinColumn({ name: 'value', referencedColumnName: 'value' })
-  scoreCommonCode?: CommonCode;
+  @JoinColumn({ name: 'value', referencedColumnName: 'key' })
+  givenDetails?: CommonCode;
 }

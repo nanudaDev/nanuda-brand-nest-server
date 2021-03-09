@@ -31,4 +31,10 @@ export class AdminQuestionUpdateDto extends BaseDto<AdminQuestionUpdateDto>
   @Expose()
   @IsOptional()
   inUse?: YN;
+
+  @ApiPropertyOptional({ enum: YN })
+  @IsEnum(YN)
+  @Expose()
+  @IsOptional()
+  multipleAnswerYn?: YN;
 }

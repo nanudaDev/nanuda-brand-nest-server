@@ -42,9 +42,16 @@ export class AdminQuestionCreateDto extends BaseDto<AdminQuestionCreateDto>
   @ApiProperty({ enum: YN })
   @IsEnum(YN)
   @Expose()
-  @Default(YN.NO)
+  @Default(YN.YES)
   @IsNotEmpty()
   inUse: YN;
+
+  @ApiProperty({ enum: YN })
+  @IsEnum(YN)
+  @Expose()
+  @Default(YN.NO)
+  @IsNotEmpty()
+  multipleAnswerYn: YN;
 
   @ApiPropertyOptional({ type: [QuestionGivenClass] })
   @ValidateNested()

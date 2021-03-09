@@ -28,10 +28,10 @@ export class QuestionTracker extends BaseMapperEntity<QuestionTracker> {
 
   @Column({
     name: 'given_id',
-    type: 'int',
+    type: 'json',
     nullable: false,
   })
-  givenId: number;
+  givenId: number[];
 
   @Column({
     name: 'unique_session_id',

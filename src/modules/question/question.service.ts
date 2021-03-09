@@ -157,6 +157,7 @@ export class QuestionService extends BaseService {
     const qb = await this.questionRepo
       .createQueryBuilder('question')
       .CustomInnerJoinAndSelect(['commonCode', 'givens'])
+      .innerJoinAndSelect('givens.givenDetails', 'givenDetails')
       .WhereAndOrder(questionQueryDto)
       .getOne();
 
@@ -184,6 +185,7 @@ export class QuestionService extends BaseService {
         const findNextQuestion = await this.questionRepo
           .createQueryBuilder('question')
           .CustomInnerJoinAndSelect(['commonCode', 'givens'])
+          .leftJoinAndSelect('givens.givenDetails', 'givenDetails')
           .where('question.userType = :userType', {
             userType: questionAnsweredDto.userType,
           })
@@ -191,7 +193,6 @@ export class QuestionService extends BaseService {
           .andWhere('question.order = :order', {
             order: answeredQuestion.order + 1,
           })
-          .AndWhereNext(answeredQuestion.id)
           .getOne();
 
         if (!findNextQuestion) {

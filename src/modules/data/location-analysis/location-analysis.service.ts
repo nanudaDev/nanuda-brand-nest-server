@@ -6,7 +6,7 @@ import { LocationAnalysisDto } from './dto';
 import Axios from 'axios';
 
 class LocationResults {
-  results?: any;
+  results?: any | string;
 }
 @Injectable()
 export class LocationAnalysisService extends BaseService {
@@ -20,7 +20,7 @@ export class LocationAnalysisService extends BaseService {
    */
   async getRevenueForLocation(
     locationAnalysisQueryDto?: LocationAnalysisDto,
-  ): Promise<any> {
+  ): Promise<LocationResults> {
     if (
       !locationAnalysisQueryDto.hdongCode &&
       locationAnalysisQueryDto.mediumCategoryCode
@@ -32,9 +32,22 @@ export class LocationAnalysisService extends BaseService {
       params: locationAnalysisQueryDto,
     });
     // throw something when there isnt enough data
-    if (typeof revenueData.data === 'string') {
-      return 'something else';
-    }
+    // if (typeof revenueData.data === 'string') {
+    //   return 'something else';
+    // }
     return revenueData.data;
+  }
+
+  /**
+   * 시간대별 데이터
+   * @param locationAnalysisQueryDto
+   */
+  async getBestMenuByTime(
+    locationAnalysisQueryDto?: LocationAnalysisDto,
+  ): Promise<LocationResults> {
+    const data = await Axios.get(`${this.analysisUrl}location-hour`, {
+      params: { hdongCode: locationAnalysisQueryDto.hdongCode },
+    });
+    return data.data;
   }
 }

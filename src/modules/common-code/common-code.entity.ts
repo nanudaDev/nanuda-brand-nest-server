@@ -33,4 +33,10 @@ export class CommonCode extends BaseEntity<CommonCode> {
     type: 'varchar',
   })
   displayName: string;
+
+  @Column({
+    name: 'additional_display_value',
+    type: 'varchar',
+  })
+  additionalDisplayValue: string;
 }

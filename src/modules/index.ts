@@ -5,3 +5,4 @@ export * from './code-hdong/code-hdong.module';
 export * from './question/question.module';
 export * from './faq-answer/faq.module';
 export * from './data';
+export * from './result-response/result-response.module';

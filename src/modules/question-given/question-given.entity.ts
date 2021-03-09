@@ -3,10 +3,12 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { BaseEntity } from 'src/core';
 import { Question } from '../question/question.entity';
+import { CommonCode } from '../common-code/common-code.entity';
 
 @Entity({ name: 'question_given' })
 export class QuestionGiven extends BaseEntity<QuestionGiven> {
@@ -37,4 +39,8 @@ export class QuestionGiven extends BaseEntity<QuestionGiven> {
   )
   @JoinColumn({ name: 'question_id' })
   question?: Question;
+
+  @OneToOne(type => CommonCode)
+  @JoinColumn({ name: 'value', referencedColumnName: 'value' })
+  scoreCommonCode?: CommonCode;
 }

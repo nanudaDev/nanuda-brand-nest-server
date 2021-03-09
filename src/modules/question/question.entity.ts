@@ -54,6 +54,34 @@ export class Question extends BaseEntity<Question> {
   })
   multipleAnswerYn: YN;
 
+  @Column({
+    name: 'parent_id',
+    type: 'int',
+  })
+  parentId: number;
+
+  @Column({
+    name: 'has_sub_yn',
+    type: 'char',
+    length: 1,
+    default: () => YN.NO,
+  })
+  hasSubYn: YN;
+
+  @Column({
+    name: 'is_sub_yn',
+    type: 'char',
+    length: 1,
+    default: () => YN.NO,
+  })
+  isSubYn: YN;
+
+  @Column({
+    name: 'trigger_ids',
+    type: 'json',
+  })
+  triggerIds?: number[];
+
   @OneToOne(type => CommonCode)
   @JoinColumn({ name: 'user_type', referencedColumnName: 'key' })
   commonCode?: CommonCode;

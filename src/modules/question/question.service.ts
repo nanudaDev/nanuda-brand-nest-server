@@ -4,7 +4,7 @@ import e from 'express';
 import { of } from 'rxjs';
 import { PaginatedRequest, PaginatedResponse, YN } from 'src/common';
 import { BaseService, BrandAiException } from 'src/core';
-import { EntityManager, Repository } from 'typeorm';
+import { EntityManager, QueryBuilder, Repository } from 'typeorm';
 import { QuestionGiven } from '../question-given/question-given.entity';
 import { QuestionTracker } from '../question-tracker/question-tracker.entity';
 import {
@@ -179,10 +179,17 @@ export class QuestionService extends BaseService {
         if (!answeredQuestion) {
           throw new BrandAiException('question.notFound');
         }
+        // too many options
+        if (
+          answeredQuestion.multipleAnswerYn === YN.NO &&
+          questionAnsweredDto.givenId.length > 1
+        ) {
+          throw new BrandAiException('question.tooManyOptions');
+        }
         let newQuestionTracker = new QuestionTracker(questionAnsweredDto);
         newQuestionTracker.userType = answeredQuestion.userType;
         newQuestionTracker = await entityManager.save(newQuestionTracker);
-        const findNextQuestion = await this.questionRepo
+        let findNextQuestion = this.questionRepo
           .createQueryBuilder('question')
           .CustomInnerJoinAndSelect(['commonCode', 'givens'])
           .leftJoinAndSelect('givens.givenDetails', 'givenDetails')
@@ -192,14 +199,38 @@ export class QuestionService extends BaseService {
           .andWhere('question.inUse = :inUse', { inUse: YN.YES })
           .andWhere('question.order = :order', {
             order: answeredQuestion.order + 1,
-          })
-          .getOne();
-
+          });
+        if (answeredQuestion.hasSubYn === YN.YES) {
+          findNextQuestion.andWhere('question.isSubYn = :isSubYn', {
+            isSubYn: YN.YES,
+          });
+          findNextQuestion.andWhere('question.parentId = :parentId', {
+            parentId: answeredQuestion.id,
+          });
+        }
         if (!findNextQuestion) {
           throw new BrandAiException('question.noMoreQuestion');
         }
 
-        return findNextQuestion;
+        const nextQuestion = await findNextQuestion.getMany();
+        // filter sub question
+        nextQuestion.map(question => {
+          if (answeredQuestion.hasSubYn === YN.YES) {
+            if (
+              questionAnsweredDto.givenId &&
+              questionAnsweredDto.givenId.length > 0
+            ) {
+              const doesInclude = question.triggerIds.includes(
+                questionAnsweredDto.givenId[0],
+              );
+              if (!doesInclude) {
+                const index = nextQuestion.indexOf(question);
+                nextQuestion.splice(index, 1);
+              }
+            }
+          }
+        });
+        return nextQuestion[0];
       },
     );
     return answeredQuestion;

@@ -68,7 +68,7 @@ function generateScoreCodeTypeFile(callback) {
       Object.keys(codes).forEach(category => {
         output += `export enum ${category} {\n`;
         codes[category].forEach(value => {
-          output += `  ${value[0]} = '${value[1]}',\n`;
+          output += `  ${value[0]} = ${value[1]},\n`;
         });
         output += `}\n`;
         output += `export const CONST_${category}  = Object.values(${category});\n`;

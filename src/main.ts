@@ -33,7 +33,7 @@ declare const module: any;
 
 async function bootstrap() {
   // only if npm run start:
-  await generate.generate;
+  // await generate.generate;
   // await generate.generateKbCategory;
   if (env === ENVIRONMENT.DEVELOPMENT) {
     console.log('Running in development mode. 개발 모드로 진행중');

@@ -1,4 +1,5 @@
 import { BaseEntity } from 'src/core';
+import { COMMON_CODE_CATEGORY } from 'src/shared';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'common_code' })
@@ -20,7 +21,7 @@ export class CommonCode extends BaseEntity<CommonCode> {
     type: 'varchar',
     nullable: false,
   })
-  category: string;
+  category: COMMON_CODE_CATEGORY | string;
 
   @Column({
     type: 'varchar',

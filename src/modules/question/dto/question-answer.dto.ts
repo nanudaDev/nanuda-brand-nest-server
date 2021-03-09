@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsEAN, IsEnum, IsIP, IsNotEmpty } from 'class-validator';
+import { IsArray, IsEAN, IsEnum, IsIP, IsNotEmpty } from 'class-validator';
 import { Default, YN } from 'src/common';
 import { BaseDto } from 'src/core';
 import { QuestionTracker } from 'src/modules/question-tracker/question-tracker.entity';
@@ -13,10 +13,11 @@ export class QuestionAnsweredDto extends BaseDto<QuestionAnsweredDto>
   @Expose()
   questionId: number;
 
-  @ApiProperty()
+  @ApiProperty({ type: Number, isArray: true })
+  @IsArray()
   @IsNotEmpty()
   @Expose()
-  givenId: number;
+  givenId: number[];
 
   @ApiProperty()
   @IsNotEmpty()

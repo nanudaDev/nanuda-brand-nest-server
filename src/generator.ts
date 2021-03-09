@@ -185,16 +185,16 @@ const generate = (async () => {
     database: process.env.DB_DATABASE,
   });
 
-  // generateCommonCodeTypeFile(() => {
-  //   // if (connection) connection.end();
-  //   // process.exit();
-  // });
+  generateCommonCodeTypeFile(() => {
+    // if (connection) connection.end();
+    // process.exit();
+  });
 
-  generateScoreCodeTypeFile(() => {});
+  // generateScoreCodeTypeFile(() => {});
 
-  // generateCommonCodeCategoryFile(() => {
-  //   if (connection) connection.end();
-  // });
+  // // generateCommonCodeCategoryFile(() => {
+  // //   if (connection) connection.end();
+  // // });
 })();
 
 const generateKbCategory = (async () => {

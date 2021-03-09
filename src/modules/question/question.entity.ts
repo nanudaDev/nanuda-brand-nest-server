@@ -46,6 +46,14 @@ export class Question extends BaseEntity<Question> {
   })
   inUse: YN;
 
+  @Column({
+    name: 'multiple_answer_yn',
+    type: 'char',
+    length: 1,
+    default: () => YN.NO,
+  })
+  multipleAnswerYn: YN;
+
   @OneToOne(type => CommonCode)
   @JoinColumn({ name: 'user_type', referencedColumnName: 'key' })
   commonCode?: CommonCode;

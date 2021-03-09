@@ -42,7 +42,10 @@ export class CodeHdongService extends BaseService {
       //     codeHdongListDto.exclude('guName'),
       //   )
       .where('codeHdong.guName IS NOT NULL')
-      .where('codeHdong.hdongName IS NOT NULL')
+      .andWhere('codeHdong.hdongName IS NOT NULL')
+      .andWhere('codeHdong.sidoName = :sidoName', {
+        sidoName: codeHdongListDto.sidoName,
+      })
       .AndWhereLike(
         'codeHdong',
         'sidoName',
@@ -81,7 +84,10 @@ export class CodeHdongService extends BaseService {
       //     codeHdongListDto.exclude('guName'),
       //   )
       .where('codeHdong.guName IS NOT NULL')
-      .where('codeHdong.hdongName IS NOT NULL')
+      .andWhere('codeHdong.hdongName IS NOT NULL')
+      .andWhere('codeHdong.sidoName = :sidoName', {
+        sidoName: codeHdongListDto.sidoName,
+      })
       .AndWhereLike(
         'codeHdong',
         'guName',

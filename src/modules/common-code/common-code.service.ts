@@ -127,6 +127,12 @@ export class CommonCodeService extends BaseService {
         commonCodeListDto.category,
         commonCodeListDto.exclude('category'),
       )
+      .AndWhereLike(
+        'commonCode',
+        'additionalDisplayValue',
+        commonCodeListDto.additionalDisplayValue,
+        commonCodeListDto.exclude('additionalDisplayValue'),
+      )
       .WhereAndOrder(commonCodeListDto)
       .getMany();
 

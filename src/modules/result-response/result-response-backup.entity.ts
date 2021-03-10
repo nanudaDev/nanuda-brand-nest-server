@@ -1,3 +1,4 @@
+import { YN } from 'src/common';
 import { BaseEntity } from 'src/core';
 import {
   AGE_GROUP,
@@ -11,18 +12,12 @@ import {
 } from 'src/shared';
 import { Column, Entity } from 'typeorm';
 
-@Entity({ name: 'result_response' })
-export class ResultResponse extends BaseEntity<ResultResponse> {
+@Entity({ name: 'result_response_backup' })
+export class ResultResponseBackup extends BaseEntity<ResultResponseBackup> {
   @Column({
     type: 'text',
   })
   response: string;
-
-  @Column({
-    name: 'response_code',
-    type: 'varchar',
-  })
-  responseCode?: string;
 
   @Column({
     name: 'fnb_owner_status',
@@ -34,41 +29,48 @@ export class ResultResponse extends BaseEntity<ResultResponse> {
     name: 'age_group',
     type: 'varchar',
   })
-  ageGroup: AGE_GROUP | string;
+  ageGroup: AGE_GROUP;
 
   @Column({
     name: 'exp_group',
     type: 'varchar',
   })
-  expGroup: EXP_GROUP | string;
+  expGroup: EXP_GROUP;
 
   @Column({
     name: 'skill_group',
     type: 'varchar',
   })
-  skillGroup: SKILL_GROUP | string;
+  skillGroup: SKILL_GROUP;
 
   @Column({
     name: 'how_skill_group',
     type: 'varchar',
   })
-  howSkillGroup: HOW_SKILL | string;
+  howSkillGroup: HOW_SKILL;
 
   @Column({
     name: 'how_operate_group',
     type: 'varchar',
   })
-  howOperateGroup: HOW_OPERATE | string;
+  howOperateGroup: HOW_OPERATE;
 
   @Column({
     name: 'tentative_open_group',
     type: 'varchar',
   })
-  tentativeOpenGroup: TENTATIVE_OPEN_OPTION | string;
+  tentativeOpenGroup: TENTATIVE_OPEN_OPTION;
 
   @Column({
     name: 'revenue_range',
     type: 'varchar',
   })
-  revenueRange: REVENUE_RANGE | string;
+  revenueRange: REVENUE_RANGE;
+
+  @Column({
+    name: 'is_transferred_yn',
+    type: 'char',
+    default: () => YN.NO,
+  })
+  isTransferredYn: YN;
 }

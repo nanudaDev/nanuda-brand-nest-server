@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthRolesGuard, BaseController } from 'src/core';
 import { CONST_ADMIN_ROLES } from 'src/shared';
@@ -26,5 +26,13 @@ export class AdminResultResponseController extends BaseController {
     return await this.resultResponseService.createForAdmin(
       adminResultResponseCreateDto,
     );
+  }
+
+  /**
+   * test transfer
+   */
+  @Get('/admin/backup-transfer')
+  async transferData() {
+    return await this.resultResponseService.transferToProductionFile();
   }
 }

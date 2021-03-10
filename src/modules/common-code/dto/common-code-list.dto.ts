@@ -24,6 +24,11 @@ export class CommonCodeListDto extends BaseDto<CommonCodeListDto>
   @IsEnum(COMMON_CODE_CATEGORY)
   category?: COMMON_CODE_CATEGORY;
 
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Expose()
+  additionalDisplayValue?: string;
+
   @ApiPropertyOptional({ enum: ORDER_BY_VALUE })
   @IsEnum(ORDER_BY_VALUE)
   @Expose()

@@ -1,4 +1,5 @@
 export * from './admin/admin.module';
+export * from './aggregate-result-response/aggregate-result-resource.module';
 export * from './auth/auth.module';
 export * from './common-code/common-code.module';
 export * from './code-hdong/code-hdong.module';

@@ -9,35 +9,38 @@ import {
   TENTATIVE_OPEN_OPTION,
 } from 'src/shared';
 
-class ScoreCard extends BaseDto<ScoreCard>
-  implements Partial<AggregateResultResponse> {
-  deliveryRatioGrade: number;
-  ageGroupGrade: number;
-  isReadyGrade?: number;
-  fnbOwnerStatus: FNB_OWNER;
-  revenueRangeGrade?: number;
-}
+class ScoreCard extends AggregateResultResponse {}
 
 /**
  * convert questions to score card
  * @param dto
  */
-export const ScoreConversionUtil = (dto: AggregateResultResponseQueryDto) => {
-  const scoreCard = new ScoreCard(dto);
+export const ScoreConversionUtil = (
+  dto: AggregateResultResponseQueryDto,
+): ScoreCard => {
+  console.log(dto);
+  let scoreCard = new ScoreCard(dto);
   // age group grade
-  if (dto.ageGroupCode === AGE_GROUP.AGE_20 || AGE_GROUP.AGE_30) {
+  console.log(scoreCard);
+  if (scoreCard.ageGroupCode === AGE_GROUP.AGE_20 || AGE_GROUP.AGE_30) {
     scoreCard.ageGroupGrade = 1;
+  } else if (
+    scoreCard.ageGroupCode === AGE_GROUP.AGE_40 ||
+    AGE_GROUP.AGE_50 ||
+    AGE_GROUP.AGE_60_OVER
+  ) {
+    scoreCard.ageGroupGrade = 2;
   }
   // revenue grade
   if (
-    (dto.revenueRangeCode &&
-      dto.revenueRangeCode === REVENUE_RANGE.ABOVE_FIVE_THOUSAND) ||
+    (scoreCard.revenueRangeCode &&
+      scoreCard.revenueRangeCode === REVENUE_RANGE.ABOVE_FIVE_THOUSAND) ||
     REVENUE_RANGE.BETWEEN_THREE_AND_FIVE
   ) {
     scoreCard.revenueRangeGrade = 1;
   } else if (
-    (dto.revenueRangeCode &&
-      dto.revenueRangeCode !== REVENUE_RANGE.ABOVE_FIVE_THOUSAND) ||
+    (scoreCard.revenueRangeCode &&
+      scoreCard.revenueRangeCode !== REVENUE_RANGE.ABOVE_FIVE_THOUSAND) ||
     REVENUE_RANGE.BETWEEN_THREE_AND_FIVE
   ) {
     scoreCard.revenueRangeGrade = 2;
@@ -47,29 +50,28 @@ export const ScoreConversionUtil = (dto: AggregateResultResponseQueryDto) => {
 
   // delivery restaurant grade
 
-  if (dto.deliveryRatioCode === DELIVERY_OR_RESTAURANT.DELIVERY_SPACE_BEST) {
-    scoreCard.deliveryRatioGrade = 1;
-  } else if (
-    dto.deliveryRatioCode ===
-    DELIVERY_OR_RESTAURANT.DELIVERY_SPACE_EQUAL_RESTAURANT
-  ) {
-    scoreCard.deliveryRatioGrade = 2;
-  } else {
-    scoreCard.deliveryRatioGrade = 3;
-  }
+  // if (dto.deliveryRatioCode === DELIVERY_OR_RESTAURANT.DELIVERY_SPACE_BEST) {
+  //   scoreCard.deliveryRatioGrade = 1;
+  // } else if (
+  //   dto.deliveryRatioCode ===
+  //   DELIVERY_OR_RESTAURANT.DELIVERY_SPACE_EQUAL_RESTAURANT
+  // ) {
+  //   scoreCard.deliveryRatioGrade = 2;
+  // } else {
+  //   scoreCard.deliveryRatioGrade = 3;
+  // }
 
   if (
-    dto.fnbOwnerStatus === FNB_OWNER.NEW_FNB_OWNER &&
-    dto.isReadyCode === TENTATIVE_OPEN_OPTION.PREP_PROCESSING
+    scoreCard.fnbOwnerStatus === FNB_OWNER.NEW_FNB_OWNER &&
+    scoreCard.isReadyCode === TENTATIVE_OPEN_OPTION.PREP_PROCESSING
   ) {
     scoreCard.isReadyGrade = 1;
   } else if (
-    dto.fnbOwnerStatus === FNB_OWNER.NEW_FNB_OWNER &&
-    dto.isReadyCode !== TENTATIVE_OPEN_OPTION.PREP_PROCESSING
+    scoreCard.fnbOwnerStatus === FNB_OWNER.NEW_FNB_OWNER &&
+    scoreCard.isReadyCode !== TENTATIVE_OPEN_OPTION.PREP_PROCESSING
   ) {
     scoreCard.isReadyGrade = 2;
   }
 
-  console.log(scoreCard);
   return scoreCard;
 };

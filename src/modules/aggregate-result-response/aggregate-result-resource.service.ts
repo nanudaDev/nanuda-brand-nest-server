@@ -1,23 +1,89 @@
 import { Injectable } from '@nestjs/common';
 import { CompressionTypes } from '@nestjs/common/interfaces/external/kafka-options.interface';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
+import Axios from 'axios';
+import { Console } from 'console';
 import { of } from 'rxjs';
-import { BaseService } from 'src/core';
-import { EntityManager, Repository } from 'typeorm';
+import { DeliverySpaceConversion, ScoreConversionUtil } from 'src/common/utils';
+import { BaseDto, BaseService } from 'src/core';
+import { KB_MEDIUM_CATEGORY } from 'src/shared';
+import { EntityManager, getConnection, Repository } from 'typeorm';
+import { CommonCode } from '../common-code/common-code.entity';
+import { LocationAnalysisService } from '../data/location-analysis/location-analysis.service';
 import { AggregateResultResponseBackup } from './aggregate-result-response-backup.entity';
 import { AggregateResultResponse } from './aggregate-result-response.entity';
+import { AggregateResultResponseQueryDto } from './dto';
 
+class DeliveryRestaurantRatioClass extends BaseDto<
+  DeliveryRestaurantRatioClass
+> {
+  deliveryRatio: number;
+  deliveryRevenue: number;
+  mediumCategoryName: string;
+  offlineRatio: number;
+  offlineRevenue: number;
+}
 @Injectable()
 export class AggregateResultResponseService extends BaseService {
   constructor(
     @InjectRepository(AggregateResultResponse)
     private readonly responseRepo: Repository<AggregateResultResponse>,
     @InjectEntityManager() private readonly entityManager: EntityManager,
+    private readonly locationAnalysisService: LocationAnalysisService,
   ) {
     super();
   }
 
-  async findResponseForQuestions() {}
+  /**
+   * find question
+   * @param aggregateQuestionQuery
+   */
+  async findResponseForQuestions(
+    aggregateQuestionQuery?: AggregateResultResponseQueryDto,
+  ) {
+    // get for each time slot
+    const forEachTimeSlot = await Axios.get(
+      `${this.analysisUrl}location-hour`,
+      {
+        params: { hdongCode: aggregateQuestionQuery.hdongCode },
+      },
+    );
+    console.log(aggregateQuestionQuery.operationTimes);
+    console.log(forEachTimeSlot);
+    const deliveryRatioData = await this.locationAnalysisService.locationInfoDetail(
+      aggregateQuestionQuery.hdongCode,
+    );
+
+    const deliveryRatioGradeFilteredByCategory = new DeliveryRestaurantRatioClass(
+      deliveryRatioData[aggregateQuestionQuery.kbFoodCategory],
+    );
+    if (!deliveryRatioGradeFilteredByCategory.deliveryRatio) {
+      deliveryRatioData.deliveryRatio = 0;
+    }
+    const deliveryRatioGrade = DeliverySpaceConversion(
+      deliveryRatioGradeFilteredByCategory.deliveryRatio,
+    );
+    const scoreCard = ScoreConversionUtil(aggregateQuestionQuery);
+    scoreCard.deliveryRatioGrade = deliveryRatioGrade;
+    const response = await this.responseRepo
+      .createQueryBuilder('response')
+      .AndWhereEqual('response', 'ageGroupGrade', scoreCard.ageGroupGrade, null)
+      .AndWhereEqual(
+        'response',
+        'revenueRangeGrade',
+        scoreCard.revenueRangeGrade,
+        null,
+      )
+      .AndWhereEqual(
+        'response',
+        'deliveryRatioGrade',
+        scoreCard.deliveryRatioGrade,
+        null,
+      )
+      .AndWhereEqual('response', 'isReadyGrade', scoreCard.isReadyGrade, null)
+      .AndWhereLike('response', 'fnbOwnerStatus', scoreCard.fnbOwnerStatus)
+      .getOne();
+  }
 
   /**
    * transfer data

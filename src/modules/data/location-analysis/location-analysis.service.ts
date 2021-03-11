@@ -53,10 +53,11 @@ export class LocationAnalysisService extends BaseService {
 
   /**
    * data for location infor detail
+   * 비중
    * @param hdongCode
    */
   async locationInfoDetail(hdongCode: string) {
-    const data = await Axios.get(`${this.analysisUrl}location-info-revenue`, {
+    const data = await Axios.get(`${this.analysisUrl}location-info-detail`, {
       params: { hdongCode: hdongCode },
     });
     console.log(data.data);

@@ -18,6 +18,7 @@ import {
   MenuAnalysisModule,
   CodeHdongModule,
   ResultResponseModule,
+  AggregateResultResponseModule,
 } from './modules';
 const env = process.env;
 @Module({
@@ -69,6 +70,7 @@ const env = process.env;
     }),
     FaqModule,
     AdminModule,
+    AggregateResultResponseModule,
     AuthModule,
     CommonCodeModule,
     CodeHdongModule,

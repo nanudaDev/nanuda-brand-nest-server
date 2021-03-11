@@ -1,6 +1,7 @@
 import { BaseEntity } from 'src/core';
-import { FNB_OWNER } from 'src/shared';
+import { AGE_GROUP, FNB_OWNER, REVENUE_RANGE } from 'src/shared';
 import { Column, Entity } from 'typeorm';
+import { OperationSentenceResponse } from './operation-sentence-response.entity';
 
 @Entity({ name: 'aggregate_result_response' })
 export class AggregateResultResponse extends BaseEntity<
@@ -34,13 +35,13 @@ export class AggregateResultResponse extends BaseEntity<
     name: 'age_group_code',
     type: 'varchar',
   })
-  ageGroupCode: number;
+  ageGroupCode: AGE_GROUP;
 
   @Column({
     name: 'revenue_range_code',
     type: 'varchar',
   })
-  revenueRangeCode: number;
+  revenueRangeCode: REVENUE_RANGE;
 
   @Column({
     name: 'revenue_range_grade',
@@ -70,4 +71,7 @@ export class AggregateResultResponse extends BaseEntity<
     type: 'varchar',
   })
   fnbOwnerStatus: FNB_OWNER;
+
+  // 운영 전략 문장
+  operationSentence?: OperationSentenceResponse;
 }

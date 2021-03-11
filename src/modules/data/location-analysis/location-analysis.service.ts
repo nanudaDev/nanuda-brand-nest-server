@@ -50,4 +50,16 @@ export class LocationAnalysisService extends BaseService {
     });
     return data.data;
   }
+
+  /**
+   * data for location infor detail
+   * @param hdongCode
+   */
+  async locationInfoDetail(hdongCode: string) {
+    const data = await Axios.get(`${this.analysisUrl}location-info-revenue`, {
+      params: { hdongCode: hdongCode },
+    });
+    console.log(data.data);
+    return data.data;
+  }
 }

@@ -21,27 +21,29 @@ export const ScoreConversionUtil = (
   console.log(dto);
   let scoreCard = new ScoreCard(dto);
   // age group grade
-  console.log(scoreCard);
-  if (scoreCard.ageGroupCode === AGE_GROUP.AGE_20 || AGE_GROUP.AGE_30) {
+  if (
+    scoreCard.ageGroupCode === AGE_GROUP.AGE_20 ||
+    scoreCard.ageGroupCode === AGE_GROUP.AGE_30
+  ) {
     scoreCard.ageGroupGrade = 1;
   } else if (
     scoreCard.ageGroupCode === AGE_GROUP.AGE_40 ||
-    AGE_GROUP.AGE_50 ||
-    AGE_GROUP.AGE_60_OVER
+    scoreCard.ageGroupCode === AGE_GROUP.AGE_50 ||
+    scoreCard.ageGroupCode === AGE_GROUP.AGE_60_OVER
   ) {
+    console.log('age 40');
     scoreCard.ageGroupGrade = 2;
   }
   // revenue grade
   if (
     (scoreCard.revenueRangeCode &&
       scoreCard.revenueRangeCode === REVENUE_RANGE.ABOVE_FIVE_THOUSAND) ||
-    REVENUE_RANGE.BETWEEN_THREE_AND_FIVE
+    scoreCard.revenueRangeCode === REVENUE_RANGE.BETWEEN_THREE_AND_FIVE
   ) {
     scoreCard.revenueRangeGrade = 1;
   } else if (
-    (scoreCard.revenueRangeCode &&
-      scoreCard.revenueRangeCode !== REVENUE_RANGE.ABOVE_FIVE_THOUSAND) ||
-    REVENUE_RANGE.BETWEEN_THREE_AND_FIVE
+    scoreCard.revenueRangeCode &&
+    scoreCard.revenueRangeCode !== REVENUE_RANGE.ABOVE_FIVE_THOUSAND
   ) {
     scoreCard.revenueRangeGrade = 2;
   } else {

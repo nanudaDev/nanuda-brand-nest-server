@@ -1,10 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import {
+  IsArray,
   IsEnum,
   IsNotEmpty,
   IsOptional,
   IsPhoneNumber,
+  Min,
   MinLength,
 } from 'class-validator';
 import { Default } from 'src/common';
@@ -14,6 +16,7 @@ import {
   DELIVERY_OR_RESTAURANT,
   FNB_OWNER,
   KB_MEDIUM_CATEGORY,
+  OPERATION_TIME,
   REVENUE_RANGE,
   TENTATIVE_OPEN_OPTION,
 } from 'src/shared';
@@ -27,6 +30,11 @@ export class AggregateResultResponseQueryDto
   // @Expose()
   // @IsEnum(DELIVERY_OR_RESTAURANT)
   // deliveryRatioCode: DELIVERY_OR_RESTAURANT;
+
+  @ApiProperty({ enum: OPERATION_TIME, type: [OPERATION_TIME] })
+  @IsArray()
+  @Expose()
+  operationTimes?: OPERATION_TIME[];
 
   @ApiProperty({ enum: AGE_GROUP })
   @IsNotEmpty()

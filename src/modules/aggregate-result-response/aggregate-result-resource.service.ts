@@ -49,7 +49,6 @@ export class AggregateResultResponseService extends BaseService {
       },
     );
     console.log(aggregateQuestionQuery.operationTimes);
-    console.log(forEachTimeSlot);
     const deliveryRatioData = await this.locationAnalysisService.locationInfoDetail(
       aggregateQuestionQuery.hdongCode,
     );
@@ -83,6 +82,8 @@ export class AggregateResultResponseService extends BaseService {
       .AndWhereEqual('response', 'isReadyGrade', scoreCard.isReadyGrade, null)
       .AndWhereLike('response', 'fnbOwnerStatus', scoreCard.fnbOwnerStatus)
       .getOne();
+
+    return response;
   }
 
   /**

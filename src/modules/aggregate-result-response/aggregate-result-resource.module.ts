@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConsultResult } from '../consult-record/consult-record.entity';
+import { ConsultResult } from '../consult-result/consult-result.entity';
 import { LocationAnalysisModule } from '../data';
 import { AggregateResultResponseController } from './aggregate-result-resource.controller';
 import { AggregateResultResponseService } from './aggregate-result-resource.service';
@@ -18,6 +18,6 @@ import { AggregateResultResponse } from './aggregate-result-response.entity';
   ],
   controllers: [AggregateResultResponseController],
   providers: [AggregateResultResponseService],
-  exports: [],
+  exports: [AggregateResultResponseService],
 })
 export class AggregateResultResponseModule {}

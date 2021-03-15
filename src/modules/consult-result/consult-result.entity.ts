@@ -1,4 +1,4 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { BaseEntity } from 'src/core';
 import {
   AGE_GROUP,
@@ -7,7 +7,9 @@ import {
   KB_MEDIUM_CATEGORY,
   OPERATION_TIME,
   REVENUE_RANGE,
+  TENTATIVE_OPEN_OPTION,
 } from 'src/shared';
+import { CommonCode } from '../common-code/common-code.entity';
 
 @Entity({ name: 'consult_result' })
 export class ConsultResult extends BaseEntity<ConsultResult> {
@@ -64,7 +66,7 @@ export class ConsultResult extends BaseEntity<ConsultResult> {
     name: 'is_ready_code',
     type: 'varchar',
   })
-  isReadyCode: string;
+  isReadyCode: TENTATIVE_OPEN_OPTION;
 
   @Column({
     name: 'is_ready_grade',
@@ -101,4 +103,16 @@ export class ConsultResult extends BaseEntity<ConsultResult> {
     type: 'int',
   })
   operationSentenceId: number;
+
+  @OneToOne(type => CommonCode)
+  @JoinColumn({ name: 'fnb_owner_status', referencedColumnName: 'key' })
+  fnbOwnerCodeStatus?: CommonCode;
+
+  @OneToOne(type => CommonCode)
+  @JoinColumn({ name: 'revenue_range_code', referencedColumnName: 'key' })
+  revenueRangeCodeStatus?: CommonCode;
+
+  @OneToOne(type => CommonCode)
+  @JoinColumn({ name: 'age_group_code', referencedColumnName: 'key' })
+  ageGroupCodeStatus?: CommonCode;
 }

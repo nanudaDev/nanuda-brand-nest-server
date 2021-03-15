@@ -54,13 +54,15 @@ export class AggregateResultResponseService extends BaseService {
       aggregateQuestionQuery.hdongCode,
     );
     const responseArray = [];
-    const questionResponse = await this.entityManager.transaction(
-      async entityManager => {
-        await Promise.all(
-          aggregateQuestionQuery.operationTimes.map(async times => {}),
-        );
-      },
-    );
+    // const questionResponse = await this.entityManager.transaction(
+    //   async entityManager => {
+    //     await Promise.all(
+    //       aggregateQuestionQuery.operationTimes.map(async times => {
+
+    //       }),
+    //     );
+    //   },
+    // );
     // get for each time slot
     const forEachTimeSlot = await Axios.get(
       `${this.analysisUrl}location-hour-small-category`,

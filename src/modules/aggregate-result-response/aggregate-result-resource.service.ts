@@ -9,6 +9,7 @@ import { BaseDto, BaseService } from 'src/core';
 import { KB_MEDIUM_CATEGORY } from 'src/shared';
 import { EntityManager, getConnection, Repository } from 'typeorm';
 import { CommonCode } from '../common-code/common-code.entity';
+import { ConsultResult } from '../consult-record/consult-record.entity';
 import { LocationAnalysisService } from '../data/location-analysis/location-analysis.service';
 import { AggregateResultResponseBackup } from './aggregate-result-response-backup.entity';
 import { AggregateResultResponse } from './aggregate-result-response.entity';
@@ -23,11 +24,18 @@ class DeliveryRestaurantRatioClass extends BaseDto<
   offlineRatio: number;
   offlineRevenue: number;
 }
+
+// class ResponseArrayClass extends BaseDto<ResponseArrayClass> {
+//   BREAKFAST
+// }
+
 @Injectable()
 export class AggregateResultResponseService extends BaseService {
   constructor(
     @InjectRepository(AggregateResultResponse)
     private readonly responseRepo: Repository<AggregateResultResponse>,
+    @InjectRepository(ConsultResult)
+    private readonly consultResultRepo: Repository<ConsultResult>,
     @InjectEntityManager() private readonly entityManager: EntityManager,
     private readonly locationAnalysisService: LocationAnalysisService,
   ) {
@@ -41,16 +49,24 @@ export class AggregateResultResponseService extends BaseService {
   async findResponseForQuestions(
     aggregateQuestionQuery?: AggregateResultResponseQueryDto,
   ) {
+    // 상권 관련 배달 - 홀 비중
+    const deliveryRatioData = await this.locationAnalysisService.locationInfoDetail(
+      aggregateQuestionQuery.hdongCode,
+    );
+    const responseArray = [];
+    const questionResponse = await this.entityManager.transaction(
+      async entityManager => {
+        await Promise.all(
+          aggregateQuestionQuery.operationTimes.map(async times => {}),
+        );
+      },
+    );
     // get for each time slot
     const forEachTimeSlot = await Axios.get(
-      `${this.analysisUrl}location-hour`,
+      `${this.analysisUrl}location-hour-small-category`,
       {
         params: { hdongCode: aggregateQuestionQuery.hdongCode },
       },
-    );
-    console.log(aggregateQuestionQuery.operationTimes);
-    const deliveryRatioData = await this.locationAnalysisService.locationInfoDetail(
-      aggregateQuestionQuery.hdongCode,
     );
 
     const deliveryRatioGradeFilteredByCategory = new DeliveryRestaurantRatioClass(
@@ -83,7 +99,9 @@ export class AggregateResultResponseService extends BaseService {
       .AndWhereLike('response', 'fnbOwnerStatus', scoreCard.fnbOwnerStatus)
       .getOne();
 
-    return response;
+    // save to consult table
+
+    return forEachTimeSlot.data;
   }
 
   /**

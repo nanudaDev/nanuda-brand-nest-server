@@ -2,7 +2,7 @@ import { BaseEntity } from 'src/core';
 import { FNB_OWNER } from 'src/shared';
 import { Column, Entity } from 'typeorm';
 
-@Entity({ name: 'operation_sentence_response' })
+@Entity({ name: 'operating_sentence_response' })
 export class OperationSentenceResponse extends BaseEntity<
   OperationSentenceResponse
 > {

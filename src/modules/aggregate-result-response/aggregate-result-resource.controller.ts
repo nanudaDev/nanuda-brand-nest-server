@@ -17,9 +17,9 @@ export class AggregateResultResponseController extends BaseController {
    * find question and register
    * @param aggregateQuestionQuery
    */
-  @Get('/aggregate-result-response')
+  @Post('/aggregate-result-response')
   async findAggregateResponse(
-    @Query() aggregateQuestionQuery: AggregateResultResponseQueryDto,
+    @Body() aggregateQuestionQuery: AggregateResultResponseQueryDto,
   ) {
     return await this.aggregateResultResponseService.findResponseForQuestions(
       aggregateQuestionQuery,

@@ -1,6 +1,8 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import {
+  ArrayMinSize,
+  arrayMinSize,
   IsArray,
   IsEnum,
   IsNotEmpty,
@@ -8,6 +10,7 @@ import {
   IsPhoneNumber,
   Min,
   MinLength,
+  ValidateNested,
 } from 'class-validator';
 import { Default } from 'src/common';
 import { BaseDto } from 'src/core';
@@ -21,6 +24,19 @@ import {
   TENTATIVE_OPEN_OPTION,
 } from 'src/shared';
 import { AggregateResultResponse } from '../aggregate-result-response.entity';
+
+export class QuestionGivenArrayClass extends BaseDto<QuestionGivenArrayClass> {
+  @ApiProperty()
+  @IsNotEmpty()
+  @Expose()
+  questionId: number;
+
+  @ApiProperty({ type: Number, isArray: true })
+  @IsArray()
+  @IsNotEmpty()
+  @Expose()
+  givenId: number[];
+}
 
 export class AggregateResultResponseQueryDto
   extends BaseDto<AggregateResultResponseQueryDto>
@@ -76,6 +92,13 @@ export class AggregateResultResponseQueryDto
   @Expose()
   @Default(KB_MEDIUM_CATEGORY.F01)
   kbFoodCategory?: KB_MEDIUM_CATEGORY;
+
+  @ApiProperty({ type: [QuestionGivenArrayClass], isArray: true })
+  @IsArray()
+  @ValidateNested()
+  @Type(() => QuestionGivenArrayClass)
+  @Expose()
+  questionGivenArray: QuestionGivenArrayClass[];
 
   // @ApiProperty()
   // @IsNotEmpty()

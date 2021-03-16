@@ -59,15 +59,25 @@ export class AggregateResultResponseService extends BaseService {
     const deliveryRatioData = await this.locationAnalysisService.locationInfoDetail(
       aggregateQuestionQuery.hdongCode,
     );
-    const deliveryRatioGradeFilteredByCategory = new DeliveryRestaurantRatioClass(
-      deliveryRatioData[aggregateQuestionQuery.kbFoodCategory],
-    );
-    if (!deliveryRatioGradeFilteredByCategory.deliveryRatio) {
-      deliveryRatioData.deliveryRatio = 0;
-    }
-    const deliveryRatioGrade = DeliverySpaceConversion(
-      deliveryRatioGradeFilteredByCategory.deliveryRatio,
-    );
+    const averageRatioArray: number[] = [];
+    Object.keys(deliveryRatioData).forEach(function(key) {
+      if (deliveryRatioData[key].deliveryRatio === null) {
+        deliveryRatioData[key].deliveryRatio = 0;
+      }
+      averageRatioArray.push(deliveryRatioData[key].deliveryRatio);
+    });
+    console.log(averageRatioArray);
+    const average =
+      averageRatioArray.reduce((prev, curr) => prev + curr) /
+      averageRatioArray.length;
+    console.log(average);
+    // const deliveryRatioGradeFilteredByCategory = new DeliveryRestaurantRatioClass(
+    //   deliveryRatioData[aggregateQuestionQuery.kbFoodCategory],
+    // );
+    // if (!deliveryRatioGradeFilteredByCategory.deliveryRatio) {
+    //   deliveryRatioData.deliveryRatio = 0;
+    // }
+    const deliveryRatioGrade = DeliverySpaceConversion(average);
     const scoreCard = ScoreConversionUtil(aggregateQuestionQuery);
     scoreCard.deliveryRatioGrade = deliveryRatioGrade.grade;
     // get for each time slot
@@ -95,7 +105,6 @@ export class AggregateResultResponseService extends BaseService {
       .AndWhereEqual('response', 'isReadyGrade', scoreCard.isReadyGrade, null)
       .AndWhereLike('response', 'fnbOwnerStatus', scoreCard.fnbOwnerStatus)
       .getOne();
-    console.log(response);
     const responseArray = [];
     await this.entityManager.transaction(async entityManager => {
       await Promise.all(
@@ -179,6 +188,32 @@ export class AggregateResultResponseService extends BaseService {
     // // save to consult table
 
     return responseArray;
+  }
+
+  /**
+   * aggregate question
+   * @param aggregateQuestionQuery
+   */
+  async findResponse(aggregateQuestionQuery?: AggregateResultResponseQueryDto) {
+    const responseArray: ResponseArrayClass[] = [];
+    // 시간대별로 데이터 호출
+    const forEachTimeSlot = await Axios.get(
+      `${this.analysisUrl}location-hour-medium-small-category`,
+      {
+        params: { hdongCode: aggregateQuestionQuery.hdongCode },
+      },
+    );
+    const deliveryRatioData = await this.locationAnalysisService.locationInfoDetail(
+      aggregateQuestionQuery.hdongCode,
+    );
+    await Promise.all(
+      aggregateQuestionQuery.operationTimes.map(async time => {
+        if (time === OPERATION_TIME.BREAKFAST) {
+        }
+      }),
+    );
+
+    return forEachTimeSlot.data;
   }
 
   /**

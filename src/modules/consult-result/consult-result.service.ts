@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { PaginatedRequest, PaginatedResponse } from 'src/common';
-import { BaseService } from 'src/core';
+import { BaseService, BrandAiException } from 'src/core';
 import { EntityManager, Repository } from 'typeorm';
+import { ProformaConsultResult } from '../proforma-consult-result/proforma-consult-result.entity';
 import { ConsultResult } from './consult-result.entity';
-import { AdminConsultResultListDto } from './dto';
+import {
+  AdminConsultResultListDto,
+  ConsultResultResponseCreateDto,
+} from './dto';
 
 @Injectable()
 export class ConsultResultService extends BaseService {
@@ -74,5 +78,33 @@ export class ConsultResultService extends BaseService {
     const [items, totalCount] = await qb.getManyAndCount();
 
     return { items, totalCount };
+  }
+
+  /**
+   * create for user
+   * @param consultResultCreateDto
+   */
+  async createForUser(
+    consultResultCreateDto: ConsultResultResponseCreateDto,
+  ): Promise<ConsultResult> {
+    const consult = await this.entityManager.transaction(
+      async entityManager => {
+        // find phone and sms auth code first
+        const proforma = await entityManager
+          .getRepository(ProformaConsultResult)
+          .findOne(consultResultCreateDto.proformaConsultResultId);
+        if (!proforma) {
+          throw new BrandAiException('proforma.notFound');
+        }
+        let newConsult = new ConsultResult();
+        newConsult = newConsult.setNew(proforma);
+        newConsult.name = consultResultCreateDto.name;
+        newConsult.phone = consultResultCreateDto.phone;
+        newConsult.proformaConsultResultId = proforma.id;
+        console.log(newConsult);
+        return await entityManager.save(newConsult);
+      },
+    );
+    return consult;
   }
 }

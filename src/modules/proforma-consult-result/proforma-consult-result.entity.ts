@@ -1,4 +1,11 @@
-import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  OneToOne,
+} from 'typeorm';
 import { BaseEntity } from 'src/core';
 import {
   AGE_GROUP,
@@ -12,27 +19,10 @@ import {
 } from 'src/shared';
 import { CommonCode } from '../common-code/common-code.entity';
 import { ResponseArrayClass } from '../aggregate-result-response/aggregate-result-resource.service';
+import { Question } from '../question/question.entity';
 
-@Entity({ name: 'consult_result' })
-export class ConsultResult extends BaseEntity<ConsultResult> {
-  @Column({
-    type: 'varchar',
-    nullable: false,
-  })
-  name: string;
-
-  @Column({
-    type: 'varchar',
-    nullable: false,
-  })
-  phone: string;
-
-  @Column({
-    name: 'proforma_consult_result_id',
-    type: 'int',
-  })
-  proformaConsultResultId: number;
-
+@Entity({ name: 'proforma_consult_result' })
+export class ProformaConsultResult extends BaseEntity<ProformaConsultResult> {
   @Column({
     name: 'aggregate_response_id',
     type: 'int',
@@ -107,13 +97,6 @@ export class ConsultResult extends BaseEntity<ConsultResult> {
   deliveryRatioGrade: number;
 
   @Column({
-    name: 'consult_status',
-    nullable: false,
-    default: () => BRAND_CONSULT.NEW_CONSULT,
-  })
-  consultStatus: BRAND_CONSULT;
-
-  @Column({
     name: 'operation_sentence_id',
     type: 'int',
   })
@@ -131,7 +114,14 @@ export class ConsultResult extends BaseEntity<ConsultResult> {
   @JoinColumn({ name: 'age_group_code', referencedColumnName: 'key' })
   ageGroupCodeStatus?: CommonCode;
 
-  @OneToOne(type => CommonCode)
-  @JoinColumn({ name: 'consult_status', referencedColumnName: 'key' })
-  consultCodeStatus?: CommonCode;
+  @ManyToMany(
+    type => Question,
+    question => question.proformas,
+  )
+  @JoinTable({
+    name: 'question_proforma_mapper',
+    joinColumn: { name: 'proforma_consult_result_id' },
+    inverseJoinColumn: { name: 'question_id' },
+  })
+  questions?: Question[];
 }

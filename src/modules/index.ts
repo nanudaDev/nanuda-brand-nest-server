@@ -3,6 +3,7 @@ export * from './aggregate-result-response/aggregate-result-resource.module';
 export * from './auth/auth.module';
 export * from './common-code/common-code.module';
 export * from './code-hdong/code-hdong.module';
+export * from './consult-result/consult-result.module';
 export * from './question/question.module';
 export * from './faq-answer/faq.module';
 export * from './data';

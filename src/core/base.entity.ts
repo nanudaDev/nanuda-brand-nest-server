@@ -38,6 +38,26 @@ export class BaseEntity<Entity> extends TyepOrmBaseEntity {
     return this;
   }
 
+  setNew(partial: any, deep: boolean = false): this {
+    partial &&
+      Object.keys(partial).map(key => {
+        // if (key !== 'id' && this.hasOwnProperty(key)) {
+        if (partial[key] !== undefined) {
+          if (deep) {
+            this[key] = partial[key];
+          } else {
+            if (!(partial[key] instanceof BaseDto)) {
+              this[key] = partial[key];
+            }
+          }
+        }
+
+        // }
+      });
+    delete this.id;
+    return this;
+  }
+
   @PrimaryGeneratedColumn({
     type: 'int',
     unsigned: true,

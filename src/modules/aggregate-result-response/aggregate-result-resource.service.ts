@@ -16,9 +16,13 @@ import {
 import { CommonCode } from '../common-code/common-code.entity';
 import { ConsultResult } from '../consult-result/consult-result.entity';
 import { LocationAnalysisService } from '../data/location-analysis/location-analysis.service';
+import { ProformaConsultResult } from '../proforma-consult-result/proforma-consult-result.entity';
+import { QuestionProformaGivenMapper } from '../question-proforma-given-mapper/question-proforma-given-mapper.entity';
+import { QuestionProformaMapper } from '../question-proforma-mapper/question-proforma-mapper.entity';
 import { AggregateResultResponseBackup } from './aggregate-result-response-backup.entity';
 import { AggregateResultResponse } from './aggregate-result-response.entity';
 import { AggregateResultResponseQueryDto } from './dto';
+import { OperationSentenceResponse } from './operation-sentence-response.entity';
 
 class DeliveryRestaurantRatioClass extends BaseDto<
   DeliveryRestaurantRatioClass
@@ -30,7 +34,13 @@ class DeliveryRestaurantRatioClass extends BaseDto<
   offlineRevenue: number;
 }
 
-class ResponseArrayClass extends BaseDto<ResponseArrayClass> {
+export class ResponseWithProformaId extends BaseDto<ResponseWithProformaId> {
+  proformaId: number;
+  responses: ResponseArrayClass[];
+  operationSentenceResponse?: string;
+}
+
+export class ResponseArrayClass extends BaseDto<ResponseArrayClass> {
   operationTime: OPERATION_TIME;
   modifiedResponse?: string;
 }
@@ -42,6 +52,8 @@ export class AggregateResultResponseService extends BaseService {
     private readonly responseRepo: Repository<AggregateResultResponse>,
     @InjectRepository(ConsultResult)
     private readonly consultResultRepo: Repository<ConsultResult>,
+    @InjectRepository(ProformaConsultResult)
+    private readonly proformaConsultRepo: Repository<ProformaConsultResult>,
     @InjectEntityManager() private readonly entityManager: EntityManager,
     private readonly locationAnalysisService: LocationAnalysisService,
   ) {
@@ -106,88 +118,132 @@ export class AggregateResultResponseService extends BaseService {
       .AndWhereLike('response', 'fnbOwnerStatus', scoreCard.fnbOwnerStatus)
       .getOne();
     const responseArray = [];
-    await this.entityManager.transaction(async entityManager => {
-      await Promise.all(
-        aggregateQuestionQuery.operationTimes.map(async times => {
-          if (times === OPERATION_TIME.BREAKFAST) {
-            // codes
-            const codes: any =
-              forEachTimeSlot.data[0][deliveryRatioGrade.key][0];
-            response.response = response.response.replace(
-              'MEDIUM_CODE',
-              codes.medium_category_nm,
+    const returningResponse = await this.entityManager.transaction(
+      async entityManager => {
+        await Promise.all(
+          aggregateQuestionQuery.operationTimes.map(async times => {
+            if (times === OPERATION_TIME.BREAKFAST) {
+              // codes
+              const codes: any =
+                forEachTimeSlot.data[0][deliveryRatioGrade.key][0];
+              response.response = response.response.replace(
+                'MEDIUM_CODE',
+                codes.medium_category_nm,
+              );
+              response.response = response.response.replace(
+                'SMALL_CODE',
+                codes.medium_small_category_nm,
+              );
+              const newResponse = new ResponseArrayClass({
+                operationTime: OPERATION_TIME.BREAKFAST,
+                modifiedResponse: response,
+              });
+              responseArray.push(newResponse);
+            }
+            if (times === OPERATION_TIME.LUNCH) {
+              // codes
+              const codes: any =
+                forEachTimeSlot.data[0][deliveryRatioGrade.key][0];
+              response.response = response.response.replace(
+                'MEDIUM_CODE',
+                codes.medium_category_nm,
+              );
+              response.response = response.response.replace(
+                'SMALL_CODE',
+                codes.medium_small_category_nm,
+              );
+              const newResponse = new ResponseArrayClass({
+                operationTime: OPERATION_TIME.LUNCH,
+                modifiedResponse: response,
+              });
+              responseArray.push(newResponse);
+            }
+            if (times === OPERATION_TIME.DINNER) {
+              // codes
+              const codes: any =
+                forEachTimeSlot.data[0][deliveryRatioGrade.key][0];
+              response.response = response.response.replace(
+                'MEDIUM_CODE',
+                codes.medium_category_nm,
+              );
+              response.response = response.response.replace(
+                'SMALL_CODE',
+                codes.medium_small_category_nm,
+              );
+              const newResponse = new ResponseArrayClass({
+                operationTime: OPERATION_TIME.DINNER,
+                modifiedResponse: response,
+              });
+              responseArray.push(newResponse);
+            }
+            if (times === OPERATION_TIME.LATE_NIGHT) {
+              // codes
+              const codes: any =
+                forEachTimeSlot.data[0][deliveryRatioGrade.key][0];
+              response.response = response.response.replace(
+                'MEDIUM_CODE',
+                codes.medium_category_nm,
+              );
+              response.response = response.response.replace(
+                'SMALL_CODE',
+                codes.medium_small_category_nm,
+              );
+              const newResponse = new ResponseArrayClass({
+                operationTime: OPERATION_TIME.LATE_NIGHT,
+                modifiedResponse: response,
+              });
+              responseArray.push(newResponse);
+            }
+          }),
+        );
+        // find operation sentence
+        const operationSentence = await entityManager
+          .getRepository(OperationSentenceResponse)
+          .findOne({
+            where: {
+              deliveryRatioGrade: scoreCard.deliveryRatioGrade,
+              ageGroupGrade: response.ageGroupGrade,
+            },
+          });
+        // save to proforma consult table
+        const newProforma = new ProformaConsultResult(aggregateQuestionQuery);
+        newProforma.aggregateResponseId = response.id;
+        newProforma.ageGroupGrade = response.ageGroupGrade;
+        newProforma.revenueRangeGrade = response.revenueRangeGrade;
+        newProforma.isReadyGrade = response.isReadyGrade;
+        newProforma.operationSentenceId = operationSentence.id;
+        newProforma.deliveryRatioGrade = response.deliveryRatioGrade;
+        newProforma.selectedKbMediumCategory =
+          aggregateQuestionQuery.kbFoodCategory;
+        newProforma.operationTimesResult = responseArray;
+        await entityManager.save(newProforma);
+        await Promise.all(
+          aggregateQuestionQuery.questionGivenArray.map(async question => {
+            let newProformaMapper = new QuestionProformaMapper();
+            newProformaMapper.proformaConsultResultId = newProforma.id;
+            newProformaMapper.questionId = question.questionId;
+            newProformaMapper = await entityManager.save(newProformaMapper);
+            // create question given mapper
+            await Promise.all(
+              question.givenId.map(async given => {
+                let newGivenMapper = new QuestionProformaGivenMapper();
+                newGivenMapper.proformaConsultResultId = newProforma.id;
+                newGivenMapper.questionId = question.questionId;
+                newGivenMapper.givenId = given;
+                newGivenMapper.questionProformaMapperId = newProformaMapper.id;
+                newGivenMapper = await entityManager.save(newGivenMapper);
+              }),
             );
-            response.response = response.response.replace(
-              'SMALL_CODE',
-              codes.medium_small_category_nm,
-            );
-            const newResponse = new ResponseArrayClass({
-              operationTime: OPERATION_TIME.BREAKFAST,
-              modifiedResponse: response,
-            });
-            responseArray.push(newResponse);
-          }
-          if (times === OPERATION_TIME.LUNCH) {
-            // codes
-            const codes: any =
-              forEachTimeSlot.data[0][deliveryRatioGrade.key][0];
-            response.response = response.response.replace(
-              'MEDIUM_CODE',
-              codes.medium_category_nm,
-            );
-            response.response = response.response.replace(
-              'SMALL_CODE',
-              codes.medium_small_category_nm,
-            );
-            const newResponse = new ResponseArrayClass({
-              operationTime: OPERATION_TIME.LUNCH,
-              modifiedResponse: response,
-            });
-            responseArray.push(newResponse);
-          }
-          if (times === OPERATION_TIME.DINNER) {
-            // codes
-            const codes: any =
-              forEachTimeSlot.data[0][deliveryRatioGrade.key][0];
-            response.response = response.response.replace(
-              'MEDIUM_CODE',
-              codes.medium_category_nm,
-            );
-            response.response = response.response.replace(
-              'SMALL_CODE',
-              codes.medium_small_category_nm,
-            );
-            const newResponse = new ResponseArrayClass({
-              operationTime: OPERATION_TIME.DINNER,
-              modifiedResponse: response,
-            });
-            responseArray.push(newResponse);
-          }
-          if (times === OPERATION_TIME.LATE_NIGHT) {
-            // codes
-            const codes: any =
-              forEachTimeSlot.data[0][deliveryRatioGrade.key][0];
-            response.response = response.response.replace(
-              'MEDIUM_CODE',
-              codes.medium_category_nm,
-            );
-            response.response = response.response.replace(
-              'SMALL_CODE',
-              codes.medium_small_category_nm,
-            );
-            const newResponse = new ResponseArrayClass({
-              operationTime: OPERATION_TIME.LATE_NIGHT,
-              modifiedResponse: response,
-            });
-            responseArray.push(newResponse);
-          }
-        }),
-      );
-    });
-
-    // // save to consult table
-
-    return responseArray;
+          }),
+        );
+        const returnResponse = new ResponseWithProformaId();
+        returnResponse.proformaId = newProforma.id;
+        returnResponse.responses = responseArray;
+        returnResponse.operationSentenceResponse = operationSentence.response;
+        return returnResponse;
+      },
+    );
+    return returningResponse;
   }
 
   /**
@@ -206,12 +262,12 @@ export class AggregateResultResponseService extends BaseService {
     const deliveryRatioData = await this.locationAnalysisService.locationInfoDetail(
       aggregateQuestionQuery.hdongCode,
     );
-    await Promise.all(
-      aggregateQuestionQuery.operationTimes.map(async time => {
-        if (time === OPERATION_TIME.BREAKFAST) {
-        }
-      }),
-    );
+    // await Promise.all(
+    //   aggregateQuestionQuery.operationTimes.map(async time => {
+    //     if (time === OPERATION_TIME.BREAKFAST) {
+    //     }
+    //   }),
+    // );
 
     return forEachTimeSlot.data;
   }

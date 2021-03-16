@@ -27,6 +27,19 @@ export class AggregateResultResponseController extends BaseController {
   }
 
   /**
+   * find question and register
+   * @param aggregateQuestionQuery
+   */
+  @Get('/aggregate-result-response/test')
+  async findAggregateResponseTest(
+    @Query() aggregateQuestionQuery: AggregateResultResponseQueryDto,
+  ) {
+    return await this.aggregateResultResponseService.findResponse(
+      aggregateQuestionQuery,
+    );
+  }
+
+  /**
    * transfer data from backup table to production table
    */
   @Get('/aggregate-response/transger')

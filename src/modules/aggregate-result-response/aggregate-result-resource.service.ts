@@ -6,9 +6,15 @@ import { Console } from 'console';
 import { of } from 'rxjs';
 import { DeliverySpaceConversion, ScoreConversionUtil } from 'src/common/utils';
 import { BaseDto, BaseService } from 'src/core';
-import { KB_MEDIUM_CATEGORY } from 'src/shared';
-import { EntityManager, getConnection, Repository } from 'typeorm';
+import { KB_MEDIUM_CATEGORY, OPERATION_TIME } from 'src/shared';
+import {
+  AdvancedConsoleLogger,
+  EntityManager,
+  getConnection,
+  Repository,
+} from 'typeorm';
 import { CommonCode } from '../common-code/common-code.entity';
+import { ConsultResult } from '../consult-result/consult-result.entity';
 import { LocationAnalysisService } from '../data/location-analysis/location-analysis.service';
 import { AggregateResultResponseBackup } from './aggregate-result-response-backup.entity';
 import { AggregateResultResponse } from './aggregate-result-response.entity';
@@ -23,11 +29,19 @@ class DeliveryRestaurantRatioClass extends BaseDto<
   offlineRatio: number;
   offlineRevenue: number;
 }
+
+class ResponseArrayClass extends BaseDto<ResponseArrayClass> {
+  operationTime: OPERATION_TIME;
+  modifiedResponse?: string;
+}
+
 @Injectable()
 export class AggregateResultResponseService extends BaseService {
   constructor(
     @InjectRepository(AggregateResultResponse)
     private readonly responseRepo: Repository<AggregateResultResponse>,
+    @InjectRepository(ConsultResult)
+    private readonly consultResultRepo: Repository<ConsultResult>,
     @InjectEntityManager() private readonly entityManager: EntityManager,
     private readonly locationAnalysisService: LocationAnalysisService,
   ) {
@@ -41,29 +55,38 @@ export class AggregateResultResponseService extends BaseService {
   async findResponseForQuestions(
     aggregateQuestionQuery?: AggregateResultResponseQueryDto,
   ) {
+    // 상권 관련 배달 - 홀 비중
+    const deliveryRatioData = await this.locationAnalysisService.locationInfoDetail(
+      aggregateQuestionQuery.hdongCode,
+    );
+    const averageRatioArray: number[] = [];
+    Object.keys(deliveryRatioData).forEach(function(key) {
+      if (deliveryRatioData[key].deliveryRatio === null) {
+        deliveryRatioData[key].deliveryRatio = 0;
+      }
+      averageRatioArray.push(deliveryRatioData[key].deliveryRatio);
+    });
+    console.log(averageRatioArray);
+    const average =
+      averageRatioArray.reduce((prev, curr) => prev + curr) /
+      averageRatioArray.length;
+    console.log(average);
+    // const deliveryRatioGradeFilteredByCategory = new DeliveryRestaurantRatioClass(
+    //   deliveryRatioData[aggregateQuestionQuery.kbFoodCategory],
+    // );
+    // if (!deliveryRatioGradeFilteredByCategory.deliveryRatio) {
+    //   deliveryRatioData.deliveryRatio = 0;
+    // }
+    const deliveryRatioGrade = DeliverySpaceConversion(average);
+    const scoreCard = ScoreConversionUtil(aggregateQuestionQuery);
+    scoreCard.deliveryRatioGrade = deliveryRatioGrade.grade;
     // get for each time slot
     const forEachTimeSlot = await Axios.get(
-      `${this.analysisUrl}location-hour`,
+      `${this.analysisUrl}location-hour-medium-small-category`,
       {
         params: { hdongCode: aggregateQuestionQuery.hdongCode },
       },
     );
-    console.log(aggregateQuestionQuery.operationTimes);
-    const deliveryRatioData = await this.locationAnalysisService.locationInfoDetail(
-      aggregateQuestionQuery.hdongCode,
-    );
-
-    const deliveryRatioGradeFilteredByCategory = new DeliveryRestaurantRatioClass(
-      deliveryRatioData[aggregateQuestionQuery.kbFoodCategory],
-    );
-    if (!deliveryRatioGradeFilteredByCategory.deliveryRatio) {
-      deliveryRatioData.deliveryRatio = 0;
-    }
-    const deliveryRatioGrade = DeliverySpaceConversion(
-      deliveryRatioGradeFilteredByCategory.deliveryRatio,
-    );
-    const scoreCard = ScoreConversionUtil(aggregateQuestionQuery);
-    scoreCard.deliveryRatioGrade = deliveryRatioGrade;
     const response = await this.responseRepo
       .createQueryBuilder('response')
       .AndWhereEqual('response', 'ageGroupGrade', scoreCard.ageGroupGrade, null)
@@ -82,8 +105,115 @@ export class AggregateResultResponseService extends BaseService {
       .AndWhereEqual('response', 'isReadyGrade', scoreCard.isReadyGrade, null)
       .AndWhereLike('response', 'fnbOwnerStatus', scoreCard.fnbOwnerStatus)
       .getOne();
+    const responseArray = [];
+    await this.entityManager.transaction(async entityManager => {
+      await Promise.all(
+        aggregateQuestionQuery.operationTimes.map(async times => {
+          if (times === OPERATION_TIME.BREAKFAST) {
+            // codes
+            const codes: any =
+              forEachTimeSlot.data[0][deliveryRatioGrade.key][0];
+            response.response = response.response.replace(
+              'MEDIUM_CODE',
+              codes.medium_category_nm,
+            );
+            response.response = response.response.replace(
+              'SMALL_CODE',
+              codes.medium_small_category_nm,
+            );
+            const newResponse = new ResponseArrayClass({
+              operationTime: OPERATION_TIME.BREAKFAST,
+              modifiedResponse: response,
+            });
+            responseArray.push(newResponse);
+          }
+          if (times === OPERATION_TIME.LUNCH) {
+            // codes
+            const codes: any =
+              forEachTimeSlot.data[0][deliveryRatioGrade.key][0];
+            response.response = response.response.replace(
+              'MEDIUM_CODE',
+              codes.medium_category_nm,
+            );
+            response.response = response.response.replace(
+              'SMALL_CODE',
+              codes.medium_small_category_nm,
+            );
+            const newResponse = new ResponseArrayClass({
+              operationTime: OPERATION_TIME.LUNCH,
+              modifiedResponse: response,
+            });
+            responseArray.push(newResponse);
+          }
+          if (times === OPERATION_TIME.DINNER) {
+            // codes
+            const codes: any =
+              forEachTimeSlot.data[0][deliveryRatioGrade.key][0];
+            response.response = response.response.replace(
+              'MEDIUM_CODE',
+              codes.medium_category_nm,
+            );
+            response.response = response.response.replace(
+              'SMALL_CODE',
+              codes.medium_small_category_nm,
+            );
+            const newResponse = new ResponseArrayClass({
+              operationTime: OPERATION_TIME.DINNER,
+              modifiedResponse: response,
+            });
+            responseArray.push(newResponse);
+          }
+          if (times === OPERATION_TIME.LATE_NIGHT) {
+            // codes
+            const codes: any =
+              forEachTimeSlot.data[0][deliveryRatioGrade.key][0];
+            response.response = response.response.replace(
+              'MEDIUM_CODE',
+              codes.medium_category_nm,
+            );
+            response.response = response.response.replace(
+              'SMALL_CODE',
+              codes.medium_small_category_nm,
+            );
+            const newResponse = new ResponseArrayClass({
+              operationTime: OPERATION_TIME.LATE_NIGHT,
+              modifiedResponse: response,
+            });
+            responseArray.push(newResponse);
+          }
+        }),
+      );
+    });
 
-    return response;
+    // // save to consult table
+
+    return responseArray;
+  }
+
+  /**
+   * aggregate question
+   * @param aggregateQuestionQuery
+   */
+  async findResponse(aggregateQuestionQuery?: AggregateResultResponseQueryDto) {
+    const responseArray: ResponseArrayClass[] = [];
+    // 시간대별로 데이터 호출
+    const forEachTimeSlot = await Axios.get(
+      `${this.analysisUrl}location-hour-medium-small-category`,
+      {
+        params: { hdongCode: aggregateQuestionQuery.hdongCode },
+      },
+    );
+    const deliveryRatioData = await this.locationAnalysisService.locationInfoDetail(
+      aggregateQuestionQuery.hdongCode,
+    );
+    await Promise.all(
+      aggregateQuestionQuery.operationTimes.map(async time => {
+        if (time === OPERATION_TIME.BREAKFAST) {
+        }
+      }),
+    );
+
+    return forEachTimeSlot.data;
   }
 
   /**

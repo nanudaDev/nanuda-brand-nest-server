@@ -37,6 +37,7 @@ class DeliveryRestaurantRatioClass extends BaseDto<
 export class ResponseWithProformaId extends BaseDto<ResponseWithProformaId> {
   proformaId: number;
   responses: ResponseArrayClass[];
+  operationSentenceResponse?: string;
 }
 
 export class ResponseArrayClass extends BaseDto<ResponseArrayClass> {
@@ -238,6 +239,7 @@ export class AggregateResultResponseService extends BaseService {
         const returnResponse = new ResponseWithProformaId();
         returnResponse.proformaId = newProforma.id;
         returnResponse.responses = responseArray;
+        returnResponse.operationSentenceResponse = operationSentence.response;
         return returnResponse;
       },
     );

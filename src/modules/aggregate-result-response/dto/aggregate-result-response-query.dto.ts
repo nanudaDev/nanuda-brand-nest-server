@@ -93,9 +93,9 @@ export class AggregateResultResponseQueryDto
   @Default(KB_MEDIUM_CATEGORY.F01)
   kbFoodCategory?: KB_MEDIUM_CATEGORY;
 
-  @ApiProperty({ type: [QuestionGivenArrayClass], isArray: true })
+  @ApiProperty({ type: [QuestionGivenArrayClass] })
   @IsArray()
-  @ValidateNested()
+  @ValidateNested({ each: true })
   @Type(() => QuestionGivenArrayClass)
   @Expose()
   questionGivenArray: QuestionGivenArrayClass[];

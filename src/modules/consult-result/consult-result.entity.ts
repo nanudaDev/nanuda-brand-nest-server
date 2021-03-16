@@ -28,6 +28,12 @@ export class ConsultResult extends BaseEntity<ConsultResult> {
   phone: string;
 
   @Column({
+    name: 'proforma_consult_result_id',
+    type: 'int',
+  })
+  proformaConsultResultId: number;
+
+  @Column({
     name: 'aggregate_response_id',
     type: 'int',
     nullable: false,

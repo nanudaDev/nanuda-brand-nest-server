@@ -5,7 +5,9 @@ import { ORDER_BY_VALUE, YN } from 'src/common';
 import { BaseService, BrandAiException } from 'src/core';
 import { FNB_OWNER } from 'src/shared';
 import { EntityManager, Repository } from 'typeorm';
+import { AggregateResultResponseService } from '../aggregate-result-response/aggregate-result-resource.service';
 import { CommonCode } from '../common-code/common-code.entity';
+import { LocationAnalysisService } from '../data/location-analysis/location-analysis.service';
 import { AdminResultResponseCreateDto, ResultResponseListDto } from './dto';
 import { ResultResponseBackup } from './result-response-backup.entity';
 import { ResultResponse } from './result-response.entity';
@@ -18,6 +20,8 @@ export class ResultResponseService extends BaseService {
     @InjectRepository(ResultResponseBackup)
     private readonly responseBackupRepo: Repository<ResultResponseBackup>,
     @InjectEntityManager() private readonly entityManager: EntityManager,
+    private readonly aggregateResponseService: AggregateResultResponseService,
+    private readonly locationAnalysisSergice: LocationAnalysisService,
   ) {
     super();
   }

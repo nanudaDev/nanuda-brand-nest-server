@@ -38,11 +38,14 @@ export class ResponseWithProformaId extends BaseDto<ResponseWithProformaId> {
   proformaId: number;
   responses: ResponseArrayClass[];
   operationSentenceResponse?: string;
+  completeTimeData?: any;
 }
 
 export class ResponseArrayClass extends BaseDto<ResponseArrayClass> {
   operationTime: OPERATION_TIME;
   modifiedResponse?: string;
+  koreanPrefSentence: string;
+  modifiedSufSentence: string;
 }
 
 @Injectable()
@@ -137,6 +140,8 @@ export class AggregateResultResponseService extends BaseService {
               const newResponse = new ResponseArrayClass({
                 operationTime: OPERATION_TIME.BREAKFAST,
                 modifiedResponse: response,
+                koreanPrefSentence: '아침에는',
+                modifiedSufSentence: `${codes.medium_category_nm}의 ${codes.medium_small_category_nm}`,
               });
               responseArray.push(newResponse);
             }
@@ -155,6 +160,8 @@ export class AggregateResultResponseService extends BaseService {
               const newResponse = new ResponseArrayClass({
                 operationTime: OPERATION_TIME.LUNCH,
                 modifiedResponse: response,
+                koreanPrefSentence: '점심에는',
+                modifiedSufSentence: `${codes.medium_category_nm}의 ${codes.medium_small_category_nm}`,
               });
               responseArray.push(newResponse);
             }
@@ -173,6 +180,8 @@ export class AggregateResultResponseService extends BaseService {
               const newResponse = new ResponseArrayClass({
                 operationTime: OPERATION_TIME.DINNER,
                 modifiedResponse: response,
+                koreanPrefSentence: '저녁에는',
+                modifiedSufSentence: `${codes.medium_category_nm}의 ${codes.medium_small_category_nm}`,
               });
               responseArray.push(newResponse);
             }
@@ -191,6 +200,8 @@ export class AggregateResultResponseService extends BaseService {
               const newResponse = new ResponseArrayClass({
                 operationTime: OPERATION_TIME.LATE_NIGHT,
                 modifiedResponse: response,
+                koreanPrefSentence: '야식 시간대에는',
+                modifiedSufSentence: `${codes.medium_category_nm}의 ${codes.medium_small_category_nm}`,
               });
               responseArray.push(newResponse);
             }
@@ -240,6 +251,7 @@ export class AggregateResultResponseService extends BaseService {
         returnResponse.proformaId = newProforma.id;
         returnResponse.responses = responseArray;
         returnResponse.operationSentenceResponse = operationSentence.response;
+        returnResponse.completeTimeData = forEachTimeSlot.data;
         return returnResponse;
       },
     );

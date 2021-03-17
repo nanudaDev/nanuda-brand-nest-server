@@ -9,6 +9,7 @@ import { QuestionProformaGivenMapper } from '../question-proforma-given-mapper/q
 import { ConsultResult } from './consult-result.entity';
 import {
   AdminConsultResultListDto,
+  AdminConsultResultUpdateDto,
   ConsultResultResponseCreateDto,
 } from './dto';
 
@@ -130,6 +131,21 @@ export class ConsultResultService extends BaseService {
     );
 
     return qb;
+  }
+
+  /**
+   * update for admin
+   * @param id
+   * @param adminConsultResultUpdateDto
+   */
+  async updateForAdmin(
+    id: number,
+    adminConsultResultUpdateDto: AdminConsultResultUpdateDto,
+  ): Promise<ConsultResult> {
+    let result = await this.consultRepo.findOne(id);
+    result = result.set(adminConsultResultUpdateDto);
+    result = await this.consultRepo.save(result);
+    return result;
   }
 
   /**

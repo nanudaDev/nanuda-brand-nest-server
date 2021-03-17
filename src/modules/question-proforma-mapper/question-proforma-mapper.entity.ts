@@ -1,6 +1,7 @@
 import { BaseMapperEntity } from 'src/core';
-import { Column, Entity, JoinColumn, OneToMany } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { QuestionProformaGivenMapper } from '../question-proforma-given-mapper/question-proforma-given-mapper.entity';
+import { Question } from '../question/question.entity';
 
 @Entity({ name: 'question_proforma_mapper' })
 export class QuestionProformaMapper extends BaseMapperEntity<

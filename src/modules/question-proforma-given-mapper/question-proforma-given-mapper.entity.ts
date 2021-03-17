@@ -1,6 +1,8 @@
 import { BaseMapperEntity } from 'src/core';
 import { Column, JoinColumn, ManyToOne, Entity } from 'typeorm';
+import { QuestionGiven } from '../question-given/question-given.entity';
 import { QuestionProformaMapper } from '../question-proforma-mapper/question-proforma-mapper.entity';
+import { Question } from '../question/question.entity';
 
 @Entity({ name: 'question_proforma_given_mapper' })
 export class QuestionProformaGivenMapper extends BaseMapperEntity<
@@ -36,4 +38,11 @@ export class QuestionProformaGivenMapper extends BaseMapperEntity<
   )
   @JoinColumn({ name: 'question_proforma_mapper_id' })
   questionProformaMapper?: QuestionProformaMapper;
+
+  @ManyToOne(
+    type => Question,
+    question => question.answeredGiven,
+  )
+  @JoinColumn({ name: 'question_id' })
+  question?: Question;
 }

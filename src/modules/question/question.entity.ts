@@ -14,6 +14,7 @@ import {
 import { CommonCode } from '../common-code/common-code.entity';
 import { ProformaConsultResult } from '../proforma-consult-result/proforma-consult-result.entity';
 import { QuestionGiven } from '../question-given/question-given.entity';
+import { QuestionProformaGivenMapper } from '../question-proforma-given-mapper/question-proforma-given-mapper.entity';
 
 @Entity({ name: 'question' })
 export class Question extends BaseEntity<Question> {
@@ -106,4 +107,10 @@ export class Question extends BaseEntity<Question> {
     inverseJoinColumn: { name: 'proforma_consult_result_id' },
   })
   proformas?: ProformaConsultResult[];
+
+  @OneToMany(
+    type => QuestionProformaGivenMapper,
+    answeredGiven => answeredGiven.question,
+  )
+  answeredGiven?: QuestionProformaGivenMapper[];
 }

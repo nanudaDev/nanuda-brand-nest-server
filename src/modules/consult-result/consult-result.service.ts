@@ -4,6 +4,8 @@ import { PaginatedRequest, PaginatedResponse } from 'src/common';
 import { BaseService, BrandAiException } from 'src/core';
 import { EntityManager, Repository } from 'typeorm';
 import { ProformaConsultResult } from '../proforma-consult-result/proforma-consult-result.entity';
+import { QuestionGiven } from '../question-given/question-given.entity';
+import { QuestionProformaGivenMapper } from '../question-proforma-given-mapper/question-proforma-given-mapper.entity';
 import { ConsultResult } from './consult-result.entity';
 import {
   AdminConsultResultListDto,
@@ -35,7 +37,11 @@ export class ConsultResultService extends BaseService {
         'revenueRangeCodeStatus',
         'fnbOwnerCodeStatus',
         'ageGroupCodeStatus',
+        'operationSentenceResponse',
+        'consultCodeStatus',
+        'proforma',
       ])
+      .innerJoinAndSelect('proforma.questions', 'questions')
       .AndWhereLike(
         'consult',
         'ageGroupCode',
@@ -78,6 +84,52 @@ export class ConsultResultService extends BaseService {
     const [items, totalCount] = await qb.getManyAndCount();
 
     return { items, totalCount };
+  }
+
+  /**
+   * find one for admin
+   * @param id
+   */
+  async findOneForAdmin(id: number): Promise<ConsultResult> {
+    const qb = await this.consultRepo
+      .createQueryBuilder('consult')
+      .CustomInnerJoinAndSelect([
+        'revenueRangeCodeStatus',
+        'fnbOwnerCodeStatus',
+        'ageGroupCodeStatus',
+        'operationSentenceResponse',
+        'consultCodeStatus',
+        'proforma',
+      ])
+      .innerJoinAndSelect('proforma.questions', 'questions')
+      .where('consult.id = :id', { id: id })
+      .getOne();
+
+    await Promise.all(
+      qb.proforma.questions.map(async question => {
+        const givenIds: number[] = [];
+        const answeredGivens = await this.entityManager
+          .getRepository(QuestionProformaGivenMapper)
+          .find({
+            where: {
+              proformaConsultResultId: qb.proformaConsultResultId,
+              questionId: question.id,
+            },
+          });
+        answeredGivens.map(given => {
+          givenIds.push(given.givenId);
+        });
+        const answers = await this.entityManager
+          .getRepository(QuestionGiven)
+          .createQueryBuilder('given')
+          .CustomInnerJoinAndSelect(['givenDetails'])
+          .whereInIds(givenIds)
+          .getMany();
+        question.givens = answers;
+      }),
+    );
+
+    return qb;
   }
 
   /**

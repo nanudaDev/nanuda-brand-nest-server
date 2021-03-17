@@ -62,12 +62,14 @@ export class AggregateResultResponseQueryDto
   @IsOptional()
   @Expose()
   @IsEnum(REVENUE_RANGE)
+  @Default(null)
   revenueRangeCode?: REVENUE_RANGE;
 
   @ApiPropertyOptional({ enum: TENTATIVE_OPEN_OPTION })
   @IsOptional()
   @Expose()
   @IsEnum(TENTATIVE_OPEN_OPTION)
+  @Default(null)
   isReadyCode?: TENTATIVE_OPEN_OPTION;
 
   @ApiProperty({ enum: FNB_OWNER })

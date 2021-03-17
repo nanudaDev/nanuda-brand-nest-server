@@ -102,24 +102,36 @@ export class AggregateResultResponseService extends BaseService {
         params: { hdongCode: aggregateQuestionQuery.hdongCode },
       },
     );
-    const response = await this.responseRepo
+    console.log(scoreCard);
+    const responseGet = this.responseRepo
       .createQueryBuilder('response')
       .AndWhereEqual('response', 'ageGroupGrade', scoreCard.ageGroupGrade, null)
-      .AndWhereEqual(
+      // .AndWhereEqual(
+      //   'response',
+      //   'deliveryRatioGrade',
+      //   scoreCard.deliveryRatioGrade,
+      //   null,
+      // )
+      // .AndWhereEqual('response', 'isReadyGrade', scoreCard.isReadyGrade, null)
+      .AndWhereLike('response', 'fnbOwnerStatus', scoreCard.fnbOwnerStatus);
+    if (scoreCard.revenueRangeGrade) {
+      responseGet.AndWhereEqual(
         'response',
         'revenueRangeGrade',
         scoreCard.revenueRangeGrade,
         null,
-      )
-      .AndWhereEqual(
+      );
+    }
+    if (scoreCard.isReadyGrade) {
+      responseGet.AndWhereEqual(
         'response',
-        'deliveryRatioGrade',
-        scoreCard.deliveryRatioGrade,
+        'isReadyGrade',
+        scoreCard.isReadyGrade,
         null,
-      )
-      .AndWhereEqual('response', 'isReadyGrade', scoreCard.isReadyGrade, null)
-      .AndWhereLike('response', 'fnbOwnerStatus', scoreCard.fnbOwnerStatus)
-      .getOne();
+      );
+    }
+    const response = await responseGet.getOne();
+    console.log(response);
     const responseArray = [];
     const returningResponse = await this.entityManager.transaction(
       async entityManager => {

@@ -6,7 +6,7 @@ import { Console } from 'console';
 import { of } from 'rxjs';
 import { DeliverySpaceConversion, ScoreConversionUtil } from 'src/common/utils';
 import { BaseDto, BaseService } from 'src/core';
-import { KB_MEDIUM_CATEGORY, OPERATION_TIME } from 'src/shared';
+import { FNB_OWNER, KB_MEDIUM_CATEGORY, OPERATION_TIME } from 'src/shared';
 import {
   AdvancedConsoleLogger,
   EntityManager,
@@ -24,6 +24,18 @@ import { AggregateResultResponse } from './aggregate-result-response.entity';
 import { AggregateResultResponseQueryDto } from './dto';
 import { OperationSentenceResponse } from './operation-sentence-response.entity';
 
+export class Graph {
+  labels: any;
+  datasets: GraphData[];
+}
+
+export class GraphData {
+  data: any;
+  label: string;
+  borderColor: string;
+  backgroundColor?: string;
+  fill?: boolean;
+}
 class DeliveryRestaurantRatioClass extends BaseDto<
   DeliveryRestaurantRatioClass
 > {
@@ -39,6 +51,7 @@ export class ResponseWithProformaId extends BaseDto<ResponseWithProformaId> {
   responses: ResponseArrayClass[];
   operationSentenceResponse?: string;
   completeTimeData?: any;
+  newFnbOwnerPieChartData: any;
 }
 
 export class ResponseArrayClass extends BaseDto<ResponseArrayClass> {
@@ -264,6 +277,11 @@ export class AggregateResultResponseService extends BaseService {
         returnResponse.responses = responseArray;
         returnResponse.operationSentenceResponse = operationSentence.response;
         returnResponse.completeTimeData = forEachTimeSlot.data;
+        if (scoreCard.fnbOwnerStatus === FNB_OWNER.NEW_FNB_OWNER) {
+          returnResponse.newFnbOwnerPieChartData = await this.__get_pie_chart_data(
+            deliveryRatioData,
+          );
+        }
         return returnResponse;
       },
     );
@@ -327,5 +345,43 @@ export class AggregateResultResponseService extends BaseService {
         );
       },
     );
+  }
+
+  /**
+   * get pie chart data for new fnb owners
+   * @param hdongCode
+   */
+  private async __get_pie_chart_data(analyzedData: any) {
+    console.log(analyzedData);
+    const chartData = new Graph();
+    const tempLabels = [];
+    const tempData = [];
+    const datasets = [];
+    chartData.datasets = datasets;
+    // const newFnbOwnerModel = new GraphData();
+    Object.keys(analyzedData).forEach(function(key) {
+      tempLabels.push(analyzedData[key].mediumCategoryName);
+      tempData.push(Math.round(analyzedData[key].totalRevenue));
+    });
+    const labels = tempLabels.slice(0, 5);
+    const preAveragedDataArray = tempData.slice(0, 5);
+    const totalForTheArea = preAveragedDataArray.reduce(
+      (prev, cur) => prev + cur,
+    );
+    const appliedAveragePercentage = [];
+    preAveragedDataArray.map(revenue => {
+      const value = Math.round((revenue / totalForTheArea) * 100);
+      appliedAveragePercentage.push(value);
+    });
+    const data = appliedAveragePercentage;
+    const backgroundColor = [
+      '#004D8A',
+      '#6C8FB7',
+      '#A7BDD3',
+      '#D0DCE8',
+      '#F5F5F5',
+    ];
+    datasets.push({ data: data, backgroundColor: backgroundColor });
+    return { labels, datasets };
   }
 }

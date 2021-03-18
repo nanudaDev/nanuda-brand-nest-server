@@ -349,6 +349,7 @@ export class AggregateResultResponseService extends BaseService {
 
   /**
    * get pie chart data for new fnb owners
+   * TODO: REFACTORING NEEDED
    * @param hdongCode
    */
   private async __get_pie_chart_data(analyzedData: any) {
@@ -375,11 +376,11 @@ export class AggregateResultResponseService extends BaseService {
     });
     const data = appliedAveragePercentage;
     const backgroundColor = [
-      '#004D8A',
-      '#6C8FB7',
-      '#A7BDD3',
-      '#D0DCE8',
-      '#F5F5F5',
+      'rgb(0, 77, 138)',
+      'rgb(108, 143, 183)',
+      'rgb(167, 189, 211)',
+      'rgb(208, 220, 232)',
+      'rgb(245, 245, 245)',
     ];
     datasets.push({ data: data, backgroundColor: backgroundColor });
     return { labels, datasets };

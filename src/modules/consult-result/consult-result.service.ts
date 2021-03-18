@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
+import { Request } from 'express';
 import { PaginatedRequest, PaginatedResponse } from 'src/common';
 import { BaseService, BrandAiException } from 'src/core';
 import { EntityManager, Repository } from 'typeorm';
 import { ProformaConsultResult } from '../proforma-consult-result/proforma-consult-result.entity';
 import { QuestionGiven } from '../question-given/question-given.entity';
 import { QuestionProformaGivenMapper } from '../question-proforma-given-mapper/question-proforma-given-mapper.entity';
+import { SmsNotificationService } from '../sms-notification/sms-notification.service';
 import { ConsultResult } from './consult-result.entity';
 import {
   AdminConsultResultListDto,
@@ -19,6 +21,7 @@ export class ConsultResultService extends BaseService {
     @InjectRepository(ConsultResult)
     private readonly consultRepo: Repository<ConsultResult>,
     @InjectEntityManager() private readonly entityManager: EntityManager,
+    private readonly smsNotificationService: SmsNotificationService,
   ) {
     super();
   }
@@ -154,6 +157,7 @@ export class ConsultResultService extends BaseService {
    */
   async createForUser(
     consultResultCreateDto: ConsultResultResponseCreateDto,
+    req: Request,
   ): Promise<ConsultResult> {
     const consult = await this.entityManager.transaction(
       async entityManager => {
@@ -170,7 +174,12 @@ export class ConsultResultService extends BaseService {
         newConsult.phone = consultResultCreateDto.phone;
         newConsult.proformaConsultResultId = proforma.id;
         console.log(newConsult);
-        return await entityManager.save(newConsult);
+        newConsult = await entityManager.save(newConsult);
+        await this.smsNotificationService.sendConsultNotification(
+          newConsult,
+          req,
+        );
+        return newConsult;
       },
     );
     return consult;

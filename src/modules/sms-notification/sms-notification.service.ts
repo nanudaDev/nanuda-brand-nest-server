@@ -2,7 +2,6 @@ require('dotenv').config();
 import { Injectable } from '@nestjs/common';
 import { Request } from 'express';
 import { YN } from 'src/common';
-import { BaseService } from 'src/core';
 import { ConsultResult } from '../consult-result/consult-result.entity';
 import * as aligoapi from 'aligoapi';
 import { ENVIRONMENT } from 'src/config';

@@ -1,5 +1,6 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Req } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { Request } from 'express';
 import { BaseController } from 'src/core';
 import { CustomPromisifySymbol } from 'util';
 import { ConsultResult } from './consult-result.entity';
@@ -20,9 +21,11 @@ export class ConsultResultController extends BaseController {
   @Post('/consult-result')
   async createForUser(
     @Body() consultResultCreateDto: ConsultResultResponseCreateDto,
+    @Req() req: Request,
   ): Promise<ConsultResult> {
     return await this.consultResultService.createForUser(
       consultResultCreateDto,
+      req,
     );
   }
 }

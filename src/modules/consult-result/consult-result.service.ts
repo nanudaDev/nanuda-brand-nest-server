@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { Request } from 'express';
 import { PaginatedRequest, PaginatedResponse } from 'src/common';
+import { PickcookSlackNotificationService } from 'src/common/utils';
 import { BaseService, BrandAiException } from 'src/core';
 import { EntityManager, Repository } from 'typeorm';
 import { ProformaConsultResult } from '../proforma-consult-result/proforma-consult-result.entity';
@@ -22,6 +23,7 @@ export class ConsultResultService extends BaseService {
     private readonly consultRepo: Repository<ConsultResult>,
     @InjectEntityManager() private readonly entityManager: EntityManager,
     private readonly smsNotificationService: SmsNotificationService,
+    private readonly pickcookSlackNotificationService: PickcookSlackNotificationService,
   ) {
     super();
   }
@@ -178,6 +180,10 @@ export class ConsultResultService extends BaseService {
         await this.smsNotificationService.sendConsultNotification(
           newConsult,
           req,
+        );
+        // send slack notification
+        await this.pickcookSlackNotificationService.sendAdminConsultNotication(
+          newConsult,
         );
         return newConsult;
       },

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CodeHdongModule } from '../code-hdong/code-hdong.module';
 import { ConsultResult } from '../consult-result/consult-result.entity';
 import { LocationAnalysisModule } from '../data';
 import { ProformaConsultResult } from '../proforma-consult-result/proforma-consult-result.entity';
@@ -21,6 +22,7 @@ import { AggregateResultResponse } from './aggregate-result-response.entity';
       QuestionProformaGivenMapper,
     ]),
     LocationAnalysisModule,
+    CodeHdongModule,
   ],
   controllers: [AggregateResultResponseController],
   providers: [AggregateResultResponseService],

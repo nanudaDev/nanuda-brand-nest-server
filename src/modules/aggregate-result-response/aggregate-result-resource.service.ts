@@ -5,7 +5,7 @@ import Axios from 'axios';
 import { Console } from 'console';
 import { of } from 'rxjs';
 import { DeliverySpaceConversion, ScoreConversionUtil } from 'src/common/utils';
-import { BaseDto, BaseService } from 'src/core';
+import { BaseDto, BaseEntity, BaseService } from 'src/core';
 import {
   FNB_OWNER,
   KB_MEDIUM_CATEGORY,
@@ -18,6 +18,8 @@ import {
   getConnection,
   Repository,
 } from 'typeorm';
+import { CodeHdong } from '../code-hdong/code-hdong.entity';
+import { CodeHdongService } from '../code-hdong/code-hdong.service';
 import { CommonCode } from '../common-code/common-code.entity';
 import { ConsultResult } from '../consult-result/consult-result.entity';
 import { LocationAnalysisService } from '../data/location-analysis/location-analysis.service';
@@ -58,6 +60,9 @@ export class ResponseWithProformaId extends BaseDto<ResponseWithProformaId> {
   completeTimeData?: any;
   newFnbOwnerPieChartData?: any;
   curFnbOwnerLineChartData?: any;
+  lowestRevenue?: any;
+  highestRevenue?: any;
+  hdong?: CodeHdong;
 }
 
 export class ResponseArrayClass extends BaseDto<ResponseArrayClass> {
@@ -86,6 +91,7 @@ export class AggregateResultResponseService extends BaseService {
     private readonly proformaConsultRepo: Repository<ProformaConsultResult>,
     @InjectEntityManager() private readonly entityManager: EntityManager,
     private readonly locationAnalysisService: LocationAnalysisService,
+    private readonly codeHdongService: CodeHdongService,
   ) {
     super();
   }
@@ -99,6 +105,9 @@ export class AggregateResultResponseService extends BaseService {
   ) {
     // 상권 관련 배달 - 홀 비중
     const deliveryRatioData = await this.locationAnalysisService.locationInfoDetail(
+      aggregateQuestionQuery.hdongCode,
+    );
+    const hdong = await this.codeHdongService.findOneByCode(
       aggregateQuestionQuery.hdongCode,
     );
     const averageRatioArray: number[] = [];
@@ -289,16 +298,20 @@ export class AggregateResultResponseService extends BaseService {
         returnResponse.responses = responseArray;
         returnResponse.operationSentenceResponse = operationSentence.response;
         returnResponse.completeTimeData = forEachTimeSlot.data;
+        returnResponse.hdong = hdong;
         if (scoreCard.fnbOwnerStatus === FNB_OWNER.NEW_FNB_OWNER) {
           returnResponse.newFnbOwnerPieChartData = await this.__get_pie_chart_data(
             deliveryRatioData,
           );
         }
         if (scoreCard.fnbOwnerStatus === FNB_OWNER.CUR_FNB_OWNER) {
-          returnResponse.curFnbOwnerLineChartData = await this.__get_line_chart_data(
+          const graphData = await this.__get_line_chart_data(
             aggregateQuestionQuery.hdongCode,
             aggregateQuestionQuery.revenueRangeCode,
           );
+          returnResponse.curFnbOwnerLineChartData = graphData[0];
+          returnResponse.lowestRevenue = graphData[1];
+          returnResponse.highestRevenue = graphData[2];
         }
         return returnResponse;
       },
@@ -403,6 +416,11 @@ export class AggregateResultResponseService extends BaseService {
     return { labels, datasets };
   }
 
+  /**
+   * get line graph for cur fnb owner
+   * @param hdongCode
+   * @param selectedRevenue
+   */
   private async __get_line_chart_data(
     hdongCode: string,
     selectedRevenue: REVENUE_RANGE,
@@ -422,8 +440,10 @@ export class AggregateResultResponseService extends BaseService {
     const revenueData = await this.locationAnalysisService.getRevenueForLocation(
       { hdongCode: hdongCode },
     );
-    const averageRevenueForLocation = Math.floor(
-      revenueData.value.reduce((prev, cur) => prev + cur) / 2 / 10000,
+    const averageRevenueForLocation = Math.round(
+      Math.floor(
+        revenueData.value.reduce((prev, cur) => prev + cur) / 2 / 10000,
+      ),
     );
 
     const sortArray = [];
@@ -437,7 +457,7 @@ export class AggregateResultResponseService extends BaseService {
     };
     // 최저매출
     const lowestRevenue: LineGraphData = {
-      data: Math.floor(revenueData.value[0] / 10000),
+      data: Math.round(Math.floor(revenueData.value[0] / 10000)),
       label: '최저매출',
       pointBackgroundColor: 'grey',
       pointHoverRadius: 5,
@@ -453,7 +473,7 @@ export class AggregateResultResponseService extends BaseService {
     };
     // 최고 매출
     const highestRevenue: LineGraphData = {
-      data: Math.floor(revenueData.value[1] / 10000),
+      data: Math.round(Math.floor(revenueData.value[1] / 10000)),
       label: '최고매출',
       pointBackgroundColor: 'rgba(196,196,196,1)',
       pointHoverRadius: 5,
@@ -468,7 +488,7 @@ export class AggregateResultResponseService extends BaseService {
       pointBackgroundColor: 'rgba(196,196,196,1)',
     };
     const endGraphPart: LineGraphData = {
-      data: highestRevenue.data + 200,
+      data: highestRevenue.data + 300,
       label: '',
       pointRadius: 0,
       pointHoverRadius: 0,
@@ -509,6 +529,6 @@ export class AggregateResultResponseService extends BaseService {
       pointBackgroundColor,
     });
 
-    return graph;
+    return [graph, lowestRevenue.data, highestRevenue.data];
   }
 }

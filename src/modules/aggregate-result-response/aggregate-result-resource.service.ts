@@ -111,7 +111,6 @@ export class AggregateResultResponseService extends BaseService {
     const average =
       averageRatioArray.reduce((prev, curr) => prev + curr) /
       averageRatioArray.length;
-    console.log(average);
     // const deliveryRatioGradeFilteredByCategory = new DeliveryRestaurantRatioClass(
     //   deliveryRatioData[aggregateQuestionQuery.kbFoodCategory],
     // );
@@ -372,7 +371,6 @@ export class AggregateResultResponseService extends BaseService {
    * @param hdongCode
    */
   private async __get_pie_chart_data(analyzedData: any) {
-    console.log(analyzedData);
     const chartData = new Graph();
     const tempLabels = [];
     const tempData = [];
@@ -409,7 +407,7 @@ export class AggregateResultResponseService extends BaseService {
     hdongCode: string,
     selectedRevenue: REVENUE_RANGE,
   ) {
-    let averageMyRevenue;
+    let averageMyRevenue: any;
     if (selectedRevenue === REVENUE_RANGE.UNDER_THOUSAND) {
       averageMyRevenue = 7500000;
     } else if (selectedRevenue === REVENUE_RANGE.BETWEEN_ONE_AND_TWO) {
@@ -484,7 +482,7 @@ export class AggregateResultResponseService extends BaseService {
       endGraphPart,
     );
     const modifiedArray: LineGraphData[] = sortArray.sort((a, b) =>
-      a.data > b.data ? -1 : 1,
+      a.data > b.data ? 1 : -1,
     );
     const graph = new Graph();
     const labels = [];

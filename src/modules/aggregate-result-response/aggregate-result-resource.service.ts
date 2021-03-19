@@ -328,32 +328,6 @@ export class AggregateResultResponseService extends BaseService {
   }
 
   /**
-   * aggregate question
-   * @param aggregateQuestionQuery
-   */
-  async findResponse(aggregateQuestionQuery?: AggregateResultResponseQueryDto) {
-    const responseArray: ResponseArrayClass[] = [];
-    // 시간대별로 데이터 호출
-    const forEachTimeSlot = await Axios.get(
-      `${this.analysisUrl}location-hour-medium-small-category`,
-      {
-        params: { hdongCode: aggregateQuestionQuery.hdongCode },
-      },
-    );
-    const deliveryRatioData = await this.locationAnalysisService.locationInfoDetail(
-      aggregateQuestionQuery.hdongCode,
-    );
-    // await Promise.all(
-    //   aggregateQuestionQuery.operationTimes.map(async time => {
-    //     if (time === OPERATION_TIME.BREAKFAST) {
-    //     }
-    //   }),
-    // );
-
-    return forEachTimeSlot.data;
-  }
-
-  /**
    * transfer data
    */
   async transferData() {
@@ -496,7 +470,10 @@ export class AggregateResultResponseService extends BaseService {
       pointBackgroundColor: 'rgba(196,196,196,1)',
     };
     const endGraphPart: LineGraphData = {
-      data: highestRevenue.data + 300,
+      data:
+        averageMyRevenue > highestRevenue.data + 300
+          ? averageMyRevenue + 300
+          : highestRevenue.data + 300,
       label: '',
       pointRadius: 0,
       pointHoverRadius: 0,

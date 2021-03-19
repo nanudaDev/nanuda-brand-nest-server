@@ -427,7 +427,7 @@ export class AggregateResultResponseService extends BaseService {
   ) {
     let averageMyRevenue: any;
     if (selectedRevenue === REVENUE_RANGE.UNDER_THOUSAND) {
-      averageMyRevenue = 7500000;
+      averageMyRevenue = 750;
     } else if (selectedRevenue === REVENUE_RANGE.BETWEEN_ONE_AND_TWO) {
       averageMyRevenue = 1500;
     } else if (selectedRevenue === REVENUE_RANGE.BETWEEN_TWO_AND_THREE) {
@@ -459,7 +459,7 @@ export class AggregateResultResponseService extends BaseService {
     const lowestRevenue: LineGraphData = {
       data: Math.round(Math.floor(revenueData.value[0] / 10000)),
       label: '최저매출',
-      pointBackgroundColor: 'grey',
+      pointBackgroundColor: 'rgba(196,196,196,1)',
       pointHoverRadius: 5,
       pointRadius: 5,
     };

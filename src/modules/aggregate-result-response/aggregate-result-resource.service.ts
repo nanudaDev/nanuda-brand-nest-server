@@ -118,6 +118,14 @@ export class AggregateResultResponseService extends BaseService {
       if (deliveryRatioData[key].deliveryRatio === null) {
         deliveryRatioData[key].deliveryRatio = 0;
       }
+      if (
+        deliveryRatioData[key] === 'F05' ||
+        deliveryRatioData[key] === 'F08' ||
+        deliveryRatioData[key] === 'F09' ||
+        deliveryRatioData[key] === 'F13'
+      ) {
+        delete deliveryRatioData[key];
+      }
       averageRatioArray.push(deliveryRatioData[key].deliveryRatio);
     });
     const average =

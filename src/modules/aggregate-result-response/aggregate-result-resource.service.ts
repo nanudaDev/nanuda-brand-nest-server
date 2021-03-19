@@ -10,6 +10,7 @@ import {
   FNB_OWNER,
   KB_MEDIUM_CATEGORY,
   OPERATION_TIME,
+  REVENUE_GRADE_SENTENCE,
   REVENUE_RANGE,
 } from 'src/shared';
 import {
@@ -64,6 +65,7 @@ export class ResponseWithProformaId extends BaseDto<ResponseWithProformaId> {
   highestRevenue?: any;
   hdong?: CodeHdong;
   selectedRevenue?: any;
+  revenueGradeSentence?: REVENUE_GRADE_SENTENCE;
 }
 
 export class ResponseArrayClass extends BaseDto<ResponseArrayClass> {
@@ -315,6 +317,7 @@ export class AggregateResultResponseService extends BaseService {
           returnResponse.lowestRevenue = graphData[1];
           returnResponse.highestRevenue = graphData[2];
           returnResponse.selectedRevenue = graphData[3];
+          returnResponse.revenueGradeSentence = graphData[4];
           newProforma.graphData = returnResponse;
         }
         await entityManager.save(newProforma);
@@ -534,6 +537,24 @@ export class AggregateResultResponseService extends BaseService {
       pointBackgroundColor,
     });
 
-    return [graph, lowestRevenue.data, highestRevenue.data, averageMyRevenue];
+    let rating: REVENUE_GRADE_SENTENCE;
+    if (averageMyRevenue < averageRevenue.data) {
+      rating = REVENUE_GRADE_SENTENCE.LITTLE_LOW_REVENUE;
+    } else if (
+      averageRevenue.data - 200 < averageMyRevenue &&
+      averageMyRevenue < averageRevenue.data + 200
+    ) {
+      rating = REVENUE_GRADE_SENTENCE.AVERAGE_REVENUE;
+    } else if (averageMyRevenue > averageRevenue.data) {
+      rating = REVENUE_GRADE_SENTENCE.EXCELLENT;
+    }
+
+    return [
+      graph,
+      lowestRevenue.data,
+      highestRevenue.data,
+      averageMyRevenue,
+      rating,
+    ];
   }
 }

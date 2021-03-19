@@ -63,6 +63,7 @@ export class ResponseWithProformaId extends BaseDto<ResponseWithProformaId> {
   lowestRevenue?: any;
   highestRevenue?: any;
   hdong?: CodeHdong;
+  selectedRevenue?: any;
 }
 
 export class ResponseArrayClass extends BaseDto<ResponseArrayClass> {
@@ -303,6 +304,7 @@ export class AggregateResultResponseService extends BaseService {
           returnResponse.newFnbOwnerPieChartData = await this.__get_pie_chart_data(
             deliveryRatioData,
           );
+          newProforma.graphData = returnResponse;
         }
         if (scoreCard.fnbOwnerStatus === FNB_OWNER.CUR_FNB_OWNER) {
           const graphData = await this.__get_line_chart_data(
@@ -312,7 +314,10 @@ export class AggregateResultResponseService extends BaseService {
           returnResponse.curFnbOwnerLineChartData = graphData[0];
           returnResponse.lowestRevenue = graphData[1];
           returnResponse.highestRevenue = graphData[2];
+          returnResponse.selectedRevenue = graphData[3];
+          newProforma.graphData = returnResponse;
         }
+        await entityManager.save(newProforma);
         return returnResponse;
       },
     );
@@ -529,6 +534,6 @@ export class AggregateResultResponseService extends BaseService {
       pointBackgroundColor,
     });
 
-    return [graph, lowestRevenue.data, highestRevenue.data];
+    return [graph, lowestRevenue.data, highestRevenue.data, averageMyRevenue];
   }
 }

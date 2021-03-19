@@ -6,7 +6,12 @@ import { Console } from 'console';
 import { of } from 'rxjs';
 import { DeliverySpaceConversion, ScoreConversionUtil } from 'src/common/utils';
 import { BaseDto, BaseService } from 'src/core';
-import { FNB_OWNER, KB_MEDIUM_CATEGORY, OPERATION_TIME } from 'src/shared';
+import {
+  FNB_OWNER,
+  KB_MEDIUM_CATEGORY,
+  OPERATION_TIME,
+  REVENUE_RANGE,
+} from 'src/shared';
 import {
   AdvancedConsoleLogger,
   EntityManager,
@@ -51,7 +56,8 @@ export class ResponseWithProformaId extends BaseDto<ResponseWithProformaId> {
   responses: ResponseArrayClass[];
   operationSentenceResponse?: string;
   completeTimeData?: any;
-  newFnbOwnerPieChartData: any;
+  newFnbOwnerPieChartData?: any;
+  curFnbOwnerLineChartData?: any;
 }
 
 export class ResponseArrayClass extends BaseDto<ResponseArrayClass> {
@@ -59,6 +65,14 @@ export class ResponseArrayClass extends BaseDto<ResponseArrayClass> {
   modifiedResponse?: string;
   koreanPrefSentence: string;
   modifiedSufSentence: string;
+}
+
+class LineGraphData {
+  data: number;
+  pointRadius: number;
+  pointHoverRadius: number;
+  pointBackgroundColor: string | 'grey';
+  label: string;
 }
 
 @Injectable()
@@ -94,7 +108,6 @@ export class AggregateResultResponseService extends BaseService {
       }
       averageRatioArray.push(deliveryRatioData[key].deliveryRatio);
     });
-    console.log(averageRatioArray);
     const average =
       averageRatioArray.reduce((prev, curr) => prev + curr) /
       averageRatioArray.length;
@@ -144,7 +157,6 @@ export class AggregateResultResponseService extends BaseService {
       );
     }
     const response = await responseGet.getOne();
-    console.log(response);
     const responseArray = [];
     const returningResponse = await this.entityManager.transaction(
       async entityManager => {
@@ -283,6 +295,12 @@ export class AggregateResultResponseService extends BaseService {
             deliveryRatioData,
           );
         }
+        if (scoreCard.fnbOwnerStatus === FNB_OWNER.CUR_FNB_OWNER) {
+          returnResponse.curFnbOwnerLineChartData = await this.__get_line_chart_data(
+            aggregateQuestionQuery.hdongCode,
+            aggregateQuestionQuery.revenueRangeCode,
+          );
+        }
         return returnResponse;
       },
     );
@@ -385,5 +403,113 @@ export class AggregateResultResponseService extends BaseService {
     ];
     datasets.push({ data: data, backgroundColor: backgroundColor });
     return { labels, datasets };
+  }
+
+  private async __get_line_chart_data(
+    hdongCode: string,
+    selectedRevenue: REVENUE_RANGE,
+  ) {
+    let averageMyRevenue;
+    if (selectedRevenue === REVENUE_RANGE.UNDER_THOUSAND) {
+      averageMyRevenue = 7500000;
+    } else if (selectedRevenue === REVENUE_RANGE.BETWEEN_ONE_AND_TWO) {
+      averageMyRevenue = 15000000;
+    } else if (selectedRevenue === REVENUE_RANGE.BETWEEN_TWO_AND_THREE) {
+      averageMyRevenue = 25000000;
+    } else if (selectedRevenue === REVENUE_RANGE.BETWEEN_THREE_AND_FIVE) {
+      averageMyRevenue = 40000000;
+    } else if (selectedRevenue === REVENUE_RANGE.ABOVE_FIVE_THOUSAND) {
+      averageMyRevenue = 50000000;
+    }
+    const revenueData = await this.locationAnalysisService.getRevenueForLocation(
+      { hdongCode: hdongCode },
+    );
+    const averageRevenueForLocation =
+      revenueData.value.reduce((prev, cur) => prev + cur) / 2;
+
+    const sortArray = [];
+    // 내 매출
+    const myRevenue: LineGraphData = {
+      data: averageMyRevenue,
+      pointHoverRadius: 20,
+      label: '내 매출',
+      pointBackgroundColor: 'blue',
+      pointRadius: 15,
+    };
+    // 최저매출
+    const lowestRevenue: LineGraphData = {
+      data: revenueData.value[0],
+      label: '최저매출',
+      pointBackgroundColor: 'grey',
+      pointHoverRadius: 5,
+      pointRadius: 5,
+    };
+    // 평균 매출
+    const averageRevenue: LineGraphData = {
+      data: averageRevenueForLocation,
+      label: '평균매출',
+      pointBackgroundColor: 'grey',
+      pointHoverRadius: 5,
+      pointRadius: 5,
+    };
+    // 최고 매출
+    const highestRevenue: LineGraphData = {
+      data: revenueData.value[1],
+      label: '최고매출',
+      pointBackgroundColor: 'grey',
+      pointHoverRadius: 5,
+      pointRadius: 5,
+    };
+    // first graph
+    const firstGraphPart: LineGraphData = {
+      data: lowestRevenue.data - 1000000,
+      label: '',
+      pointRadius: 0,
+      pointHoverRadius: 0,
+      pointBackgroundColor: 'grey',
+    };
+    const endGraphPart: LineGraphData = {
+      data: highestRevenue.data + 20000000,
+      label: '',
+      pointRadius: 0,
+      pointHoverRadius: 0,
+      pointBackgroundColor: 'grey',
+    };
+    sortArray.push(
+      myRevenue,
+      lowestRevenue,
+      averageRevenue,
+      highestRevenue,
+      firstGraphPart,
+      endGraphPart,
+    );
+    const modifiedArray: LineGraphData[] = sortArray.sort((a, b) =>
+      a.data > b.data ? -1 : 1,
+    );
+    const graph = new Graph();
+    const labels = [];
+    graph.labels = labels;
+    const datasets = [];
+    graph.datasets = datasets;
+    const data = [];
+    const pointRadius = [];
+    const pointHoverRadius = [];
+    const pointBackgroundColor = [];
+    modifiedArray.map(graphData => {
+      labels.push(graphData.label);
+      data.push(graphData.data);
+      pointRadius.push(graphData.pointRadius);
+      pointBackgroundColor.push(graphData.pointBackgroundColor);
+      pointHoverRadius.push(graphData.pointHoverRadius);
+      datasets.push();
+    });
+    datasets.push({
+      data,
+      pointRadius,
+      pointHoverRadius,
+      pointBackgroundColor,
+    });
+
+    return graph;
   }
 }

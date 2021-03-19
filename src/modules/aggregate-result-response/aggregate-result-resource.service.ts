@@ -486,7 +486,7 @@ export class AggregateResultResponseService extends BaseService {
     };
     // first graph
     const firstGraphPart: LineGraphData = {
-      data: lowestRevenue.data - 200,
+      data: lowestRevenue.data - 200 < 0 ? 0 : lowestRevenue.data - 200,
       label: '',
       pointRadius: 0,
       pointHoverRadius: 0,

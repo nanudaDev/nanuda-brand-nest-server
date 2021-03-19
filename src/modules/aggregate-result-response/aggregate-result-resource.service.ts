@@ -147,7 +147,6 @@ export class AggregateResultResponseService extends BaseService {
         params: { hdongCode: aggregateQuestionQuery.hdongCode },
       },
     );
-    console.log(scoreCard);
     const responseGet = this.responseRepo
       .createQueryBuilder('response')
       .AndWhereEqual('response', 'ageGroupGrade', scoreCard.ageGroupGrade, null)
@@ -182,6 +181,7 @@ export class AggregateResultResponseService extends BaseService {
         await Promise.all(
           aggregateQuestionQuery.operationTimes.map(async times => {
             if (times === OPERATION_TIME.BREAKFAST) {
+              console.log(forEachTimeSlot.data[1], 'test');
               // codes
               const codes: any =
                 forEachTimeSlot.data[0][deliveryRatioGrade.key][0];
@@ -204,7 +204,7 @@ export class AggregateResultResponseService extends BaseService {
             if (times === OPERATION_TIME.LUNCH) {
               // codes
               const codes: any =
-                forEachTimeSlot.data[0][deliveryRatioGrade.key][0];
+                forEachTimeSlot.data[1][deliveryRatioGrade.key][0];
               response.response = response.response.replace(
                 'MEDIUM_CODE',
                 codes.medium_category_nm,
@@ -224,7 +224,7 @@ export class AggregateResultResponseService extends BaseService {
             if (times === OPERATION_TIME.DINNER) {
               // codes
               const codes: any =
-                forEachTimeSlot.data[0][deliveryRatioGrade.key][0];
+                forEachTimeSlot.data[2][deliveryRatioGrade.key][0];
               response.response = response.response.replace(
                 'MEDIUM_CODE',
                 codes.medium_category_nm,
@@ -244,7 +244,7 @@ export class AggregateResultResponseService extends BaseService {
             if (times === OPERATION_TIME.LATE_NIGHT) {
               // codes
               const codes: any =
-                forEachTimeSlot.data[0][deliveryRatioGrade.key][0];
+                forEachTimeSlot.data[3][deliveryRatioGrade.key][0];
               response.response = response.response.replace(
                 'MEDIUM_CODE',
                 codes.medium_category_nm,
@@ -335,38 +335,38 @@ export class AggregateResultResponseService extends BaseService {
     return returningResponse;
   }
 
-  /**
-   * transfer data
-   */
-  async transferData() {
-    const transfer = await this.entityManager.transaction(
-      async entityManager => {
-        const qb = await this.entityManager
-          .getRepository(AggregateResultResponseBackup)
-          .createQueryBuilder('backup')
-          .getMany();
-        await Promise.all(
-          qb.map(async q => {
-            let newResponse = new AggregateResultResponse().set(q);
-            newResponse.response = newResponse.response.replace(
-              '"중분류"',
-              'MEDIUM_CODE',
-            );
-            newResponse.response = newResponse.response.replace(
-              '"소분류"',
-              'SMALL_CODE',
-            );
-            const qb = await this.responseRepo
-              .createQueryBuilder('response')
-              .getMany();
-            if (qb && qb.length < 1) {
-              newResponse = await entityManager.save(newResponse);
-            }
-          }),
-        );
-      },
-    );
-  }
+  // /**
+  //  * transfer data
+  //  */
+  // async transferData() {
+  //   const transfer = await this.entityManager.transaction(
+  //     async entityManager => {
+  //       const qb = await this.entityManager
+  //         .getRepository(AggregateResultResponseBackup)
+  //         .createQueryBuilder('backup')
+  //         .getMany();
+  //       await Promise.all(
+  //         qb.map(async q => {
+  //           let newResponse = new AggregateResultResponse().set(q);
+  //           newResponse.response = newResponse.response.replace(
+  //             '"중분류"',
+  //             'MEDIUM_CODE',
+  //           );
+  //           newResponse.response = newResponse.response.replace(
+  //             '"소분류"',
+  //             'SMALL_CODE',
+  //           );
+  //           const qb = await this.responseRepo
+  //             .createQueryBuilder('response')
+  //             .getMany();
+  //           if (qb && qb.length < 1) {
+  //             newResponse = await entityManager.save(newResponse);
+  //           }
+  //         }),
+  //       );
+  //     },
+  //   );
+  // }
 
   /**
    * get pie chart data for new fnb owners
@@ -432,7 +432,9 @@ export class AggregateResultResponseService extends BaseService {
     );
     const averageRevenueForLocation = Math.round(
       Math.floor(
-        revenueData.value.reduce((prev, cur) => prev + cur) / 2 / 10000,
+        revenueData.value.reduce((prev: number, cur: number) => prev + cur) /
+          2 /
+          10000,
       ),
     );
 

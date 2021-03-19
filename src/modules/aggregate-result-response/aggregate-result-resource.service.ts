@@ -422,8 +422,9 @@ export class AggregateResultResponseService extends BaseService {
     const revenueData = await this.locationAnalysisService.getRevenueForLocation(
       { hdongCode: hdongCode },
     );
-    const averageRevenueForLocation =
-      revenueData.value.reduce((prev, cur) => prev + cur) / 2;
+    const averageRevenueForLocation = Math.floor(
+      revenueData.value.reduce((prev, cur) => prev + cur) / 2 / 10000,
+    );
 
     const sortArray = [];
     // 내 매출

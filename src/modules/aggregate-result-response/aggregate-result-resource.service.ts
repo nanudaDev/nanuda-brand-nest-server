@@ -10,6 +10,7 @@ import {
   FNB_OWNER,
   KB_MEDIUM_CATEGORY,
   OPERATION_TIME,
+  REVENUE_GRADE_SENTENCE,
   REVENUE_RANGE,
 } from 'src/shared';
 import {
@@ -63,6 +64,8 @@ export class ResponseWithProformaId extends BaseDto<ResponseWithProformaId> {
   lowestRevenue?: any;
   highestRevenue?: any;
   hdong?: CodeHdong;
+  selectedRevenue?: any;
+  revenueGradeSentence?: REVENUE_GRADE_SENTENCE;
 }
 
 export class ResponseArrayClass extends BaseDto<ResponseArrayClass> {
@@ -303,6 +306,7 @@ export class AggregateResultResponseService extends BaseService {
           returnResponse.newFnbOwnerPieChartData = await this.__get_pie_chart_data(
             deliveryRatioData,
           );
+          newProforma.graphData = returnResponse;
         }
         if (scoreCard.fnbOwnerStatus === FNB_OWNER.CUR_FNB_OWNER) {
           const graphData = await this.__get_line_chart_data(
@@ -312,37 +316,15 @@ export class AggregateResultResponseService extends BaseService {
           returnResponse.curFnbOwnerLineChartData = graphData[0];
           returnResponse.lowestRevenue = graphData[1];
           returnResponse.highestRevenue = graphData[2];
+          returnResponse.selectedRevenue = graphData[3];
+          returnResponse.revenueGradeSentence = graphData[4];
+          newProforma.graphData = returnResponse;
         }
+        await entityManager.save(newProforma);
         return returnResponse;
       },
     );
     return returningResponse;
-  }
-
-  /**
-   * aggregate question
-   * @param aggregateQuestionQuery
-   */
-  async findResponse(aggregateQuestionQuery?: AggregateResultResponseQueryDto) {
-    const responseArray: ResponseArrayClass[] = [];
-    // 시간대별로 데이터 호출
-    const forEachTimeSlot = await Axios.get(
-      `${this.analysisUrl}location-hour-medium-small-category`,
-      {
-        params: { hdongCode: aggregateQuestionQuery.hdongCode },
-      },
-    );
-    const deliveryRatioData = await this.locationAnalysisService.locationInfoDetail(
-      aggregateQuestionQuery.hdongCode,
-    );
-    // await Promise.all(
-    //   aggregateQuestionQuery.operationTimes.map(async time => {
-    //     if (time === OPERATION_TIME.BREAKFAST) {
-    //     }
-    //   }),
-    // );
-
-    return forEachTimeSlot.data;
   }
 
   /**
@@ -427,7 +409,7 @@ export class AggregateResultResponseService extends BaseService {
   ) {
     let averageMyRevenue: any;
     if (selectedRevenue === REVENUE_RANGE.UNDER_THOUSAND) {
-      averageMyRevenue = 7500000;
+      averageMyRevenue = 750;
     } else if (selectedRevenue === REVENUE_RANGE.BETWEEN_ONE_AND_TWO) {
       averageMyRevenue = 1500;
     } else if (selectedRevenue === REVENUE_RANGE.BETWEEN_TWO_AND_THREE) {
@@ -459,7 +441,7 @@ export class AggregateResultResponseService extends BaseService {
     const lowestRevenue: LineGraphData = {
       data: Math.round(Math.floor(revenueData.value[0] / 10000)),
       label: '최저매출',
-      pointBackgroundColor: 'grey',
+      pointBackgroundColor: 'rgba(196,196,196,1)',
       pointHoverRadius: 5,
       pointRadius: 5,
     };
@@ -481,14 +463,17 @@ export class AggregateResultResponseService extends BaseService {
     };
     // first graph
     const firstGraphPart: LineGraphData = {
-      data: lowestRevenue.data - 200,
+      data: lowestRevenue.data - 200 < 0 ? 0 : lowestRevenue.data - 200,
       label: '',
       pointRadius: 0,
       pointHoverRadius: 0,
       pointBackgroundColor: 'rgba(196,196,196,1)',
     };
     const endGraphPart: LineGraphData = {
-      data: highestRevenue.data + 300,
+      data:
+        averageMyRevenue > highestRevenue.data + 300
+          ? averageMyRevenue + 300
+          : highestRevenue.data + 300,
       label: '',
       pointRadius: 0,
       pointHoverRadius: 0,
@@ -529,6 +514,24 @@ export class AggregateResultResponseService extends BaseService {
       pointBackgroundColor,
     });
 
-    return [graph, lowestRevenue.data, highestRevenue.data];
+    let rating: REVENUE_GRADE_SENTENCE;
+    if (averageMyRevenue < averageRevenue.data) {
+      rating = REVENUE_GRADE_SENTENCE.LITTLE_LOW_REVENUE;
+    } else if (
+      averageRevenue.data - 200 < averageMyRevenue &&
+      averageMyRevenue < averageRevenue.data + 200
+    ) {
+      rating = REVENUE_GRADE_SENTENCE.AVERAGE_REVENUE;
+    } else if (averageMyRevenue > averageRevenue.data) {
+      rating = REVENUE_GRADE_SENTENCE.EXCELLENT;
+    }
+
+    return [
+      graph,
+      lowestRevenue.data,
+      highestRevenue.data,
+      averageMyRevenue,
+      rating,
+    ];
   }
 }

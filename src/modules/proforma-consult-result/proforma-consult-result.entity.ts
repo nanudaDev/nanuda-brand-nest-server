@@ -102,6 +102,12 @@ export class ProformaConsultResult extends BaseEntity<ProformaConsultResult> {
   })
   operationSentenceId: number;
 
+  @Column({
+    name: 'graph_data',
+    type: 'json',
+  })
+  graphData: any;
+
   @OneToOne(type => CommonCode)
   @JoinColumn({ name: 'fnb_owner_status', referencedColumnName: 'key' })
   fnbOwnerCodeStatus?: CommonCode;

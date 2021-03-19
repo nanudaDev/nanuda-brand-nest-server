@@ -71,7 +71,7 @@ class LineGraphData {
   data: number;
   pointRadius: number;
   pointHoverRadius: number;
-  pointBackgroundColor: string | 'grey';
+  pointBackgroundColor: string;
   label: string;
 }
 
@@ -411,13 +411,13 @@ export class AggregateResultResponseService extends BaseService {
     if (selectedRevenue === REVENUE_RANGE.UNDER_THOUSAND) {
       averageMyRevenue = 7500000;
     } else if (selectedRevenue === REVENUE_RANGE.BETWEEN_ONE_AND_TWO) {
-      averageMyRevenue = 15000000;
+      averageMyRevenue = 1500;
     } else if (selectedRevenue === REVENUE_RANGE.BETWEEN_TWO_AND_THREE) {
-      averageMyRevenue = 25000000;
+      averageMyRevenue = 2500;
     } else if (selectedRevenue === REVENUE_RANGE.BETWEEN_THREE_AND_FIVE) {
-      averageMyRevenue = 40000000;
+      averageMyRevenue = 4000;
     } else if (selectedRevenue === REVENUE_RANGE.ABOVE_FIVE_THOUSAND) {
-      averageMyRevenue = 50000000;
+      averageMyRevenue = 5000;
     }
     const revenueData = await this.locationAnalysisService.getRevenueForLocation(
       { hdongCode: hdongCode },
@@ -431,12 +431,12 @@ export class AggregateResultResponseService extends BaseService {
       data: averageMyRevenue,
       pointHoverRadius: 20,
       label: '내 매출',
-      pointBackgroundColor: 'blue',
+      pointBackgroundColor: 'rgba(0,77,138,1)',
       pointRadius: 15,
     };
     // 최저매출
     const lowestRevenue: LineGraphData = {
-      data: revenueData.value[0],
+      data: Math.floor(revenueData.value[0] / 10000),
       label: '최저매출',
       pointBackgroundColor: 'grey',
       pointHoverRadius: 5,
@@ -446,32 +446,32 @@ export class AggregateResultResponseService extends BaseService {
     const averageRevenue: LineGraphData = {
       data: averageRevenueForLocation,
       label: '평균매출',
-      pointBackgroundColor: 'grey',
+      pointBackgroundColor: 'rgba(196,196,196,1)',
       pointHoverRadius: 5,
       pointRadius: 5,
     };
     // 최고 매출
     const highestRevenue: LineGraphData = {
-      data: revenueData.value[1],
+      data: Math.floor(revenueData.value[1] / 10000),
       label: '최고매출',
-      pointBackgroundColor: 'grey',
+      pointBackgroundColor: 'rgba(196,196,196,1)',
       pointHoverRadius: 5,
       pointRadius: 5,
     };
     // first graph
     const firstGraphPart: LineGraphData = {
-      data: lowestRevenue.data - 1000000,
+      data: lowestRevenue.data - 200,
       label: '',
       pointRadius: 0,
       pointHoverRadius: 0,
-      pointBackgroundColor: 'grey',
+      pointBackgroundColor: 'rgba(196,196,196,1)',
     };
     const endGraphPart: LineGraphData = {
-      data: highestRevenue.data + 20000000,
+      data: highestRevenue.data + 200,
       label: '',
       pointRadius: 0,
       pointHoverRadius: 0,
-      pointBackgroundColor: 'grey',
+      pointBackgroundColor: 'rgba(196,196,196,1)',
     };
     sortArray.push(
       myRevenue,

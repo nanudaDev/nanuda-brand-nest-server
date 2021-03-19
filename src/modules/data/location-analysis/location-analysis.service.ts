@@ -18,9 +18,7 @@ export class LocationAnalysisService extends BaseService {
    * get revenue data
    * @param locationAnalysisQueryDto
    */
-  async getRevenueForLocation(
-    locationAnalysisQueryDto?: LocationAnalysisDto,
-  ): Promise<LocationResults> {
+  async getRevenueForLocation(locationAnalysisQueryDto?: LocationAnalysisDto) {
     if (
       !locationAnalysisQueryDto.hdongCode &&
       locationAnalysisQueryDto.mediumCategoryCode

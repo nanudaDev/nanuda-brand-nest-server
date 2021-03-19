@@ -8,3 +8,4 @@ export * from './question/question.module';
 export * from './faq-answer/faq.module';
 export * from './data';
 export * from './result-response/result-response.module';
+export * from './sms-notification/sms-notification.module';

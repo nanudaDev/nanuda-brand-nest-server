@@ -9,5 +9,6 @@ import { CodeHdongService } from './code-hdong.service';
   imports: [TypeOrmModule.forFeature([CodeHdong], 'wq')],
   controllers: [CodeHdongController],
   providers: [CodeHdongService],
+  exports: [CodeHdongService],
 })
 export class CodeHdongModule {}

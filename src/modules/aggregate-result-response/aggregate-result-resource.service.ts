@@ -5,14 +5,22 @@ import Axios from 'axios';
 import { Console } from 'console';
 import { of } from 'rxjs';
 import { DeliverySpaceConversion, ScoreConversionUtil } from 'src/common/utils';
-import { BaseDto, BaseService } from 'src/core';
-import { FNB_OWNER, KB_MEDIUM_CATEGORY, OPERATION_TIME } from 'src/shared';
+import { BaseDto, BaseEntity, BaseService } from 'src/core';
+import {
+  FNB_OWNER,
+  KB_MEDIUM_CATEGORY,
+  OPERATION_TIME,
+  REVENUE_GRADE_SENTENCE,
+  REVENUE_RANGE,
+} from 'src/shared';
 import {
   AdvancedConsoleLogger,
   EntityManager,
   getConnection,
   Repository,
 } from 'typeorm';
+import { CodeHdong } from '../code-hdong/code-hdong.entity';
+import { CodeHdongService } from '../code-hdong/code-hdong.service';
 import { CommonCode } from '../common-code/common-code.entity';
 import { ConsultResult } from '../consult-result/consult-result.entity';
 import { LocationAnalysisService } from '../data/location-analysis/location-analysis.service';
@@ -51,7 +59,13 @@ export class ResponseWithProformaId extends BaseDto<ResponseWithProformaId> {
   responses: ResponseArrayClass[];
   operationSentenceResponse?: string;
   completeTimeData?: any;
-  newFnbOwnerPieChartData: any;
+  newFnbOwnerPieChartData?: any;
+  curFnbOwnerLineChartData?: any;
+  lowestRevenue?: any;
+  highestRevenue?: any;
+  hdong?: CodeHdong;
+  selectedRevenue?: any;
+  revenueGradeSentence?: REVENUE_GRADE_SENTENCE;
 }
 
 export class ResponseArrayClass extends BaseDto<ResponseArrayClass> {
@@ -59,6 +73,14 @@ export class ResponseArrayClass extends BaseDto<ResponseArrayClass> {
   modifiedResponse?: string;
   koreanPrefSentence: string;
   modifiedSufSentence: string;
+}
+
+class LineGraphData {
+  data: number;
+  pointRadius: number;
+  pointHoverRadius: number;
+  pointBackgroundColor: string;
+  label: string;
 }
 
 @Injectable()
@@ -72,6 +94,7 @@ export class AggregateResultResponseService extends BaseService {
     private readonly proformaConsultRepo: Repository<ProformaConsultResult>,
     @InjectEntityManager() private readonly entityManager: EntityManager,
     private readonly locationAnalysisService: LocationAnalysisService,
+    private readonly codeHdongService: CodeHdongService,
   ) {
     super();
   }
@@ -87,6 +110,9 @@ export class AggregateResultResponseService extends BaseService {
     const deliveryRatioData = await this.locationAnalysisService.locationInfoDetail(
       aggregateQuestionQuery.hdongCode,
     );
+    const hdong = await this.codeHdongService.findOneByCode(
+      aggregateQuestionQuery.hdongCode,
+    );
     const averageRatioArray: number[] = [];
     Object.keys(deliveryRatioData).forEach(function(key) {
       if (deliveryRatioData[key].deliveryRatio === null) {
@@ -94,11 +120,9 @@ export class AggregateResultResponseService extends BaseService {
       }
       averageRatioArray.push(deliveryRatioData[key].deliveryRatio);
     });
-    console.log(averageRatioArray);
     const average =
       averageRatioArray.reduce((prev, curr) => prev + curr) /
       averageRatioArray.length;
-    console.log(average);
     // const deliveryRatioGradeFilteredByCategory = new DeliveryRestaurantRatioClass(
     //   deliveryRatioData[aggregateQuestionQuery.kbFoodCategory],
     // );
@@ -144,7 +168,6 @@ export class AggregateResultResponseService extends BaseService {
       );
     }
     const response = await responseGet.getOne();
-    console.log(response);
     const responseArray = [];
     const returningResponse = await this.entityManager.transaction(
       async entityManager => {
@@ -239,6 +262,7 @@ export class AggregateResultResponseService extends BaseService {
             where: {
               deliveryRatioGrade: scoreCard.deliveryRatioGrade,
               ageGroupGrade: response.ageGroupGrade,
+              fnbOwnerStatus: response.fnbOwnerStatus,
             },
           });
         // save to proforma consult table
@@ -277,41 +301,30 @@ export class AggregateResultResponseService extends BaseService {
         returnResponse.responses = responseArray;
         returnResponse.operationSentenceResponse = operationSentence.response;
         returnResponse.completeTimeData = forEachTimeSlot.data;
+        returnResponse.hdong = hdong;
         if (scoreCard.fnbOwnerStatus === FNB_OWNER.NEW_FNB_OWNER) {
           returnResponse.newFnbOwnerPieChartData = await this.__get_pie_chart_data(
             deliveryRatioData,
           );
+          newProforma.graphData = returnResponse;
         }
+        if (scoreCard.fnbOwnerStatus === FNB_OWNER.CUR_FNB_OWNER) {
+          const graphData = await this.__get_line_chart_data(
+            aggregateQuestionQuery.hdongCode,
+            aggregateQuestionQuery.revenueRangeCode,
+          );
+          returnResponse.curFnbOwnerLineChartData = graphData[0];
+          returnResponse.lowestRevenue = graphData[1];
+          returnResponse.highestRevenue = graphData[2];
+          returnResponse.selectedRevenue = graphData[3];
+          returnResponse.revenueGradeSentence = graphData[4];
+          newProforma.graphData = returnResponse;
+        }
+        await entityManager.save(newProforma);
         return returnResponse;
       },
     );
     return returningResponse;
-  }
-
-  /**
-   * aggregate question
-   * @param aggregateQuestionQuery
-   */
-  async findResponse(aggregateQuestionQuery?: AggregateResultResponseQueryDto) {
-    const responseArray: ResponseArrayClass[] = [];
-    // 시간대별로 데이터 호출
-    const forEachTimeSlot = await Axios.get(
-      `${this.analysisUrl}location-hour-medium-small-category`,
-      {
-        params: { hdongCode: aggregateQuestionQuery.hdongCode },
-      },
-    );
-    const deliveryRatioData = await this.locationAnalysisService.locationInfoDetail(
-      aggregateQuestionQuery.hdongCode,
-    );
-    // await Promise.all(
-    //   aggregateQuestionQuery.operationTimes.map(async time => {
-    //     if (time === OPERATION_TIME.BREAKFAST) {
-    //     }
-    //   }),
-    // );
-
-    return forEachTimeSlot.data;
   }
 
   /**
@@ -353,7 +366,6 @@ export class AggregateResultResponseService extends BaseService {
    * @param hdongCode
    */
   private async __get_pie_chart_data(analyzedData: any) {
-    console.log(analyzedData);
     const chartData = new Graph();
     const tempLabels = [];
     const tempData = [];
@@ -384,5 +396,142 @@ export class AggregateResultResponseService extends BaseService {
     ];
     datasets.push({ data: data, backgroundColor: backgroundColor });
     return { labels, datasets };
+  }
+
+  /**
+   * get line graph for cur fnb owner
+   * @param hdongCode
+   * @param selectedRevenue
+   */
+  private async __get_line_chart_data(
+    hdongCode: string,
+    selectedRevenue: REVENUE_RANGE,
+  ) {
+    let averageMyRevenue: any;
+    if (selectedRevenue === REVENUE_RANGE.UNDER_THOUSAND) {
+      averageMyRevenue = 750;
+    } else if (selectedRevenue === REVENUE_RANGE.BETWEEN_ONE_AND_TWO) {
+      averageMyRevenue = 1500;
+    } else if (selectedRevenue === REVENUE_RANGE.BETWEEN_TWO_AND_THREE) {
+      averageMyRevenue = 2500;
+    } else if (selectedRevenue === REVENUE_RANGE.BETWEEN_THREE_AND_FIVE) {
+      averageMyRevenue = 4000;
+    } else if (selectedRevenue === REVENUE_RANGE.ABOVE_FIVE_THOUSAND) {
+      averageMyRevenue = 5000;
+    }
+    const revenueData = await this.locationAnalysisService.getRevenueForLocation(
+      { hdongCode: hdongCode },
+    );
+    const averageRevenueForLocation = Math.round(
+      Math.floor(
+        revenueData.value.reduce((prev, cur) => prev + cur) / 2 / 10000,
+      ),
+    );
+
+    const sortArray = [];
+    // 내 매출
+    const myRevenue: LineGraphData = {
+      data: averageMyRevenue,
+      pointHoverRadius: 20,
+      label: '내 매출',
+      pointBackgroundColor: 'rgba(0,77,138,1)',
+      pointRadius: 15,
+    };
+    // 최저매출
+    const lowestRevenue: LineGraphData = {
+      data: Math.round(Math.floor(revenueData.value[0] / 10000)),
+      label: '최저매출',
+      pointBackgroundColor: 'rgba(196,196,196,1)',
+      pointHoverRadius: 5,
+      pointRadius: 5,
+    };
+    // 평균 매출
+    const averageRevenue: LineGraphData = {
+      data: averageRevenueForLocation,
+      label: '평균매출',
+      pointBackgroundColor: 'rgba(196,196,196,1)',
+      pointHoverRadius: 5,
+      pointRadius: 5,
+    };
+    // 최고 매출
+    const highestRevenue: LineGraphData = {
+      data: Math.round(Math.floor(revenueData.value[1] / 10000)),
+      label: '최고매출',
+      pointBackgroundColor: 'rgba(196,196,196,1)',
+      pointHoverRadius: 5,
+      pointRadius: 5,
+    };
+    // first graph
+    const firstGraphPart: LineGraphData = {
+      data: lowestRevenue.data - 200 < 0 ? 0 : lowestRevenue.data - 200,
+      label: '',
+      pointRadius: 0,
+      pointHoverRadius: 0,
+      pointBackgroundColor: 'rgba(196,196,196,1)',
+    };
+    const endGraphPart: LineGraphData = {
+      data:
+        averageMyRevenue > highestRevenue.data + 300
+          ? averageMyRevenue + 300
+          : highestRevenue.data + 300,
+      label: '',
+      pointRadius: 0,
+      pointHoverRadius: 0,
+      pointBackgroundColor: 'rgba(196,196,196,1)',
+    };
+    sortArray.push(
+      myRevenue,
+      lowestRevenue,
+      averageRevenue,
+      highestRevenue,
+      firstGraphPart,
+      endGraphPart,
+    );
+    const modifiedArray: LineGraphData[] = sortArray.sort((a, b) =>
+      a.data > b.data ? 1 : -1,
+    );
+    const graph = new Graph();
+    const labels = [];
+    graph.labels = labels;
+    const datasets = [];
+    graph.datasets = datasets;
+    const data = [];
+    const pointRadius = [];
+    const pointHoverRadius = [];
+    const pointBackgroundColor = [];
+    modifiedArray.map(graphData => {
+      labels.push(graphData.label);
+      data.push(graphData.data);
+      pointRadius.push(graphData.pointRadius);
+      pointBackgroundColor.push(graphData.pointBackgroundColor);
+      pointHoverRadius.push(graphData.pointHoverRadius);
+      datasets.push();
+    });
+    datasets.push({
+      data,
+      pointRadius,
+      pointHoverRadius,
+      pointBackgroundColor,
+    });
+
+    let rating: REVENUE_GRADE_SENTENCE;
+    if (averageMyRevenue < averageRevenue.data) {
+      rating = REVENUE_GRADE_SENTENCE.LITTLE_LOW_REVENUE;
+    } else if (
+      averageRevenue.data - 200 < averageMyRevenue &&
+      averageMyRevenue < averageRevenue.data + 200
+    ) {
+      rating = REVENUE_GRADE_SENTENCE.AVERAGE_REVENUE;
+    } else if (averageMyRevenue > averageRevenue.data) {
+      rating = REVENUE_GRADE_SENTENCE.EXCELLENT;
+    }
+
+    return [
+      graph,
+      lowestRevenue.data,
+      highestRevenue.data,
+      averageMyRevenue,
+      rating,
+    ];
   }
 }

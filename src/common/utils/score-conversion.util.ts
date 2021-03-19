@@ -18,7 +18,6 @@ class ScoreCard extends AggregateResultResponse {}
 export const ScoreConversionUtil = (
   dto: AggregateResultResponseQueryDto,
 ): ScoreCard => {
-  console.log(dto);
   let scoreCard = new ScoreCard(dto);
   // age group grade
   if (
@@ -31,7 +30,6 @@ export const ScoreConversionUtil = (
     scoreCard.ageGroupCode === AGE_GROUP.AGE_50 ||
     scoreCard.ageGroupCode === AGE_GROUP.AGE_60_OVER
   ) {
-    console.log('age 40');
     scoreCard.ageGroupGrade = 2;
   }
   // revenue grade

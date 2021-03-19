@@ -23,6 +23,7 @@ export class PickcookSlackNotificationService {
               name: 'slack action button',
               text: '신청서 상세보기',
               type: 'button',
+              // TODO: once URL is set up
               // url: `${process.env.ADMIN_BASEURL}delivery-founder-consult/${deliveryFounderConsult.no}`,
               style: 'primary',
             },

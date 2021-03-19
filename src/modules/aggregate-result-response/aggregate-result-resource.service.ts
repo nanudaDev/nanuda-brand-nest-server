@@ -239,6 +239,7 @@ export class AggregateResultResponseService extends BaseService {
             where: {
               deliveryRatioGrade: scoreCard.deliveryRatioGrade,
               ageGroupGrade: response.ageGroupGrade,
+              fnbOwnerStatus: response.fnbOwnerStatus,
             },
           });
         // save to proforma consult table

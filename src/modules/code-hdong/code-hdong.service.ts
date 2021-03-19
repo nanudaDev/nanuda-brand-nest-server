@@ -111,4 +111,17 @@ export class CodeHdongService extends BaseService {
 
     return qb;
   }
+
+  /**
+   * find one
+   * @param hdongCode
+   */
+  async findOneByCode(hdongCode: string) {
+    const hdong = await this.codeHdongRepo
+      .createQueryBuilder('hdong')
+      .where('hdong.hdongCode = :hdongCode', { hdongCode: hdongCode })
+      .getOne();
+
+    return hdong;
+  }
 }

@@ -1,6 +1,11 @@
 import { BaseDto } from 'src/core';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNotEmpty, IsPhoneNumber, MinLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsPhoneNumber,
+  MinLength,
+} from 'class-validator';
 import { Expose } from 'class-transformer';
 import { UserType } from 'src/modules/auth';
 import { SmsAuth } from '../nanuda-sms-notification.entity';
@@ -14,8 +19,14 @@ export class SmsAuthNotificationDto extends BaseDto<SmsAuthNotificationDto>
   @Expose()
   phone: string;
 
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Expose()
+  smsAuthCode?: number;
+
   @Expose()
   @ApiPropertyOptional()
+  @IsOptional()
   @Default(UserType.PICKCOOK_USER)
   userType?: UserType;
 }

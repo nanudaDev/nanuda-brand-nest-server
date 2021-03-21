@@ -161,10 +161,10 @@ export class ConsultResultService extends BaseService {
     consultResultCreateDto: ConsultResultResponseCreateDto,
     req: Request,
   ): Promise<ConsultResult> {
-    await this.smsNotificationService.checkCode(
-      consultResultCreateDto.phone,
-      consultResultCreateDto.smsAuthCode,
-    );
+    // await this.smsNotificationService.checkCode(
+    //   consultResultCreateDto.phone,
+    //   consultResultCreateDto.smsAuthCode,
+    // );
     const consult = await this.entityManager.transaction(
       async entityManager => {
         // find phone and sms auth code first

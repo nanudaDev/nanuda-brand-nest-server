@@ -98,10 +98,10 @@ export class SmsNotificationService {
    * @param phone
    * @param code
    */
-  async checkCode(phone: string, code: number) {
+  async checkCode(smsAuthNotificationDto: SmsAuthNotificationDto) {
     const checkCode = await this.smsAuthRepo.findOne({
-      authCode: code,
-      phone: phone,
+      authCode: smsAuthNotificationDto.smsAuthCode,
+      phone: smsAuthNotificationDto.phone,
     });
     if (!checkCode) {
       throw new BrandAiException('smsAuth.notFound');

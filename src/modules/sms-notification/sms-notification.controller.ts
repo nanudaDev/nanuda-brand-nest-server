@@ -17,7 +17,7 @@ export class SmsNotifcationController extends BaseController {
    * @param smsAuthNotificationDto
    * @param req
    */
-  @Post('/sms-notification/register-code')
+  @Post('/sms-notification/register-sms-code')
   async registerCode(
     @Body() smsAuthNotificationDto: SmsAuthNotificationDto,
     @Req() req: Request,
@@ -26,5 +26,14 @@ export class SmsNotifcationController extends BaseController {
       smsAuthNotificationDto,
       req,
     );
+  }
+
+  /**
+   * check code
+   * @param companyUserSmsAuthCheckDto
+   */
+  @Post('/check-sms-code')
+  async checkCode(@Body() smsAuthNotificationDto: SmsAuthNotificationDto) {
+    return await this.smsNotificationService.checkCode(smsAuthNotificationDto);
   }
 }

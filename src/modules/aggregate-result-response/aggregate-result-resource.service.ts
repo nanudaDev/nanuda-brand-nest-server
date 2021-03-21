@@ -427,9 +427,11 @@ export class AggregateResultResponseService extends BaseService {
     } else if (selectedRevenue === REVENUE_RANGE.ABOVE_FIVE_THOUSAND) {
       averageMyRevenue = 5000;
     }
+    console.log(hdongCode);
     const revenueData = await this.locationAnalysisService.getRevenueForLocation(
       { hdongCode: hdongCode },
     );
+    console.log(revenueData);
     const averageRevenueForLocation = Math.round(
       Math.floor(
         revenueData.value.reduce((prev: number, cur: number) => prev + cur) /

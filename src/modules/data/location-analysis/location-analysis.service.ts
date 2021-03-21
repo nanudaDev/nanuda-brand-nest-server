@@ -4,13 +4,20 @@ import axios from 'axios';
 import { BaseService, BrandAiException } from 'src/core';
 import { LocationAnalysisDto } from './dto';
 import Axios from 'axios';
+import { InjectRepository } from '@nestjs/typeorm';
+import { HdongCodeNoData } from '../hdong-code-no-data/hdong-code-no-data.entity';
+import { Repository } from 'typeorm';
+import { YN } from 'src/common';
 
 class LocationResults {
   results?: any | string;
 }
 @Injectable()
 export class LocationAnalysisService extends BaseService {
-  constructor() {
+  constructor(
+    @InjectRepository(HdongCodeNoData)
+    private readonly hdongCodeNoDataRepo: Repository<HdongCodeNoData>,
+  ) {
     super();
   }
 
@@ -33,6 +40,25 @@ export class LocationAnalysisService extends BaseService {
     // if (typeof revenueData.data === 'string') {
     //   return 'something else';
     // }
+    let checkIfDataIsIn = await this.hdongCodeNoDataRepo.findOne({
+      where: { hdongCode: locationAnalysisQueryDto.hdongCode },
+    });
+    if (revenueData.data.value && revenueData.data.value.length < 1) {
+      // TODO: randomize these numbers
+
+      if (!checkIfDataIsIn) {
+        const newData = new HdongCodeNoData({
+          hdongCode: locationAnalysisQueryDto.hdongCode,
+          endpoint: '/location-info',
+        });
+        await this.hdongCodeNoDataRepo.save(newData);
+      }
+      revenueData.data = { value: [7820000, 27400000] };
+    }
+    if (checkIfDataIsIn) {
+      checkIfDataIsIn.isUsable = YN.YES;
+      await this.hdongCodeNoDataRepo.save(this.hdongCodeNoDataRepo);
+    }
     return revenueData.data;
   }
 

@@ -21,7 +21,7 @@ export class ConsultResultResponseCreateDto
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
-  smsAuthCode: string;
+  smsAuthCode: number;
 
   @ApiProperty()
   @IsNotEmpty()

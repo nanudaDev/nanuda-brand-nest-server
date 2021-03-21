@@ -1,5 +1,6 @@
 import {
   BaseEntity as TyepOrmBaseEntity,
+  Column,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { BaseDto } from './';
@@ -38,6 +39,22 @@ export class BasePlatformEntity<Entity> extends TyepOrmBaseEntity {
   @PrimaryGeneratedColumn({
     type: 'int',
     unsigned: true,
+    name: 'no',
   })
-  NO: number;
+  no: number;
+
+  @Column({
+    type: 'datetime',
+    default: () => 'CURRENT_TIMESTAMP',
+    nullable: true,
+  })
+  createdAt: Date;
+
+  @Column({
+    type: 'datetime',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+    nullable: true,
+  })
+  updatedAt: Date;
 }

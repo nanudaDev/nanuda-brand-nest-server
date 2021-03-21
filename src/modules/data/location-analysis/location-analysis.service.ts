@@ -86,4 +86,32 @@ export class LocationAnalysisService extends BaseService {
     });
     return data.data;
   }
+
+  async locationMediumSmallCategory(hdongCode: string) {
+    const hdongFirstTwoStrings = hdongCode.substring(0, 2);
+    console.log(hdongFirstTwoStrings);
+    // IF 제주 IS OFF
+    const data = await Axios.get(
+      `${this.analysisUrl}location-hour-medium-small-category`,
+      {
+        params: { hdongCode: hdongCode },
+      },
+    );
+    if (
+      data.data.value &&
+      data.data.value.length < 1 &&
+      hdongFirstTwoStrings === '50'
+    ) {
+      console.log('test');
+      const newData = await Axios.get(
+        `${this.analysisUrl}location-hour-medium-small-category`,
+        {
+          params: { hdongCode: '5011052000' },
+        },
+      );
+      return newData.data;
+    } else {
+      return data.data;
+    }
+  }
 }

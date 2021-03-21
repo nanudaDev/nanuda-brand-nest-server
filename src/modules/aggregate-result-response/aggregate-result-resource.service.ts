@@ -141,12 +141,10 @@ export class AggregateResultResponseService extends BaseService {
     const scoreCard = ScoreConversionUtil(aggregateQuestionQuery);
     scoreCard.deliveryRatioGrade = deliveryRatioGrade.grade;
     // get for each time slot
-    const forEachTimeSlot = await Axios.get(
-      `${this.analysisUrl}location-hour-medium-small-category`,
-      {
-        params: { hdongCode: aggregateQuestionQuery.hdongCode },
-      },
+    const forEachTimeSlot = await this.locationAnalysisService.locationMediumSmallCategory(
+      aggregateQuestionQuery.hdongCode,
     );
+    console.log(forEachTimeSlot);
     const responseGet = this.responseRepo
       .createQueryBuilder('response')
       .AndWhereEqual('response', 'ageGroupGrade', scoreCard.ageGroupGrade, null)
@@ -181,10 +179,9 @@ export class AggregateResultResponseService extends BaseService {
         await Promise.all(
           aggregateQuestionQuery.operationTimes.map(async times => {
             if (times === OPERATION_TIME.BREAKFAST) {
-              console.log(forEachTimeSlot.data[1], 'test');
+              console.log(forEachTimeSlot[1], 'test');
               // codes
-              const codes: any =
-                forEachTimeSlot.data[0][deliveryRatioGrade.key][0];
+              const codes: any = forEachTimeSlot[0][deliveryRatioGrade.key][0];
               response.response = response.response.replace(
                 'MEDIUM_CODE',
                 codes.medium_category_nm,
@@ -203,8 +200,7 @@ export class AggregateResultResponseService extends BaseService {
             }
             if (times === OPERATION_TIME.LUNCH) {
               // codes
-              const codes: any =
-                forEachTimeSlot.data[1][deliveryRatioGrade.key][0];
+              const codes: any = forEachTimeSlot[1][deliveryRatioGrade.key][0];
               response.response = response.response.replace(
                 'MEDIUM_CODE',
                 codes.medium_category_nm,
@@ -223,8 +219,7 @@ export class AggregateResultResponseService extends BaseService {
             }
             if (times === OPERATION_TIME.DINNER) {
               // codes
-              const codes: any =
-                forEachTimeSlot.data[2][deliveryRatioGrade.key][0];
+              const codes: any = forEachTimeSlot[2][deliveryRatioGrade.key][0];
               response.response = response.response.replace(
                 'MEDIUM_CODE',
                 codes.medium_category_nm,
@@ -243,8 +238,7 @@ export class AggregateResultResponseService extends BaseService {
             }
             if (times === OPERATION_TIME.LATE_NIGHT) {
               // codes
-              const codes: any =
-                forEachTimeSlot.data[3][deliveryRatioGrade.key][0];
+              const codes: any = forEachTimeSlot[3][deliveryRatioGrade.key][0];
               response.response = response.response.replace(
                 'MEDIUM_CODE',
                 codes.medium_category_nm,

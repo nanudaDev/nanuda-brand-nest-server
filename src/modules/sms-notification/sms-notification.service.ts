@@ -5,6 +5,12 @@ import { YN } from 'src/common';
 import { ConsultResult } from '../consult-result/consult-result.entity';
 import * as aligoapi from 'aligoapi';
 import { ENVIRONMENT } from 'src/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { SmsAuth } from './nanuda-sms-notification.entity';
+import { Repository } from 'typeorm';
+import { SmsAuthNotificationDto } from './dto';
+import { BrandAiException } from 'src/core';
+import { UserType } from '../auth';
 
 class AligoAuth {
   key: string;
@@ -26,6 +32,10 @@ class SmsBody {
 
 @Injectable()
 export class SmsNotificationService {
+  constructor(
+    @InjectRepository(SmsAuth, 'platform')
+    private readonly smsAuthRepo: Repository<SmsAuth>,
+  ) {}
   // send to user to notify
   async sendConsultNotification(consultData: ConsultResult, req: Request) {
     const smsContent = await this.__get_auth_body();
@@ -51,5 +61,73 @@ export class SmsNotificationService {
     body.title = '안녕하세요, 픽쿡입니다.';
 
     return { auth, body };
+  }
+
+  /**
+   * check code
+   * @param companyUserSmsAuthCheckDto
+   */
+  async registerCode(
+    smsAuthNotificationDto: SmsAuthNotificationDto,
+    req?: Request,
+  ) {
+    const smsAuth = new SmsAuth();
+    let newAuthCode = Math.floor(100000 + Math.random() * 900000);
+    if (process.env.NODE_ENV !== ENVIRONMENT.PRODUCTION) {
+      // for test case only
+      newAuthCode = 123456;
+    }
+
+    smsAuth.phone = smsAuthNotificationDto.phone;
+    smsAuth.authCode = newAuthCode;
+    smsAuth.userType = UserType.PICKCOOK_USER;
+    if (process.env.NODE_ENV !== ENVIRONMENT.PRODUCTION) {
+      console.log(smsAuth.authCode);
+    }
+    await this.smsAuthRepo.save(smsAuth);
+    await this.__send_login_prompt(
+      req,
+      newAuthCode,
+      smsAuthNotificationDto.phone,
+    );
+    return true;
+  }
+
+  /**
+   * check code
+   * @param phone
+   * @param code
+   */
+  async checkCode(smsAuthNotificationDto: SmsAuthNotificationDto) {
+    const checkCode = await this.smsAuthRepo.findOne({
+      authCode: smsAuthNotificationDto.smsAuthCode,
+      phone: smsAuthNotificationDto.phone,
+    });
+    if (!checkCode) {
+      throw new BrandAiException('smsAuth.notFound');
+    }
+    return true;
+  }
+
+  /**
+   * send auth code
+   * @param req
+   * @param newAuthCode
+   * @param phone
+   */
+  private async __send_login_prompt(
+    req: Request,
+    newAuthCode: number,
+    phone: string,
+  ) {
+    const smsContent = await this.__get_auth_body();
+    smsContent.body.receiver = phone;
+    smsContent.body.msg = `안녕하세요, 픽쿡입니다. 신청하기 위한 인증번호는 [${newAuthCode}]입니다.`;
+    req.body = smsContent.body;
+    const sms = await aligoapi.send(req, smsContent.auth);
+    if (process.env.NODE_ENV !== ENVIRONMENT.PRODUCTION) {
+      console.log(sms);
+      console.log(smsContent);
+    }
   }
 }

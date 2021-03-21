@@ -45,4 +45,17 @@ export class LocationAnalysiController extends BaseController {
       locationAnalysisDto.hdongCode,
     );
   }
+
+  /**
+   * 시간대별 데아터
+   * @param locationAnalysisDto
+   */
+  @Get('/location-analysis/location-medium-small-category')
+  async locationMediumSmallCategory(
+    @Query() locationAnalysisDto: LocationAnalysisDto,
+  ) {
+    return await this.locationAnalysisService.locationMediumSmallCategory(
+      locationAnalysisDto.hdongCode,
+    );
+  }
 }

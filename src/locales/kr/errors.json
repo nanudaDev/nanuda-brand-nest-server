@@ -29,5 +29,8 @@
     },
     "response": {
         "notFound": "결과가 없습니다"
+    }, 
+    "smsAuth": {
+        "notFound": "인증번호가 맞지 않거나 입력기간이 지났습니다"
     }
 }

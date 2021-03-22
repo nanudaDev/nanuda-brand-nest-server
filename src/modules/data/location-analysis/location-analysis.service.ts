@@ -40,19 +40,17 @@ export class LocationAnalysisService extends BaseService {
     // if (typeof revenueData.data === 'string') {
     //   return 'something else';
     // }
-    let checkIfDataIsIn = await this.hdongCodeNoDataRepo.findOne({
+    const checkIfDataIsIn = await this.hdongCodeNoDataRepo.findOne({
       where: { hdongCode: locationAnalysisQueryDto.hdongCode },
     });
     if (revenueData.data.value && revenueData.data.value.length < 1) {
       // TODO: randomize these numbers
 
-      if (!checkIfDataIsIn) {
-        const newData = new HdongCodeNoData({
-          hdongCode: locationAnalysisQueryDto.hdongCode,
-          endpoint: '/location-info',
-        });
-        await this.hdongCodeNoDataRepo.save(newData);
-      }
+      const newData = new HdongCodeNoData({
+        hdongCode: locationAnalysisQueryDto.hdongCode,
+        endpoint: '/location-info',
+      });
+      await this.hdongCodeNoDataRepo.save(newData);
       revenueData.data = { value: [7820000, 27400000] };
     }
     if (checkIfDataIsIn) {
@@ -102,13 +100,18 @@ export class LocationAnalysisService extends BaseService {
       data.data.value.length < 1 &&
       hdongFirstTwoStrings === '50'
     ) {
-      console.log('test');
       const newData = await Axios.get(
         `${this.analysisUrl}location-hour-medium-small-category`,
         {
           params: { hdongCode: '5011052000' },
         },
       );
+      const newHdongNoData = new HdongCodeNoData({
+        hdongCode: hdongCode,
+        isUsable: YN.NO,
+        endpoint: '/location-medium-small-category',
+      });
+      await this.hdongCodeNoDataRepo.save(newHdongNoData);
       return newData.data;
     } else {
       return data.data;

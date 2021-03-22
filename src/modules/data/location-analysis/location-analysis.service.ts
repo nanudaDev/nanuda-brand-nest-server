@@ -95,11 +95,7 @@ export class LocationAnalysisService extends BaseService {
         params: { hdongCode: hdongCode },
       },
     );
-    if (
-      data.data.value &&
-      data.data.value.length < 1 &&
-      hdongFirstTwoStrings === '50'
-    ) {
+    if (data.data.value && data.data.value.length < 1) {
       const newData = await Axios.get(
         `${this.analysisUrl}location-hour-medium-small-category`,
         {

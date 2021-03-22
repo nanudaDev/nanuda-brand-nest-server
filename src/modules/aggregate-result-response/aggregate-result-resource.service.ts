@@ -521,14 +521,24 @@ export class AggregateResultResponseService extends BaseService {
     });
 
     let rating: REVENUE_GRADE_SENTENCE;
-    if (averageMyRevenue < averageRevenue.data) {
+    if (averageMyRevenue < lowestRevenue.data) {
+      rating = REVENUE_GRADE_SENTENCE.LOW_REVENUE;
+    } else if (
+      averageMyRevenue < averageRevenue.data &&
+      averageMyRevenue > lowestRevenue.data
+    ) {
       rating = REVENUE_GRADE_SENTENCE.LITTLE_LOW_REVENUE;
     } else if (
-      averageRevenue.data - 200 < averageMyRevenue &&
-      averageMyRevenue < averageRevenue.data + 200
+      averageRevenue.data - 250 < averageMyRevenue &&
+      averageMyRevenue < averageRevenue.data + 250
     ) {
       rating = REVENUE_GRADE_SENTENCE.AVERAGE_REVENUE;
-    } else if (averageMyRevenue > averageRevenue.data) {
+    } else if (
+      averageMyRevenue > averageRevenue.data &&
+      averageMyRevenue < highestRevenue.data
+    ) {
+      rating = REVENUE_GRADE_SENTENCE.ACCEPTABLE;
+    } else if (averageMyRevenue > highestRevenue.data) {
       rating = REVENUE_GRADE_SENTENCE.EXCELLENT;
     }
 

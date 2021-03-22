@@ -302,7 +302,7 @@ export class AggregateResultResponseService extends BaseService {
         returnResponse.proformaId = newProforma.id;
         returnResponse.responses = responseArray;
         returnResponse.operationSentenceResponse = operationSentence.response;
-        returnResponse.completeTimeData = forEachTimeSlot.data;
+        returnResponse.completeTimeData = forEachTimeSlot;
         returnResponse.hdong = hdong;
         if (scoreCard.fnbOwnerStatus === FNB_OWNER.NEW_FNB_OWNER) {
           returnResponse.newFnbOwnerPieChartData = await this.__get_pie_chart_data(

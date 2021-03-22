@@ -87,17 +87,24 @@ async function bootstrap() {
   );
 
   // Swagger
-  if (process.env.NODE_ENV !== ENVIRONMENT.PRODUCTION) {
-    const options = new DocumentBuilder()
-      .setTitle(packageInfo.name.toUpperCase())
-      .setDescription(packageInfo.description)
-      .setVersion(packageInfo.version)
-      .addBearerAuth()
-      .build();
-    const document = SwaggerModule.createDocument(app, options);
-    SwaggerModule.setup('swagger', app, document);
-  }
-
+  // if (process.env.NODE_ENV !== ENVIRONMENT.PRODUCTION) {
+  //   const options = new DocumentBuilder()
+  //     .setTitle(packageInfo.name.toUpperCase())
+  //     .setDescription(packageInfo.description)
+  //     .setVersion(packageInfo.version)
+  //     .addBearerAuth()
+  //     .build();
+  //   const document = SwaggerModule.createDocument(app, options);
+  //   SwaggerModule.setup('swagger', app, document);
+  // }
+  const options = new DocumentBuilder()
+    .setTitle(packageInfo.name.toUpperCase())
+    .setDescription(packageInfo.description)
+    .setVersion(packageInfo.version)
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, options);
+  SwaggerModule.setup('swagger', app, document);
   await app.listen(4700);
 
   const url = await app.getUrl();

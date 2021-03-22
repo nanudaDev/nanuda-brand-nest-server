@@ -20,7 +20,7 @@ export class ProformaConsultResultService extends BaseService {
   async findOne(id: number): Promise<ProformaConsultResult> {
     const proforma = await this.proformaConsultRepo
       .createQueryBuilder('proformaConsult')
-      .CustomInnerJoinAndSelect([
+      .CustomLeftJoinAndSelect([
         'fnbOwnerCodeStatus',
         'revenueRangeCodeStatus',
         'ageGroupCodeStatus',

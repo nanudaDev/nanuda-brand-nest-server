@@ -20,6 +20,7 @@ import {
   ResultResponseModule,
   AggregateResultResponseModule,
   ConsultResultModule,
+  ProformaConsultResultModule,
 } from './modules';
 const env = process.env;
 @Module({
@@ -80,6 +81,7 @@ const env = process.env;
     LocationAnalysisModule,
     MenuAnalysisModule,
     ResultResponseModule,
+    ProformaConsultResultModule,
   ],
   controllers: [],
   providers: [

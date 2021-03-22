@@ -17,17 +17,17 @@ export class PickcookSlackNotificationService {
       text: `픽쿡 상담 신청 안내`,
       attachments: [
         {
-          color: '#009900',
-          actions: [
-            {
-              name: 'slack action button',
-              text: '신청서 상세보기',
-              type: 'button',
-              // TODO: once URL is set up
-              // url: `${process.env.ADMIN_BASEURL}delivery-founder-consult/${deliveryFounderConsult.no}`,
-              style: 'primary',
-            },
-          ],
+          // color: '#009900',
+          // actions: [
+          //   {
+          //     name: 'slack action button',
+          //     text: '신청서 상세보기',
+          //     type: 'button',
+          //     // TODO: once URL is set up
+          //     // url: `${process.env.ADMIN_BASEURL}delivery-founder-consult/${deliveryFounderConsult.no}`,
+          //     style: 'primary',
+          //   },
+          // ],
           fields: [
             {
               title: `픽쿡 상담 신청`,

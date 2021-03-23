@@ -520,6 +520,7 @@ export class AggregateResultResponseService extends BaseService {
       pointBackgroundColor,
     });
 
+    // revenue rating sentence
     let rating: REVENUE_GRADE_SENTENCE;
     if (averageMyRevenue < lowestRevenue.data) {
       rating = REVENUE_GRADE_SENTENCE.LOW_REVENUE;

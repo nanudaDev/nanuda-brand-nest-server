@@ -1,8 +1,10 @@
 import {
+  Body,
   Controller,
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -12,7 +14,7 @@ import { AuthRolesGuard, BaseController } from 'src/core';
 import { CONST_ADMIN_ROLES } from 'src/shared';
 import { ConsultResult } from './consult-result.entity';
 import { ConsultResultService } from './consult-result.service';
-import { AdminConsultResultListDto } from './dto';
+import { AdminConsultResultListDto, AdminConsultResultUpdateDto } from './dto';
 
 @Controller()
 @ApiTags('ADMIN CONSULT RESPONSE')
@@ -43,8 +45,24 @@ export class AdminConsultResponseController extends BaseController {
    * find one for admin
    * @param id
    */
-  @Get('/admin/consult-repsonse/:id([0-9]+)')
+  @Get('/admin/consult-response/:id([0-9]+)')
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<ConsultResult> {
     return await this.consultResultService.findOneForAdmin(id);
+  }
+
+  /**
+   * update for admin
+   * @param id
+   * @param adminConsultResponseUpdateDto
+   */
+  @Patch('/admin/consult-response/:id([0-9]+)')
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() adminConsultResponseUpdateDto: AdminConsultResultUpdateDto,
+  ): Promise<ConsultResult> {
+    return await this.consultResultService.updateForAdmin(
+      id,
+      adminConsultResponseUpdateDto,
+    );
   }
 }

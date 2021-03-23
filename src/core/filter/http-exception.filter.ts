@@ -21,8 +21,6 @@ import * as error from '../../locales/kr/errors.json';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
-  constructor() {}
-
   //   async trans(code: string, args?: object, defaultMessage?: string) {
   //     try {
   //       const message: any = await this.i18n.translate(`errors.${code}`, {

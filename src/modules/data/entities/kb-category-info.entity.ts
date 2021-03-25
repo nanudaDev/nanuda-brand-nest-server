@@ -1,5 +1,6 @@
 import { KB_FOOD_CATEGORY } from 'src/shared';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { KbOfflineSpacePurchaseRecord } from './kb-offline-space-purchase-record.entity';
 
 @Entity({ name: 'kb_category_info' })
 export class KbCategoryInfo {
@@ -55,4 +56,10 @@ export class KbCategoryInfo {
     type: 'varchar',
   })
   largeCategoryNm: string;
+
+  @OneToMany(
+    type => KbOfflineSpacePurchaseRecord,
+    offlineData => offlineData.mediumCategoryInfo,
+  )
+  kbOfflineData?: KbOfflineSpacePurchaseRecord[];
 }

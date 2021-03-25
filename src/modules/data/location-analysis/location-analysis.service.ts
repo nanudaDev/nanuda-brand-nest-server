@@ -8,6 +8,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { HdongCodeNoData } from '../hdong-code-no-data/hdong-code-no-data.entity';
 import { Repository } from 'typeorm';
 import { YN } from 'src/common';
+import { KbDeliverySpacePurchaseRecord } from '../entities/kb-delivery-space-purchase-record.entity';
+import { KbOfflineSpacePurchaseRecord } from '../entities/kb-offline-space-purchase-record.entity';
 
 class LocationResults {
   results?: any | string;
@@ -17,6 +19,12 @@ export class LocationAnalysisService extends BaseService {
   constructor(
     @InjectRepository(HdongCodeNoData)
     private readonly hdongCodeNoDataRepo: Repository<HdongCodeNoData>,
+    @InjectRepository(KbDeliverySpacePurchaseRecord, 'wq')
+    private readonly offlineDataRepo: Repository<KbOfflineSpacePurchaseRecord>,
+    @InjectRepository(KbDeliverySpacePurchaseRecord, 'wq')
+    private readonly deliveryDataRepo: Repository<
+      KbDeliverySpacePurchaseRecord
+    >,
   ) {
     super();
   }
@@ -85,6 +93,10 @@ export class LocationAnalysisService extends BaseService {
     return data.data;
   }
 
+  /**
+   * location medium small category
+   * @param hdongCode
+   */
   async locationMediumSmallCategory(hdongCode: string) {
     const hdongFirstTwoStrings = hdongCode.substring(0, 2);
     console.log(hdongFirstTwoStrings);

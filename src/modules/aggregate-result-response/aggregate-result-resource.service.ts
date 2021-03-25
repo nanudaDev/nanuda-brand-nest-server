@@ -23,6 +23,8 @@ import { CodeHdong } from '../code-hdong/code-hdong.entity';
 import { CodeHdongService } from '../code-hdong/code-hdong.service';
 import { CommonCode } from '../common-code/common-code.entity';
 import { ConsultResult } from '../consult-result/consult-result.entity';
+import { KbDeliverySpacePurchaseRecord } from '../data/entities/kb-delivery-space-purchase-record.entity';
+import { KbOfflineSpacePurchaseRecord } from '../data/entities/kb-offline-space-purchase-record.entity';
 import { LocationAnalysisService } from '../data/location-analysis/location-analysis.service';
 import { ProformaConsultResult } from '../proforma-consult-result/proforma-consult-result.entity';
 import { QuestionProformaGivenMapper } from '../question-proforma-given-mapper/question-proforma-given-mapper.entity';
@@ -30,6 +32,7 @@ import { QuestionProformaMapper } from '../question-proforma-mapper/question-pro
 import { AggregateResultResponseBackup } from './aggregate-result-response-backup.entity';
 import { AggregateResultResponse } from './aggregate-result-response.entity';
 import { AggregateResultResponseQueryDto } from './dto';
+import { AggregateResultResponseTimeGraphDto } from './dto/aggregate-result-response-time-graph.dto';
 import { OperationSentenceResponse } from './operation-sentence-response.entity';
 
 export class Graph {
@@ -66,6 +69,8 @@ export class ResponseWithProformaId extends BaseDto<ResponseWithProformaId> {
   hdong?: CodeHdong;
   selectedRevenue?: any;
   revenueGradeSentence?: REVENUE_GRADE_SENTENCE;
+  timeGraphChoseByCategory: any;
+  genderGraphChosenByCategory: any;
 }
 
 export class ResponseArrayClass extends BaseDto<ResponseArrayClass> {
@@ -95,6 +100,12 @@ export class AggregateResultResponseService extends BaseService {
     @InjectEntityManager() private readonly entityManager: EntityManager,
     private readonly locationAnalysisService: LocationAnalysisService,
     private readonly codeHdongService: CodeHdongService,
+    @InjectRepository(KbOfflineSpacePurchaseRecord, 'wq')
+    private readonly offlineDataRepo: Repository<KbOfflineSpacePurchaseRecord>,
+    @InjectRepository(KbDeliverySpacePurchaseRecord, 'wq')
+    private readonly deliveryDataRepo: Repository<
+      KbDeliverySpacePurchaseRecord
+    >,
   ) {
     super();
   }
@@ -304,6 +315,13 @@ export class AggregateResultResponseService extends BaseService {
         returnResponse.operationSentenceResponse = operationSentence.response;
         returnResponse.completeTimeData = forEachTimeSlot;
         returnResponse.hdong = hdong;
+        const graphDto = new AggregateResultResponseTimeGraphDto({
+          hdongCode: parseInt(aggregateQuestionQuery.hdongCode),
+          mediumCategoryCd: aggregateQuestionQuery.kbFoodCategory,
+        });
+        returnResponse.timeGraphChoseByCategory = await this.getTimeGraphForKbCategory(
+          graphDto,
+        );
         if (scoreCard.fnbOwnerStatus === FNB_OWNER.NEW_FNB_OWNER) {
           returnResponse.newFnbOwnerPieChartData = await this.__get_pie_chart_data(
             deliveryRatioData,
@@ -329,38 +347,170 @@ export class AggregateResultResponseService extends BaseService {
     return returningResponse;
   }
 
-  // /**
-  //  * transfer data
-  //  */
-  // async transferData() {
-  //   const transfer = await this.entityManager.transaction(
-  //     async entityManager => {
-  //       const qb = await this.entityManager
-  //         .getRepository(AggregateResultResponseBackup)
-  //         .createQueryBuilder('backup')
-  //         .getMany();
-  //       await Promise.all(
-  //         qb.map(async q => {
-  //           let newResponse = new AggregateResultResponse().set(q);
-  //           newResponse.response = newResponse.response.replace(
-  //             '"중분류"',
-  //             'MEDIUM_CODE',
-  //           );
-  //           newResponse.response = newResponse.response.replace(
-  //             '"소분류"',
-  //             'SMALL_CODE',
-  //           );
-  //           const qb = await this.responseRepo
-  //             .createQueryBuilder('response')
-  //             .getMany();
-  //           if (qb && qb.length < 1) {
-  //             newResponse = await entityManager.save(newResponse);
-  //           }
-  //         }),
-  //       );
-  //     },
-  //   );
-  // }
+  /**
+   * time graph for category
+   * @param aggregateResultTimeGraphDto
+   */
+  async getTimeGraphForKbCategory(
+    aggregateResultTimeGraphDto: AggregateResultResponseTimeGraphDto,
+  ) {
+    const breakFastTime = {
+      name: '아침',
+      value: [611, 1114],
+      englishName: 'breakfastRevenue',
+      order: 1,
+    };
+    const lunchTime = {
+      name: '점심',
+      value: [1114, 1417],
+      englishName: 'lunchRevenue',
+      order: 2,
+    };
+    const dinnerTime = {
+      name: '저녁',
+      value: [1721],
+      englishName: 'dinnerRevenue',
+      order: 3,
+    };
+    const lateNight = {
+      name: '야식',
+      value: [2124, 6],
+      englishName: 'lateNightRevenue',
+      order: 4,
+    };
+    const graph = new Graph();
+    const datasets = [];
+    graph.datasets = datasets;
+    let preDataSets = [];
+    const labels = [];
+    graph.labels = labels;
+    const data = [];
+    const times = [breakFastTime, lunchTime, dinnerTime, lateNight];
+    await Promise.all(
+      times.map(async time => {
+        labels.push(time.name);
+        const revenue: any = await this.offlineDataRepo
+          .createQueryBuilder('offlineData')
+          .innerJoinAndSelect(
+            'offlineData.mediumCategoryInfo',
+            'mediumCategoryInfo',
+          )
+          .where('offlineData.hdongCode = :hdongCode', {
+            hdongCode: aggregateResultTimeGraphDto.hdongCode,
+          })
+          .andWhere('mediumCategoryInfo.mediumCategoryCd = :mediumCategoryCd', {
+            mediumCategoryCd: aggregateResultTimeGraphDto.mediumCategoryCd,
+          })
+          // 마지막 분기 기준
+          .andWhere('offlineData.yymm > 2009')
+          .IN('hour', time.value)
+          .select('SUM(offlineData.revenueAmount)', `${time.englishName}`)
+          .getRawMany();
+        revenue.order = time.order;
+        preDataSets.push({
+          data: revenue[0][`${time.englishName}`],
+          order: revenue.order,
+        });
+      }),
+    );
+    preDataSets = preDataSets.sort((a, b) => (a.order > b.order ? 1 : -1));
+    preDataSets.map(datas => {
+      data.push(datas.data);
+    });
+    datasets.push({ data: data });
+    return graph;
+  }
+
+  async genderGraph(
+    aggregateResultTimeGraphDto: AggregateResultResponseTimeGraphDto,
+  ) {
+    const genderGraph = new Graph();
+    const female = {
+      name: '여성',
+      value: 2,
+    };
+    const male = {
+      name: '남성',
+      value: 1,
+    };
+    const genders = [male, female];
+    const breakFastTime = {
+      name: '아침',
+      value: [611, 1114],
+      englishName: 'breakfastRevenue',
+      order: 1,
+    };
+    const lunchTime = {
+      name: '점심',
+      value: [1114, 1417],
+      englishName: 'lunchRevenue',
+      order: 2,
+    };
+    const dinnerTime = {
+      name: '저녁',
+      value: [1721],
+      englishName: 'dinnerRevenue',
+      order: 3,
+    };
+    const lateNight = {
+      name: '야식',
+      value: [2124, 6],
+      englishName: 'lateNightRevenue',
+      order: 4,
+    };
+    const times = [breakFastTime, lunchTime, dinnerTime, lateNight];
+    const data = [];
+    const femaleDataArray = [];
+    const maleDataArray = [];
+    await Promise.all(
+      times.map(async time => {
+        // genderGraph.labels.push(time.name);
+        const femaleData: any = await this.offlineDataRepo
+          .createQueryBuilder('offlineData')
+          .innerJoinAndSelect(
+            'offlineData.mediumCategoryInfo',
+            'mediumCategoryInfo',
+          )
+          .where('offlineData.hdongCode = :hdongCode', {
+            hdongCode: aggregateResultTimeGraphDto.hdongCode,
+          })
+          .andWhere('mediumCategoryInfo.mediumCategoryCd = :mediumCategoryCd', {
+            mediumCategoryCd: aggregateResultTimeGraphDto.mediumCategoryCd,
+          })
+          // 마지막 분기 기준
+          .andWhere('offlineData.yymm > 2009')
+          .andWhere('offlineData.gender = 2')
+          .IN('hour', time.value)
+          .select('COUNT(offlineData.gender)', `${time.englishName}`)
+          .getRawMany();
+        console.log(femaleData);
+        femaleData.order = time.order;
+        femaleDataArray.push(femaleData);
+        const maleData: any = await this.offlineDataRepo
+          .createQueryBuilder('offlineData')
+          .innerJoinAndSelect(
+            'offlineData.mediumCategoryInfo',
+            'mediumCategoryInfo',
+          )
+          .where('offlineData.hdongCode = :hdongCode', {
+            hdongCode: aggregateResultTimeGraphDto.hdongCode,
+          })
+          .andWhere('mediumCategoryInfo.mediumCategoryCd = :mediumCategoryCd', {
+            mediumCategoryCd: aggregateResultTimeGraphDto.mediumCategoryCd,
+          })
+          // 마지막 분기 기준
+          .andWhere('offlineData.yymm > 2009')
+          .andWhere('offlineData.gender = 1')
+          .IN('hour', time.value)
+          .select('COUNT(offlineData.gender)', `${time.englishName}`)
+          .getRawMany();
+        maleData.order = time.order;
+        console.log(maleData);
+        maleDataArray.push(maleData);
+      }),
+    );
+    return { femaleDataArray, maleDataArray };
+  }
 
   /**
    * get pie chart data for new fnb owners

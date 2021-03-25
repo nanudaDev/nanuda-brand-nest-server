@@ -1,8 +1,11 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { BaseController } from 'src/core';
 import { AggregateResultResponseService } from './aggregate-result-resource.service';
-import { AggregateResultResponseQueryDto } from './dto';
+import {
+  AggregateResultResponseQueryDto,
+  AggregateResultResponseTimeGraphDto,
+} from './dto';
 
 @Controller()
 @ApiTags('AGGREGATE RESULT RESPONSE')
@@ -24,5 +27,25 @@ export class AggregateResultResponseController extends BaseController {
     return await this.aggregateResultResponseService.findResponseForQuestions(
       aggregateQuestionQuery,
     );
+  }
+
+  /**
+   * time graph
+   * @param dto
+   */
+  @Get('/aggregate-result-response/time-graph')
+  async getGraphTest(@Query() dto: AggregateResultResponseTimeGraphDto) {
+    return await this.aggregateResultResponseService.getTimeGraphForKbCategory(
+      dto,
+    );
+  }
+
+  /**
+   * time graph
+   * @param dto
+   */
+  @Get('/aggregate-result-response/gender-graph')
+  async genderGraph(@Query() dto: AggregateResultResponseTimeGraphDto) {
+    return await this.aggregateResultResponseService.genderGraph(dto);
   }
 }

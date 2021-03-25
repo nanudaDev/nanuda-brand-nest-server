@@ -4,7 +4,11 @@ import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import Axios from 'axios';
 import { Console } from 'console';
 import { of } from 'rxjs';
-import { DeliverySpaceConversion, ScoreConversionUtil } from 'src/common/utils';
+import {
+  DeliverySpaceConversion,
+  ScoreConversionUtil,
+  SentenceConstructor,
+} from 'src/common/utils';
 import { BaseDto, BaseEntity, BaseService } from 'src/core';
 import {
   FNB_OWNER,
@@ -23,6 +27,8 @@ import { CodeHdong } from '../code-hdong/code-hdong.entity';
 import { CodeHdongService } from '../code-hdong/code-hdong.service';
 import { CommonCode } from '../common-code/common-code.entity';
 import { ConsultResult } from '../consult-result/consult-result.entity';
+import { KbDeliverySpacePurchaseRecord } from '../data/entities/kb-delivery-space-purchase-record.entity';
+import { KbOfflineSpacePurchaseRecord } from '../data/entities/kb-offline-space-purchase-record.entity';
 import { LocationAnalysisService } from '../data/location-analysis/location-analysis.service';
 import { ProformaConsultResult } from '../proforma-consult-result/proforma-consult-result.entity';
 import { QuestionProformaGivenMapper } from '../question-proforma-given-mapper/question-proforma-given-mapper.entity';
@@ -30,6 +36,7 @@ import { QuestionProformaMapper } from '../question-proforma-mapper/question-pro
 import { AggregateResultResponseBackup } from './aggregate-result-response-backup.entity';
 import { AggregateResultResponse } from './aggregate-result-response.entity';
 import { AggregateResultResponseQueryDto } from './dto';
+import { AggregateResultResponseTimeGraphDto } from './dto/aggregate-result-response-time-graph.dto';
 import { OperationSentenceResponse } from './operation-sentence-response.entity';
 
 export class Graph {
@@ -66,6 +73,8 @@ export class ResponseWithProformaId extends BaseDto<ResponseWithProformaId> {
   hdong?: CodeHdong;
   selectedRevenue?: any;
   revenueGradeSentence?: REVENUE_GRADE_SENTENCE;
+  timeGraphChoseByCategory: Graph;
+  genderGraphChosenByCategory: Graph;
 }
 
 export class ResponseArrayClass extends BaseDto<ResponseArrayClass> {
@@ -95,6 +104,12 @@ export class AggregateResultResponseService extends BaseService {
     @InjectEntityManager() private readonly entityManager: EntityManager,
     private readonly locationAnalysisService: LocationAnalysisService,
     private readonly codeHdongService: CodeHdongService,
+    @InjectRepository(KbOfflineSpacePurchaseRecord, 'wq')
+    private readonly offlineDataRepo: Repository<KbOfflineSpacePurchaseRecord>,
+    @InjectRepository(KbDeliverySpacePurchaseRecord, 'wq')
+    private readonly deliveryDataRepo: Repository<
+      KbDeliverySpacePurchaseRecord
+    >,
   ) {
     super();
   }
@@ -193,7 +208,7 @@ export class AggregateResultResponseService extends BaseService {
               const newResponse = new ResponseArrayClass({
                 operationTime: OPERATION_TIME.BREAKFAST,
                 modifiedResponse: response,
-                koreanPrefSentence: '아침에는',
+                koreanPrefSentence: '아침',
                 modifiedSufSentence: `${codes.medium_category_nm}의 ${codes.medium_small_category_nm}`,
               });
               responseArray.push(newResponse);
@@ -212,7 +227,7 @@ export class AggregateResultResponseService extends BaseService {
               const newResponse = new ResponseArrayClass({
                 operationTime: OPERATION_TIME.LUNCH,
                 modifiedResponse: response,
-                koreanPrefSentence: '점심에는',
+                koreanPrefSentence: '점심',
                 modifiedSufSentence: `${codes.medium_category_nm}의 ${codes.medium_small_category_nm}`,
               });
               responseArray.push(newResponse);
@@ -231,7 +246,7 @@ export class AggregateResultResponseService extends BaseService {
               const newResponse = new ResponseArrayClass({
                 operationTime: OPERATION_TIME.DINNER,
                 modifiedResponse: response,
-                koreanPrefSentence: '저녁에는',
+                koreanPrefSentence: '저녁',
                 modifiedSufSentence: `${codes.medium_category_nm}의 ${codes.medium_small_category_nm}`,
               });
               responseArray.push(newResponse);
@@ -250,7 +265,7 @@ export class AggregateResultResponseService extends BaseService {
               const newResponse = new ResponseArrayClass({
                 operationTime: OPERATION_TIME.LATE_NIGHT,
                 modifiedResponse: response,
-                koreanPrefSentence: '야식 시간대에는',
+                koreanPrefSentence: '야식',
                 modifiedSufSentence: `${codes.medium_category_nm}의 ${codes.medium_small_category_nm}`,
               });
               responseArray.push(newResponse);
@@ -304,6 +319,16 @@ export class AggregateResultResponseService extends BaseService {
         returnResponse.operationSentenceResponse = operationSentence.response;
         returnResponse.completeTimeData = forEachTimeSlot;
         returnResponse.hdong = hdong;
+        const graphDto = new AggregateResultResponseTimeGraphDto({
+          hdongCode: parseInt(aggregateQuestionQuery.hdongCode),
+          mediumCategoryCd: aggregateQuestionQuery.kbFoodCategory,
+        });
+        returnResponse.timeGraphChoseByCategory = await this.getTimeGraphForKbCategory(
+          graphDto,
+        );
+        returnResponse.genderGraphChosenByCategory = await this.genderGraph(
+          graphDto,
+        );
         if (scoreCard.fnbOwnerStatus === FNB_OWNER.NEW_FNB_OWNER) {
           returnResponse.newFnbOwnerPieChartData = await this.__get_pie_chart_data(
             deliveryRatioData,
@@ -329,38 +354,196 @@ export class AggregateResultResponseService extends BaseService {
     return returningResponse;
   }
 
-  // /**
-  //  * transfer data
-  //  */
-  // async transferData() {
-  //   const transfer = await this.entityManager.transaction(
-  //     async entityManager => {
-  //       const qb = await this.entityManager
-  //         .getRepository(AggregateResultResponseBackup)
-  //         .createQueryBuilder('backup')
-  //         .getMany();
-  //       await Promise.all(
-  //         qb.map(async q => {
-  //           let newResponse = new AggregateResultResponse().set(q);
-  //           newResponse.response = newResponse.response.replace(
-  //             '"중분류"',
-  //             'MEDIUM_CODE',
-  //           );
-  //           newResponse.response = newResponse.response.replace(
-  //             '"소분류"',
-  //             'SMALL_CODE',
-  //           );
-  //           const qb = await this.responseRepo
-  //             .createQueryBuilder('response')
-  //             .getMany();
-  //           if (qb && qb.length < 1) {
-  //             newResponse = await entityManager.save(newResponse);
-  //           }
-  //         }),
-  //       );
-  //     },
-  //   );
-  // }
+  /**
+   * time graph for category
+   * @param aggregateResultTimeGraphDto
+   */
+  async getTimeGraphForKbCategory(
+    aggregateResultTimeGraphDto: AggregateResultResponseTimeGraphDto,
+  ) {
+    const breakFastTime = {
+      name: '아침',
+      value: [611, 1114],
+      englishName: 'breakfastRevenue',
+      order: 1,
+    };
+    const lunchTime = {
+      name: '점심',
+      value: [1114, 1417],
+      englishName: 'lunchRevenue',
+      order: 2,
+    };
+    const dinnerTime = {
+      name: '저녁',
+      value: [1721],
+      englishName: 'dinnerRevenue',
+      order: 3,
+    };
+    const lateNight = {
+      name: '야식',
+      value: [2124, 6],
+      englishName: 'lateNightRevenue',
+      order: 4,
+    };
+    const graph = new Graph();
+    const datasets = [];
+    graph.datasets = datasets;
+    let preDataSets = [];
+    const labels = [];
+    graph.labels = labels;
+    const data = [];
+    const times = [breakFastTime, lunchTime, dinnerTime, lateNight];
+    await Promise.all(
+      times.map(async time => {
+        labels.push(time.name);
+        const revenue: any = await this.offlineDataRepo
+          .createQueryBuilder('offlineData')
+          .innerJoinAndSelect(
+            'offlineData.mediumCategoryInfo',
+            'mediumCategoryInfo',
+          )
+          .where('offlineData.hdongCode = :hdongCode', {
+            hdongCode: aggregateResultTimeGraphDto.hdongCode,
+          })
+          .andWhere('mediumCategoryInfo.mediumCategoryCd = :mediumCategoryCd', {
+            mediumCategoryCd: aggregateResultTimeGraphDto.mediumCategoryCd,
+          })
+          // 마지막 분기 기준
+          .andWhere('offlineData.yymm > 2007')
+          .IN('hour', time.value)
+          .select('SUM(offlineData.revenueAmount)', `${time.englishName}`)
+          .getRawMany();
+        revenue.order = time.order;
+        preDataSets.push({
+          data: revenue[0][`${time.englishName}`],
+          order: revenue.order,
+        });
+      }),
+    );
+    preDataSets = preDataSets.sort((a, b) => (a.order > b.order ? 1 : -1));
+    preDataSets.map(datas => {
+      data.push(datas.data);
+    });
+    datasets.push({ data: data });
+    return graph;
+  }
+
+  async genderGraph(
+    aggregateResultTimeGraphDto: AggregateResultResponseTimeGraphDto,
+  ) {
+    const genderGraph = new Graph();
+    const labels = [];
+    genderGraph.labels = labels;
+    const female = {
+      name: '여성',
+      value: 2,
+    };
+    const male = {
+      name: '남성',
+      value: 1,
+    };
+    const genders = [male, female];
+    const breakFastTime = {
+      name: '아침',
+      value: [611, 1114],
+      englishName: 'breakfastRevenue',
+      order: 1,
+    };
+    const lunchTime = {
+      name: '점심',
+      value: [1114, 1417],
+      englishName: 'lunchRevenue',
+      order: 2,
+    };
+    const dinnerTime = {
+      name: '저녁',
+      value: [1721],
+      englishName: 'dinnerRevenue',
+      order: 3,
+    };
+    const lateNight = {
+      name: '야식',
+      value: [2124, 6],
+      englishName: 'lateNightRevenue',
+      order: 4,
+    };
+    const times = [breakFastTime, lunchTime, dinnerTime, lateNight];
+    const femaleDataArray = [];
+    const maleDataArray = [];
+    await Promise.all(
+      times.map(async time => {
+        labels.push(time.name);
+        const femaleData: any = await this.offlineDataRepo
+          .createQueryBuilder('offlineData')
+          .innerJoinAndSelect(
+            'offlineData.mediumCategoryInfo',
+            'mediumCategoryInfo',
+          )
+          .where('offlineData.hdongCode = :hdongCode', {
+            hdongCode: aggregateResultTimeGraphDto.hdongCode,
+          })
+          .andWhere('mediumCategoryInfo.mediumCategoryCd = :mediumCategoryCd', {
+            mediumCategoryCd: aggregateResultTimeGraphDto.mediumCategoryCd,
+          })
+          // 마지막 분기 기준
+          .andWhere('offlineData.yymm > 2007')
+          .andWhere('offlineData.gender = 2')
+          .IN('hour', time.value)
+          .select('COUNT(offlineData.gender)', `${time.englishName}`)
+          .getRawMany();
+        femaleDataArray.push({
+          data: femaleData[0][`${time.englishName}`],
+          order: time.order,
+        });
+        const maleData: any = await this.offlineDataRepo
+          .createQueryBuilder('offlineData')
+          .innerJoinAndSelect(
+            'offlineData.mediumCategoryInfo',
+            'mediumCategoryInfo',
+          )
+          .where('offlineData.hdongCode = :hdongCode', {
+            hdongCode: aggregateResultTimeGraphDto.hdongCode,
+          })
+          .andWhere('mediumCategoryInfo.mediumCategoryCd = :mediumCategoryCd', {
+            mediumCategoryCd: aggregateResultTimeGraphDto.mediumCategoryCd,
+          })
+          // 마지막 분기 기준
+          .andWhere('offlineData.yymm > 2007')
+          .andWhere('offlineData.gender = 1')
+          .IN('hour', time.value)
+          .select('COUNT(offlineData.gender)', `${time.englishName}`)
+          .getRawMany();
+        maleDataArray.push({
+          data: maleData[0][`${time.englishName}`],
+          order: time.order,
+        });
+      }),
+    );
+    maleDataArray.sort((a, b) => (a.order > b.order ? 1 : -1));
+    const maleArray = [];
+    maleDataArray.map(datas => {
+      maleArray.push(datas.data);
+    });
+    femaleDataArray.sort((a, b) => (a.order > b.order ? 1 : -1));
+    const femaleArray = [];
+    femaleDataArray.forEach(datas => {
+      femaleArray.push(datas.data);
+    });
+
+    const datasets = [];
+    genderGraph.datasets = datasets;
+    genderGraph.labels = labels;
+    datasets.push(
+      { data: maleArray, label: '남성' },
+      { data: femaleArray, label: '여성' },
+    );
+
+    return genderGraph;
+  }
+
+  async sentenceTest(response: any[]) {
+    return SentenceConstructor(response);
+  }
 
   /**
    * get pie chart data for new fnb owners
@@ -520,6 +703,7 @@ export class AggregateResultResponseService extends BaseService {
       pointBackgroundColor,
     });
 
+    // revenue rating sentence
     let rating: REVENUE_GRADE_SENTENCE;
     if (averageMyRevenue < lowestRevenue.data) {
       rating = REVENUE_GRADE_SENTENCE.LOW_REVENUE;

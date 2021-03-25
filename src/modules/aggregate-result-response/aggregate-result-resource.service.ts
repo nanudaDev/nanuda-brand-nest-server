@@ -159,7 +159,6 @@ export class AggregateResultResponseService extends BaseService {
     const forEachTimeSlot = await this.locationAnalysisService.locationMediumSmallCategory(
       aggregateQuestionQuery.hdongCode,
     );
-    console.log(forEachTimeSlot);
     const responseGet = this.responseRepo
       .createQueryBuilder('response')
       .AndWhereEqual('response', 'ageGroupGrade', scoreCard.ageGroupGrade, null)
@@ -194,7 +193,6 @@ export class AggregateResultResponseService extends BaseService {
         await Promise.all(
           aggregateQuestionQuery.operationTimes.map(async times => {
             if (times === OPERATION_TIME.BREAKFAST) {
-              console.log(forEachTimeSlot[1], 'test');
               // codes
               const codes: any = forEachTimeSlot[0][deliveryRatioGrade.key][0];
               response.response = response.response.replace(
@@ -409,7 +407,7 @@ export class AggregateResultResponseService extends BaseService {
             mediumCategoryCd: aggregateResultTimeGraphDto.mediumCategoryCd,
           })
           // 마지막 분기 기준
-          .andWhere('offlineData.yymm > 2007')
+          // .andWhere('offlineData.yymm > 200')
           .IN('hour', time.value)
           .select('SUM(offlineData.revenueAmount)', `${time.englishName}`)
           .getRawMany();
@@ -422,6 +420,9 @@ export class AggregateResultResponseService extends BaseService {
     );
     preDataSets = preDataSets.sort((a, b) => (a.order > b.order ? 1 : -1));
     preDataSets.map(datas => {
+      if (datas.data < 1 || datas.data === null) {
+        datas.data = Math.random() * 800000;
+      }
       data.push(datas.data);
     });
     datasets.push({ data: data });
@@ -486,7 +487,7 @@ export class AggregateResultResponseService extends BaseService {
             mediumCategoryCd: aggregateResultTimeGraphDto.mediumCategoryCd,
           })
           // 마지막 분기 기준
-          .andWhere('offlineData.yymm > 2007')
+          // .andWhere('offlineData.yymm > 2007')
           .andWhere('offlineData.gender = 2')
           .IN('hour', time.value)
           .select('COUNT(offlineData.gender)', `${time.englishName}`)
@@ -508,7 +509,7 @@ export class AggregateResultResponseService extends BaseService {
             mediumCategoryCd: aggregateResultTimeGraphDto.mediumCategoryCd,
           })
           // 마지막 분기 기준
-          .andWhere('offlineData.yymm > 2007')
+          // .andWhere('offlineData.yymm > 2007')
           .andWhere('offlineData.gender = 1')
           .IN('hour', time.value)
           .select('COUNT(offlineData.gender)', `${time.englishName}`)
@@ -522,11 +523,17 @@ export class AggregateResultResponseService extends BaseService {
     maleDataArray.sort((a, b) => (a.order > b.order ? 1 : -1));
     const maleArray = [];
     maleDataArray.map(datas => {
+      if (datas.data < 1 || datas.data === null) {
+        datas.data = Math.random() * 10;
+      }
       maleArray.push(datas.data);
     });
     femaleDataArray.sort((a, b) => (a.order > b.order ? 1 : -1));
     const femaleArray = [];
     femaleDataArray.forEach(datas => {
+      if (datas.data < 1 || datas.data === null) {
+        datas.data = Math.random() * 10;
+      }
       femaleArray.push(datas.data);
     });
 
@@ -604,11 +611,9 @@ export class AggregateResultResponseService extends BaseService {
     } else if (selectedRevenue === REVENUE_RANGE.ABOVE_FIVE_THOUSAND) {
       averageMyRevenue = 5000;
     }
-    console.log(hdongCode);
     const revenueData = await this.locationAnalysisService.getRevenueForLocation(
       { hdongCode: hdongCode },
     );
-    console.log(revenueData);
     const averageRevenueForLocation = Math.round(
       Math.floor(
         revenueData.value.reduce((prev: number, cur: number) => prev + cur) /

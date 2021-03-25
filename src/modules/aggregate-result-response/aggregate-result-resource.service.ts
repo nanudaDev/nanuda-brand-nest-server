@@ -69,8 +69,8 @@ export class ResponseWithProformaId extends BaseDto<ResponseWithProformaId> {
   hdong?: CodeHdong;
   selectedRevenue?: any;
   revenueGradeSentence?: REVENUE_GRADE_SENTENCE;
-  timeGraphChoseByCategory: any;
-  genderGraphChosenByCategory: any;
+  timeGraphChoseByCategory: Graph;
+  genderGraphChosenByCategory: Graph;
 }
 
 export class ResponseArrayClass extends BaseDto<ResponseArrayClass> {
@@ -322,6 +322,9 @@ export class AggregateResultResponseService extends BaseService {
         returnResponse.timeGraphChoseByCategory = await this.getTimeGraphForKbCategory(
           graphDto,
         );
+        returnResponse.genderGraphChosenByCategory = await this.genderGraph(
+          graphDto,
+        );
         if (scoreCard.fnbOwnerStatus === FNB_OWNER.NEW_FNB_OWNER) {
           returnResponse.newFnbOwnerPieChartData = await this.__get_pie_chart_data(
             deliveryRatioData,
@@ -425,6 +428,8 @@ export class AggregateResultResponseService extends BaseService {
     aggregateResultTimeGraphDto: AggregateResultResponseTimeGraphDto,
   ) {
     const genderGraph = new Graph();
+    const labels = [];
+    genderGraph.labels = labels;
     const female = {
       name: '여성',
       value: 2,
@@ -459,12 +464,11 @@ export class AggregateResultResponseService extends BaseService {
       order: 4,
     };
     const times = [breakFastTime, lunchTime, dinnerTime, lateNight];
-    const data = [];
     const femaleDataArray = [];
     const maleDataArray = [];
     await Promise.all(
       times.map(async time => {
-        // genderGraph.labels.push(time.name);
+        labels.push(time.name);
         const femaleData: any = await this.offlineDataRepo
           .createQueryBuilder('offlineData')
           .innerJoinAndSelect(
@@ -483,9 +487,10 @@ export class AggregateResultResponseService extends BaseService {
           .IN('hour', time.value)
           .select('COUNT(offlineData.gender)', `${time.englishName}`)
           .getRawMany();
-        console.log(femaleData);
-        femaleData.order = time.order;
-        femaleDataArray.push(femaleData);
+        femaleDataArray.push({
+          data: femaleData[0][`${time.englishName}`],
+          order: time.order,
+        });
         const maleData: any = await this.offlineDataRepo
           .createQueryBuilder('offlineData')
           .innerJoinAndSelect(
@@ -504,12 +509,32 @@ export class AggregateResultResponseService extends BaseService {
           .IN('hour', time.value)
           .select('COUNT(offlineData.gender)', `${time.englishName}`)
           .getRawMany();
-        maleData.order = time.order;
-        console.log(maleData);
-        maleDataArray.push(maleData);
+        maleDataArray.push({
+          data: maleData[0][`${time.englishName}`],
+          order: time.order,
+        });
       }),
     );
-    return { femaleDataArray, maleDataArray };
+    maleDataArray.sort((a, b) => (a.order > b.order ? 1 : -1));
+    const maleArray = [];
+    maleDataArray.map(datas => {
+      maleArray.push(datas.data);
+    });
+    femaleDataArray.sort((a, b) => (a.order > b.order ? 1 : -1));
+    const femaleArray = [];
+    femaleDataArray.forEach(datas => {
+      femaleArray.push(datas.data);
+    });
+
+    const datasets = [];
+    genderGraph.datasets = datasets;
+    genderGraph.labels = labels;
+    datasets.push(
+      { data: maleArray, label: '남성' },
+      { data: femaleArray, label: '여성' },
+    );
+
+    return genderGraph;
   }
 
   /**

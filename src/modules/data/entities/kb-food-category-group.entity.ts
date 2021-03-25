@@ -1,6 +1,7 @@
 import { BaseEntity, BaseMapperEntity } from 'src/core';
 import { KB_FOOD_CATEGORY } from 'src/shared';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
+import { KbOfflineSpacePurchaseRecord } from './kb-offline-space-purchase-record.entity';
 
 @Entity({ name: 'kb_food_category_group' })
 export class KbFoodCategoryGroup extends BaseEntity<KbFoodCategoryGroup> {

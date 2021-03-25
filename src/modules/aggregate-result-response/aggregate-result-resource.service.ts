@@ -4,7 +4,11 @@ import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import Axios from 'axios';
 import { Console } from 'console';
 import { of } from 'rxjs';
-import { DeliverySpaceConversion, ScoreConversionUtil } from 'src/common/utils';
+import {
+  DeliverySpaceConversion,
+  ScoreConversionUtil,
+  SentenceConstructor,
+} from 'src/common/utils';
 import { BaseDto, BaseEntity, BaseService } from 'src/core';
 import {
   FNB_OWNER,
@@ -204,7 +208,7 @@ export class AggregateResultResponseService extends BaseService {
               const newResponse = new ResponseArrayClass({
                 operationTime: OPERATION_TIME.BREAKFAST,
                 modifiedResponse: response,
-                koreanPrefSentence: '아침에는',
+                koreanPrefSentence: '아침',
                 modifiedSufSentence: `${codes.medium_category_nm}의 ${codes.medium_small_category_nm}`,
               });
               responseArray.push(newResponse);
@@ -223,7 +227,7 @@ export class AggregateResultResponseService extends BaseService {
               const newResponse = new ResponseArrayClass({
                 operationTime: OPERATION_TIME.LUNCH,
                 modifiedResponse: response,
-                koreanPrefSentence: '점심에는',
+                koreanPrefSentence: '점심',
                 modifiedSufSentence: `${codes.medium_category_nm}의 ${codes.medium_small_category_nm}`,
               });
               responseArray.push(newResponse);
@@ -242,7 +246,7 @@ export class AggregateResultResponseService extends BaseService {
               const newResponse = new ResponseArrayClass({
                 operationTime: OPERATION_TIME.DINNER,
                 modifiedResponse: response,
-                koreanPrefSentence: '저녁에는',
+                koreanPrefSentence: '저녁',
                 modifiedSufSentence: `${codes.medium_category_nm}의 ${codes.medium_small_category_nm}`,
               });
               responseArray.push(newResponse);
@@ -261,7 +265,7 @@ export class AggregateResultResponseService extends BaseService {
               const newResponse = new ResponseArrayClass({
                 operationTime: OPERATION_TIME.LATE_NIGHT,
                 modifiedResponse: response,
-                koreanPrefSentence: '야식 시간대에는',
+                koreanPrefSentence: '야식',
                 modifiedSufSentence: `${codes.medium_category_nm}의 ${codes.medium_small_category_nm}`,
               });
               responseArray.push(newResponse);
@@ -405,7 +409,7 @@ export class AggregateResultResponseService extends BaseService {
             mediumCategoryCd: aggregateResultTimeGraphDto.mediumCategoryCd,
           })
           // 마지막 분기 기준
-          .andWhere('offlineData.yymm > 2009')
+          .andWhere('offlineData.yymm > 2007')
           .IN('hour', time.value)
           .select('SUM(offlineData.revenueAmount)', `${time.englishName}`)
           .getRawMany();
@@ -482,7 +486,7 @@ export class AggregateResultResponseService extends BaseService {
             mediumCategoryCd: aggregateResultTimeGraphDto.mediumCategoryCd,
           })
           // 마지막 분기 기준
-          .andWhere('offlineData.yymm > 2009')
+          .andWhere('offlineData.yymm > 2007')
           .andWhere('offlineData.gender = 2')
           .IN('hour', time.value)
           .select('COUNT(offlineData.gender)', `${time.englishName}`)
@@ -504,7 +508,7 @@ export class AggregateResultResponseService extends BaseService {
             mediumCategoryCd: aggregateResultTimeGraphDto.mediumCategoryCd,
           })
           // 마지막 분기 기준
-          .andWhere('offlineData.yymm > 2009')
+          .andWhere('offlineData.yymm > 2007')
           .andWhere('offlineData.gender = 1')
           .IN('hour', time.value)
           .select('COUNT(offlineData.gender)', `${time.englishName}`)
@@ -535,6 +539,10 @@ export class AggregateResultResponseService extends BaseService {
     );
 
     return genderGraph;
+  }
+
+  async sentenceTest(response: any[]) {
+    return SentenceConstructor(response);
   }
 
   /**

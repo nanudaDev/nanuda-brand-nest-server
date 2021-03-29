@@ -79,6 +79,12 @@ export class ProformaConsultResult extends BaseEntity<ProformaConsultResult> {
   selectedKbMediumCategory: KB_MEDIUM_CATEGORY;
 
   @Column({
+    name: 'selected_kb_medium_category_name',
+    type: 'varchar',
+  })
+  selectedKbMediumCategoryName: string;
+
+  @Column({
     name: 'operation_times',
     type: 'json',
   })
@@ -107,6 +113,9 @@ export class ProformaConsultResult extends BaseEntity<ProformaConsultResult> {
     type: 'json',
   })
   graphData: any;
+
+  @Column({ type: 'json' })
+  hdong: any;
 
   @OneToOne(type => CommonCode)
   @JoinColumn({ name: 'fnb_owner_status', referencedColumnName: 'key' })

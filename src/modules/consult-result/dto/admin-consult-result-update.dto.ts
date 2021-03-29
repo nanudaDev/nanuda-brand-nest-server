@@ -23,4 +23,9 @@ export class AdminConsultResultUpdateDto
   @IsOptional()
   @Expose()
   phone?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Expose()
+  description?: string;
 }

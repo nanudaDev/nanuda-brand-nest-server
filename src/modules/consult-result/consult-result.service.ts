@@ -5,6 +5,7 @@ import { PaginatedRequest, PaginatedResponse } from 'src/common';
 import { PickcookSlackNotificationService } from 'src/common/utils';
 import { BaseService, BrandAiException } from 'src/core';
 import { EntityManager, Repository } from 'typeorm';
+import { CodeHdong } from '../code-hdong/code-hdong.entity';
 import { ProformaConsultResult } from '../proforma-consult-result/proforma-consult-result.entity';
 import { QuestionGiven } from '../question-given/question-given.entity';
 import { QuestionProformaGivenMapper } from '../question-proforma-given-mapper/question-proforma-given-mapper.entity';
@@ -22,6 +23,8 @@ export class ConsultResultService extends BaseService {
     @InjectRepository(ConsultResult)
     private readonly consultRepo: Repository<ConsultResult>,
     @InjectEntityManager() private readonly entityManager: EntityManager,
+    @InjectRepository(CodeHdong, 'wq')
+    private readonly codeHdongRepo: Repository<CodeHdong>,
     private readonly smsNotificationService: SmsNotificationService,
     private readonly pickcookSlackNotificationService: PickcookSlackNotificationService,
   ) {
@@ -179,8 +182,9 @@ export class ConsultResultService extends BaseService {
         newConsult.name = consultResultCreateDto.name;
         newConsult.phone = consultResultCreateDto.phone;
         newConsult.proformaConsultResultId = proforma.id;
-        console.log(newConsult);
         newConsult = await entityManager.save(newConsult);
+        newConsult.reservationCode = `PC${consultResultCreateDto.phone}-${newConsult.id}`;
+        await entityManager.save(newConsult);
         await this.smsNotificationService.sendConsultNotification(
           newConsult,
           req,

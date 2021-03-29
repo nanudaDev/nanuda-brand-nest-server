@@ -1,9 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
+import { YN } from 'src/common';
 import { BaseService, BrandAiException } from 'src/core';
 import { EntityManager, Repository } from 'typeorm';
 import { ConsultResult } from '../consult-result/consult-result.entity';
-import { AdminReservationCreateDto, ReservationCreateDto } from './dto';
+import {
+  AdminReservationCreateDto,
+  AdminReservationUpdateDto,
+  ReservationCreateDto,
+} from './dto';
 import { Reservation } from './reservation.entity';
 
 @Injectable()
@@ -65,6 +70,10 @@ export class ReservationService extends BaseService {
     return reservation;
   }
 
+  /**
+   * create for admin
+   * @param adminReservationCreateDto
+   */
   async createForAdmin(
     adminReservationCreateDto: AdminReservationCreateDto,
   ): Promise<Reservation> {
@@ -99,6 +108,29 @@ export class ReservationService extends BaseService {
     reservation = await this.reservationRepo.save(reservation);
     // send message
     // send slack
+    return reservation;
+  }
+
+  /**
+   * update reservation
+   * @param reservationId
+   * @param adminReservationUpdateDto
+   */
+  async updateForAdmin(
+    reservationId: number,
+    adminReservationUpdateDto: AdminReservationUpdateDto,
+  ): Promise<Reservation> {
+    let reservation = await this.reservationRepo.findOne({
+      where: { id: reservationId, isCancelYn: YN.NO },
+    });
+    if (!reservation) {
+      throw new BrandAiException('reservation.notFoundOrCancelled');
+    }
+    reservation = reservation.set(adminReservationUpdateDto);
+    reservation = await this.reservationRepo.save(reservation);
+    // send update slack
+    // send update message
+
     return reservation;
   }
 }

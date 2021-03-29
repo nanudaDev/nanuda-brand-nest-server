@@ -70,6 +70,7 @@ export class CommonCodeService extends BaseService {
     adminCommonCodeListDto: AdminCommonCodeListDto,
     pagination: PaginatedRequest,
   ): Promise<PaginatedResponse<CommonCode>> {
+    console.log(adminCommonCodeListDto);
     const qb = this.commonCodeRepo
       .createQueryBuilder('commonCode')
       .AndWhereLike(
@@ -92,9 +93,10 @@ export class CommonCodeService extends BaseService {
         adminCommonCodeListDto.exclude('category'),
       )
       .Paginate(pagination)
-      .WhereAndOrder(adminCommonCodeListDto);
+      .WhereAndOrder(adminCommonCodeListDto)
+      .getManyAndCount();
 
-    const [items, totalCount] = await qb.getManyAndCount();
+    const [items, totalCount] = await qb;
 
     return { items, totalCount };
   }

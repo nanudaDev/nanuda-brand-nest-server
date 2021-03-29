@@ -16,8 +16,8 @@ import { AdminCommonCodeListDto } from './dto';
 
 @Controller()
 @ApiTags('ADMIN COMMON CODE')
-@ApiBearerAuth()
-@UseGuards(new AuthRolesGuard(...CONST_ADMIN_ROLES))
+// @ApiBearerAuth()
+// @UseGuards(new AuthRolesGuard(...CONST_ADMIN_ROLES))
 export class AdminCommonCodeController extends BaseController {
   constructor(private readonly commonCodeService: CommonCodeService) {
     super();

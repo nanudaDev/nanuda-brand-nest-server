@@ -183,7 +183,11 @@ export class ConsultResultService extends BaseService {
         newConsult.phone = consultResultCreateDto.phone;
         newConsult.proformaConsultResultId = proforma.id;
         newConsult = await entityManager.save(newConsult);
-        newConsult.reservationCode = `PC${consultResultCreateDto.phone}-${newConsult.id}`;
+        const lastFourPhoneDigits = consultResultCreateDto.phone.substr(
+          consultResultCreateDto.phone.length - 4,
+        );
+        const randomCode = Math.floor(100000 + Math.random() * 900000);
+        newConsult.reservationCode = `PC${lastFourPhoneDigits}-${newConsult.id}-${randomCode}`;
         await entityManager.save(newConsult);
         await this.smsNotificationService.sendConsultNotification(
           newConsult,

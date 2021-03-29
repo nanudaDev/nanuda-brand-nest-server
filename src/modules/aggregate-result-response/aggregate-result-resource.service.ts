@@ -351,12 +351,12 @@ export class AggregateResultResponseService extends BaseService {
           returnResponse.selectedRevenue = graphData[3];
           returnResponse.revenueGradeSentence = graphData[4];
           newProforma.graphData = returnResponse;
-          newProforma.hdong = hdong;
-          const kbCode = await this.commonCodeService.findByKey(
-            aggregateQuestionQuery.kbFoodCategory,
-          );
-          newProforma.selectedKbMediumCategoryName = kbCode.displayName;
         }
+        newProforma.hdong = hdong;
+        const kbCode = await this.commonCodeService.findByValue(
+          aggregateQuestionQuery.kbFoodCategory,
+        );
+        newProforma.selectedKbMediumCategoryName = kbCode.displayName;
         await entityManager.save(newProforma);
         return returnResponse;
       },

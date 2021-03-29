@@ -24,6 +24,12 @@ export class Reservation extends BaseEntity<Reservation> {
   phone: string;
 
   @Column({
+    name: 'consult_id',
+    type: 'int',
+  })
+  consultId: number;
+
+  @Column({
     name: 'reservation_date',
     type: 'datetime',
   })
@@ -44,8 +50,7 @@ export class Reservation extends BaseEntity<Reservation> {
 
   @OneToOne(type => ConsultResult)
   @JoinColumn({
-    name: 'reservation_code',
-    referencedColumnName: 'reservationCode',
+    name: 'consult_id',
   })
   consultResult?: ConsultResult;
 }

@@ -42,7 +42,7 @@ export class ConsultResultService extends BaseService {
   ): Promise<PaginatedResponse<ConsultResult>> {
     const qb = this.consultRepo
       .createQueryBuilder('consult')
-      .CustomInnerJoinAndSelect([
+      .CustomLeftJoinAndSelect([
         'revenueRangeCodeStatus',
         'fnbOwnerCodeStatus',
         'ageGroupCodeStatus',
@@ -81,6 +81,12 @@ export class ConsultResultService extends BaseService {
         adminConsultResultListDto.phone,
         adminConsultResultListDto.exclude('phone'),
       )
+      .AndWhereLike(
+        'consult',
+        'reservationCode',
+        adminConsultResultListDto.reservationCode,
+        adminConsultResultListDto.exclude('reservationCode'),
+      )
       .AndWhereEqual(
         'consult',
         'deliveryRatioGrade',
@@ -102,7 +108,7 @@ export class ConsultResultService extends BaseService {
   async findOneForAdmin(id: number): Promise<ConsultResult> {
     const qb = await this.consultRepo
       .createQueryBuilder('consult')
-      .CustomInnerJoinAndSelect([
+      .CustomLeftJoinAndSelect([
         'revenueRangeCodeStatus',
         'fnbOwnerCodeStatus',
         'ageGroupCodeStatus',
@@ -186,7 +192,7 @@ export class ConsultResultService extends BaseService {
         const lastFourPhoneDigits = consultResultCreateDto.phone.substr(
           consultResultCreateDto.phone.length - 4,
         );
-        const randomCode = Math.floor(100000 + Math.random() * 900000);
+        const randomCode = Math.floor(1000000 + Math.random() * 9000000);
         newConsult.reservationCode = `PC${lastFourPhoneDigits}-${newConsult.id}-${randomCode}`;
         await entityManager.save(newConsult);
         await this.smsNotificationService.sendConsultNotification(

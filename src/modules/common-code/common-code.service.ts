@@ -140,4 +140,30 @@ export class CommonCodeService extends BaseService {
 
     return await qb;
   }
+
+  /**
+   * find common code by key
+   * @param key
+   */
+  async findByKey(key: string): Promise<CommonCode> {
+    const commonCode = await this.commonCodeRepo
+      .createQueryBuilder('commonCode')
+      .where('commonCode.key = :key', { key: key })
+      .getOne();
+
+    return commonCode;
+  }
+
+  /**
+   * find common code by key
+   * @param key
+   */
+  async findByValue(value: string): Promise<CommonCode> {
+    const commonCode = await this.commonCodeRepo
+      .createQueryBuilder('commonCode')
+      .where('commonCode.value = :value', { value: value })
+      .getOne();
+
+    return commonCode;
+  }
 }

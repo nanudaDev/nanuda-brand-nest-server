@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CodeHdong } from '../code-hdong/code-hdong.entity';
 import { CodeHdongModule } from '../code-hdong/code-hdong.module';
+import { CommonCodeModule } from '../common-code/common-code.module';
 import { ConsultResult } from '../consult-result/consult-result.entity';
 import { KbCategoryInfo, LocationAnalysisModule } from '../data';
 import { KbDeliverySpacePurchaseRecord } from '../data/entities/kb-delivery-space-purchase-record.entity';
@@ -33,6 +35,7 @@ import { AggregateResultResponse } from './aggregate-result-response.entity';
     ),
     LocationAnalysisModule,
     CodeHdongModule,
+    CommonCodeModule,
   ],
   controllers: [AggregateResultResponseController],
   providers: [AggregateResultResponseService],

@@ -10,3 +10,4 @@ export * from './data';
 export * from './result-response/result-response.module';
 export * from './sms-notification/sms-notification.module';
 export * from './proforma-consult-result/proforma-consult-result.module';
+export * from './reservation/reservation.module';

@@ -121,6 +121,17 @@ export class ConsultResult extends BaseEntity<ConsultResult> {
   })
   operationSentenceId: number;
 
+  @Column({
+    name: 'reservation_code',
+    type: 'varchar',
+  })
+  reservationCode: string;
+
+  @Column({
+    type: 'text',
+  })
+  description: string;
+
   @OneToOne(type => CommonCode)
   @JoinColumn({ name: 'fnb_owner_status', referencedColumnName: 'key' })
   fnbOwnerCodeStatus?: CommonCode;

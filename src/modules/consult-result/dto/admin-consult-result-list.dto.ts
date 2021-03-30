@@ -74,6 +74,11 @@ export class AdminConsultResultListDto
   @Expose()
   deliveryRatioGrade?: number;
 
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Expose()
+  reservationCode?: string;
+
   @ApiPropertyOptional({ enum: ORDER_BY_VALUE })
   @IsOptional()
   @Expose()

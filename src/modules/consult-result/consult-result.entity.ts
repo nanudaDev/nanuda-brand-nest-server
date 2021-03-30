@@ -132,6 +132,18 @@ export class ConsultResult extends BaseEntity<ConsultResult> {
   })
   description: string;
 
+  @Column({
+    name: 'consult_complete_date',
+    type: 'datetime',
+  })
+  consultCompleteDate: Date;
+
+  @Column({
+    name: 'consult_drop_date',
+    type: 'datetime',
+  })
+  consultDropDate: Date;
+
   @OneToOne(type => CommonCode)
   @JoinColumn({ name: 'fnb_owner_status', referencedColumnName: 'key' })
   fnbOwnerCodeStatus?: CommonCode;

@@ -4,6 +4,7 @@ import { Request } from 'express';
 import { PaginatedRequest, PaginatedResponse } from 'src/common';
 import { PickcookSlackNotificationService } from 'src/common/utils';
 import { BaseService, BrandAiException } from 'src/core';
+import { BRAND_CONSULT } from 'src/shared';
 import { EntityManager, Repository } from 'typeorm';
 import { CodeHdong } from '../code-hdong/code-hdong.entity';
 import { ProformaConsultResult } from '../proforma-consult-result/proforma-consult-result.entity';
@@ -158,6 +159,20 @@ export class ConsultResultService extends BaseService {
   ): Promise<ConsultResult> {
     let result = await this.consultRepo.findOne(id);
     result = result.set(adminConsultResultUpdateDto);
+    // complete date
+    if (
+      adminConsultResultUpdateDto.consultStatus ===
+      BRAND_CONSULT.CONSULT_COMPLETE
+    ) {
+      result.consultCompleteDate = new Date();
+    }
+    // consult drop date
+    if (
+      adminConsultResultUpdateDto.consultStatus ===
+      BRAND_CONSULT.CONSULT_DROPPED
+    ) {
+      result.consultDropDate = new Date();
+    }
     result = await this.consultRepo.save(result);
     return result;
   }

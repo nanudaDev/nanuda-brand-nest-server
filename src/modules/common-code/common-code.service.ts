@@ -70,6 +70,7 @@ export class CommonCodeService extends BaseService {
     adminCommonCodeListDto: AdminCommonCodeListDto,
     pagination: PaginatedRequest,
   ): Promise<PaginatedResponse<CommonCode>> {
+    console.log(adminCommonCodeListDto);
     const qb = this.commonCodeRepo
       .createQueryBuilder('commonCode')
       .AndWhereLike(
@@ -92,9 +93,10 @@ export class CommonCodeService extends BaseService {
         adminCommonCodeListDto.exclude('category'),
       )
       .Paginate(pagination)
-      .WhereAndOrder(adminCommonCodeListDto);
+      .WhereAndOrder(adminCommonCodeListDto)
+      .getManyAndCount();
 
-    const [items, totalCount] = await qb.getManyAndCount();
+    const [items, totalCount] = await qb;
 
     return { items, totalCount };
   }
@@ -137,5 +139,31 @@ export class CommonCodeService extends BaseService {
       .getMany();
 
     return await qb;
+  }
+
+  /**
+   * find common code by key
+   * @param key
+   */
+  async findByKey(key: string): Promise<CommonCode> {
+    const commonCode = await this.commonCodeRepo
+      .createQueryBuilder('commonCode')
+      .where('commonCode.key = :key', { key: key })
+      .getOne();
+
+    return commonCode;
+  }
+
+  /**
+   * find common code by key
+   * @param key
+   */
+  async findByValue(value: string): Promise<CommonCode> {
+    const commonCode = await this.commonCodeRepo
+      .createQueryBuilder('commonCode')
+      .where('commonCode.value = :value', { value: value })
+      .getOne();
+
+    return commonCode;
   }
 }

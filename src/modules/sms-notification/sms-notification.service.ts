@@ -37,6 +37,7 @@ export class SmsNotificationService {
     private readonly smsAuthRepo: Repository<SmsAuth>,
   ) {}
   // send to user to notify
+  // TODO: add reservation code
   async sendConsultNotification(consultData: ConsultResult, req: Request) {
     const smsContent = await this.__get_auth_body();
     smsContent.body.receiver = consultData.phone;

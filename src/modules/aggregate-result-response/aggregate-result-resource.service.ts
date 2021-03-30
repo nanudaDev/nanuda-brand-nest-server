@@ -26,6 +26,7 @@ import {
 import { CodeHdong } from '../code-hdong/code-hdong.entity';
 import { CodeHdongService } from '../code-hdong/code-hdong.service';
 import { CommonCode } from '../common-code/common-code.entity';
+import { CommonCodeService } from '../common-code/common-code.service';
 import { ConsultResult } from '../consult-result/consult-result.entity';
 import { KbDeliverySpacePurchaseRecord } from '../data/entities/kb-delivery-space-purchase-record.entity';
 import { KbOfflineSpacePurchaseRecord } from '../data/entities/kb-offline-space-purchase-record.entity';
@@ -82,6 +83,7 @@ export class ResponseArrayClass extends BaseDto<ResponseArrayClass> {
   modifiedResponse?: string;
   koreanPrefSentence: string;
   modifiedSufSentence: string;
+  koreanOperatingDisplayName: string;
 }
 
 class LineGraphData {
@@ -110,6 +112,7 @@ export class AggregateResultResponseService extends BaseService {
     private readonly deliveryDataRepo: Repository<
       KbDeliverySpacePurchaseRecord
     >,
+    private readonly commonCodeService: CommonCodeService,
   ) {
     super();
   }
@@ -208,6 +211,7 @@ export class AggregateResultResponseService extends BaseService {
                 modifiedResponse: response,
                 koreanPrefSentence: '아침',
                 modifiedSufSentence: `${codes.medium_category_nm}의 ${codes.medium_small_category_nm}`,
+                koreanOperatingDisplayName: '아침 (06:00~11:00)',
               });
               responseArray.push(newResponse);
             }
@@ -227,6 +231,7 @@ export class AggregateResultResponseService extends BaseService {
                 modifiedResponse: response,
                 koreanPrefSentence: '점심',
                 modifiedSufSentence: `${codes.medium_category_nm}의 ${codes.medium_small_category_nm}`,
+                koreanOperatingDisplayName: '점심 (11:00 ~ 14:00)',
               });
               responseArray.push(newResponse);
             }
@@ -246,6 +251,7 @@ export class AggregateResultResponseService extends BaseService {
                 modifiedResponse: response,
                 koreanPrefSentence: '저녁',
                 modifiedSufSentence: `${codes.medium_category_nm}의 ${codes.medium_small_category_nm}`,
+                koreanOperatingDisplayName: '저녁 (17:00 ~ 21:00)',
               });
               responseArray.push(newResponse);
             }
@@ -265,6 +271,7 @@ export class AggregateResultResponseService extends BaseService {
                 modifiedResponse: response,
                 koreanPrefSentence: '야식',
                 modifiedSufSentence: `${codes.medium_category_nm}의 ${codes.medium_small_category_nm}`,
+                koreanOperatingDisplayName: '야식 (21:00 ~ 6:00)',
               });
               responseArray.push(newResponse);
             }
@@ -345,6 +352,11 @@ export class AggregateResultResponseService extends BaseService {
           returnResponse.revenueGradeSentence = graphData[4];
           newProforma.graphData = returnResponse;
         }
+        newProforma.hdong = hdong;
+        const kbCode = await this.commonCodeService.findByValue(
+          aggregateQuestionQuery.kbFoodCategory,
+        );
+        newProforma.selectedKbMediumCategoryName = kbCode.displayName;
         await entityManager.save(newProforma);
         return returnResponse;
       },

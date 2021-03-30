@@ -32,5 +32,10 @@
     }, 
     "smsAuth": {
         "notFound": "인증번호가 맞지 않거나 입력기간이 지났습니다"
+    },
+    "consultResult": {
+        "notFound": "Consult response not found",
+        "exceedTimeSlot": "이미 가입된 시간대입니다. 죄송합니다.",
+        "exceedMaxAlotted": "하루에 두 시간대만 신청 가능합니다."
     }
 }

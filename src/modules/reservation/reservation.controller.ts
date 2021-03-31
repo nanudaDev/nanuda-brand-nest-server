@@ -92,4 +92,9 @@ export class ReservationController extends BaseController {
       req,
     );
   }
+
+  @Get('/reservation/holidays')
+  async returnHolidays() {
+    return await this.reservationService.getGoogleCalendarHolidays();
+  }
 }

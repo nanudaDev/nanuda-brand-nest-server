@@ -15,6 +15,7 @@ import {
   ReservationUpdateDto,
 } from './dto';
 import { Reservation } from './reservation.entity';
+import Axios from 'axios';
 
 @Injectable()
 export class ReservationService extends BaseService {
@@ -233,7 +234,7 @@ export class ReservationService extends BaseService {
   ): Promise<Reservation[]> {
     const qb = this.reservationRepo
       .createQueryBuilder('reservation')
-      .CustomInnerJoinAndSelect(['consult'])
+      .CustomInnerJoinAndSelect(['consultResult'])
       .where('reservation.reservationCode = :reservationCode', {
         reservationCode: reservationListDto.reservationCode,
       })
@@ -241,6 +242,17 @@ export class ReservationService extends BaseService {
       .getMany();
 
     return await qb;
+  }
+
+  async getGoogleCalendarHolidays() {
+    console.log(
+      `https://www.googleapis.com/calendar/v3/calendars/${process.env.GOOGLE_KOREAN_HOLIDAY_ID}/events`,
+    );
+    const events = await Axios.get(
+      `https://www.googleapis.com/calendar/v3/calendars/${process.env.GOOGLE_KOREAN_HOLIDAY_ID}/events`,
+      { params: { key: process.env.GOOGLE_API_KEY } },
+    );
+    console.log(events);
   }
 
   /**
@@ -257,7 +269,6 @@ export class ReservationService extends BaseService {
       where: {
         reservationCode: reservationCode,
         phone: phone,
-        name: name,
         isCancelYn: YN.NO,
       },
     });

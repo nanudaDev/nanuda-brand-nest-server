@@ -14,6 +14,7 @@ import { CommonCode } from '../common-code/common-code.entity';
 import { ResponseArrayClass } from '../aggregate-result-response/aggregate-result-resource.service';
 import { OperationSentenceResponse } from '../aggregate-result-response/operation-sentence-response.entity';
 import { ProformaConsultResult } from '../proforma-consult-result/proforma-consult-result.entity';
+import { Reservation } from '../reservation/reservation.entity';
 
 @Entity({ name: 'consult_result' })
 export class ConsultResult extends BaseEntity<ConsultResult> {
@@ -167,4 +168,8 @@ export class ConsultResult extends BaseEntity<ConsultResult> {
   @OneToOne(type => ProformaConsultResult)
   @JoinColumn({ name: 'proforma_consult_result_id' })
   proforma?: ProformaConsultResult;
+
+  @OneToOne(type => Reservation)
+  @JoinColumn({ name: 'id', referencedColumnName: 'consultId' })
+  reservation?: Reservation;
 }

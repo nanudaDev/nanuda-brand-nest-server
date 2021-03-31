@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
+import { Request } from 'express';
 import { toNamespacedPath } from 'path';
 import { YN } from 'src/common';
 import { BaseService, BrandAiException } from 'src/core';
@@ -10,6 +11,7 @@ import {
   AdminReservationUpdateDto,
   ReservationCheckDto,
   ReservationCreateDto,
+  ReservationListDto,
   ReservationUpdateDto,
 } from './dto';
 import { Reservation } from './reservation.entity';
@@ -32,6 +34,7 @@ export class ReservationService extends BaseService {
    */
   async createForUser(
     reservationCreateDto: ReservationCreateDto,
+    req?: Request,
   ): Promise<Reservation> {
     const consult = await this.entityManager
       .getRepository(ConsultResult)
@@ -79,6 +82,7 @@ export class ReservationService extends BaseService {
    */
   async createForAdmin(
     adminReservationCreateDto: AdminReservationCreateDto,
+    req?: Request,
   ): Promise<Reservation> {
     const checkConsult = await this.consultRepo.findOne(
       adminReservationCreateDto.consultId,
@@ -122,6 +126,7 @@ export class ReservationService extends BaseService {
   async updateForAdmin(
     reservationId: number,
     adminReservationUpdateDto: AdminReservationUpdateDto,
+    req?: Request,
   ): Promise<Reservation> {
     const reservation = await this.reservationRepo.findOne({
       where: { id: reservationId, isCancelYn: YN.NO },
@@ -148,6 +153,7 @@ export class ReservationService extends BaseService {
   async updateForUser(
     reservationId: number,
     reservationUpdateDto: ReservationUpdateDto,
+    req?: Request,
   ): Promise<Reservation> {
     const checkIfValid = await this.__check_reservation_code(
       reservationUpdateDto.phone,
@@ -179,7 +185,10 @@ export class ReservationService extends BaseService {
    * delete for admin
    * @param reservationId
    */
-  async deleteForAdmin(reservationId: number): Promise<Reservation> {
+  async deleteForAdmin(
+    reservationId: number,
+    req?: Request,
+  ): Promise<Reservation> {
     let reservation = await this.reservationRepo.findOne(reservationId);
     if (reservation.isCancelYn === YN.YES) {
       throw new BrandAiException('reservation.notFoundOrCancelled');
@@ -198,6 +207,7 @@ export class ReservationService extends BaseService {
   async deleteForUser(
     reservationId: number,
     reservationCheckDto: ReservationCheckDto,
+    req?: Request,
   ): Promise<Reservation> {
     const checkIfValid = await this.__check_reservation_code(
       reservationCheckDto.phone,
@@ -212,6 +222,25 @@ export class ReservationService extends BaseService {
     // send slack and message about deleted
 
     return reservation;
+  }
+
+  /**
+   * find all for user
+   * @param reservationListDto
+   */
+  async findAllForUser(
+    reservationListDto: ReservationListDto,
+  ): Promise<Reservation[]> {
+    const qb = this.reservationRepo
+      .createQueryBuilder('reservation')
+      .CustomInnerJoinAndSelect(['consult'])
+      .where('reservation.reservationCode = :reservationCode', {
+        reservationCode: reservationListDto.reservationCode,
+      })
+      .andWhere('reservation.isCancelYn = :isCancelYn', { isCancelYn: YN.NO })
+      .getMany();
+
+    return await qb;
   }
 
   /**

@@ -5,6 +5,7 @@ import { Default, ORDER_BY_VALUE } from 'src/common';
 import { BaseDto } from 'src/core';
 import {
   AGE_GROUP,
+  FNB_OWNER,
   HOW_OPERATE,
   HOW_SKILL,
   KB_MEDIUM_CATEGORY,
@@ -20,6 +21,12 @@ export class AdminConsultResultListDto
   @IsOptional()
   @Expose()
   name?: string;
+
+  @ApiPropertyOptional({ enum: FNB_OWNER })
+  @IsOptional()
+  @IsEnum(FNB_OWNER)
+  @Expose()
+  fnbOwnerStatus: FNB_OWNER;
 
   @ApiPropertyOptional()
   @IsOptional()

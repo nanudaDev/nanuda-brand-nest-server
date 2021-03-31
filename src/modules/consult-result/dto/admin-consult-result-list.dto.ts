@@ -86,6 +86,11 @@ export class AdminConsultResultListDto
   @Expose()
   reservationCode?: string;
 
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Expose()
+  adminId?: number;
+
   @ApiPropertyOptional({ enum: ORDER_BY_VALUE })
   @IsOptional()
   @Expose()

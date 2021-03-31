@@ -94,6 +94,12 @@ export class ConsultResultService extends BaseService {
         adminConsultResultListDto.deliveryRatioGrade,
         adminConsultResultListDto.exclude('deliveryRatioGrade'),
       )
+      .AndWhereEqual(
+        'consult',
+        'adminId',
+        adminConsultResultListDto.adminId,
+        adminConsultResultListDto.exclude('adminId'),
+      )
       .Paginate(pagination)
       .WhereAndOrder(adminConsultResultListDto);
 

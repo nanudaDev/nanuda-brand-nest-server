@@ -31,6 +31,12 @@ export class ConsultResult extends BaseEntity<ConsultResult> {
   phone: string;
 
   @Column({
+    name: 'admin_id',
+    type: 'int',
+  })
+  adminId: number;
+
+  @Column({
     name: 'proforma_consult_result_id',
     type: 'int',
   })
@@ -172,4 +178,7 @@ export class ConsultResult extends BaseEntity<ConsultResult> {
   @OneToOne(type => Reservation)
   @JoinColumn({ name: 'id', referencedColumnName: 'consultId' })
   reservation?: Reservation;
+
+  // add admin entity later
+  admin?: any;
 }

@@ -53,6 +53,7 @@ export class ConsultResultService extends BaseService {
         'operationSentenceResponse',
         'consultCodeStatus',
         'proforma',
+        'reservation',
       ])
       .innerJoinAndSelect('proforma.questions', 'questions')
       .AndWhereLike(

@@ -16,6 +16,7 @@ import {
 } from './dto';
 import { Reservation } from './reservation.entity';
 import Axios from 'axios';
+import google from 'googleapis';
 
 @Injectable()
 export class ReservationService extends BaseService {
@@ -244,15 +245,32 @@ export class ReservationService extends BaseService {
     return await qb;
   }
 
+  /**
+   * get google calendar dates for Korean holiday
+   */
   async getGoogleCalendarHolidays() {
-    console.log(
-      `https://www.googleapis.com/calendar/v3/calendars/${process.env.GOOGLE_KOREAN_HOLIDAY_ID}/events`,
-    );
+    const thisYear = new Date().getFullYear();
+    const dates = [];
     const events = await Axios.get(
-      `https://www.googleapis.com/calendar/v3/calendars/${process.env.GOOGLE_KOREAN_HOLIDAY_ID}/events`,
-      { params: { key: process.env.GOOGLE_API_KEY } },
+      `https://www.googleapis.com/calendar/v3/calendars/ko.south_korea%23holiday%40group.v.calendar.google.com/events?key=${process.env.GOOGLE_API_KEY}`,
     );
-    console.log(events);
+    events.data.items.map(item => {
+      const firstFourDigit = item.id.substr(0, 4);
+      // console.log(firstFourDigit, thisYear);
+      if (firstFourDigit != thisYear) {
+        const index = events.data.items.indexOf(item);
+        events.data.items.splice(index, 1);
+      } else {
+        const date: any = {
+          start: item.start.date,
+          color: '#ff9f89',
+          display: 'background',
+        };
+        dates.push(date);
+      }
+    });
+
+    return dates;
   }
 
   /**

@@ -3,6 +3,7 @@ import { Expose } from 'class-transformer';
 import { IsOptional } from 'class-validator';
 import { BaseDto } from 'src/core';
 import { Reservation } from '../reservation.entity';
+import { RESERVATION_HOURS } from '../../../shared';
 import { AdminReservationCreateDto } from './admin-reservation-create.dto';
 
 export class AdminReservationUpdateDto
@@ -16,5 +17,5 @@ export class AdminReservationUpdateDto
   @ApiPropertyOptional()
   @IsOptional()
   @Expose()
-  reservationTime?: string;
+  reservationTime?: RESERVATION_HOURS;
 }

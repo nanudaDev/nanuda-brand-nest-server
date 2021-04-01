@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 import { Injectable } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { Request } from 'express';
@@ -105,16 +106,20 @@ export class ConsultResultService extends BaseService {
         adminConsultResultListDto.exclude('adminId'),
       )
       .Paginate(pagination)
-      .WhereAndOrder(adminConsultResultListDto);
+      .WhereAndOrder(adminConsultResultListDto)
+      .getManyAndCount();
 
-    const [items, totalCount] = await qb.getManyAndCount();
+    let [items, totalCount] = await qb;
 
     // get admin for list
-    items.map(async item => {
-      if (item.adminId) {
-        item.admin = await this.platformAdminRepo.findOne(item.adminId);
-      }
-    });
+
+    await Promise.all(
+      items.map(async item => {
+        if (item.adminId) {
+          item.admin = await this.platformAdminRepo.findOne(item.adminId);
+        }
+      }),
+    );
 
     return { items, totalCount };
   }

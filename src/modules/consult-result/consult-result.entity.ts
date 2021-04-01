@@ -19,6 +19,8 @@ import { PlatformAdmin } from '../admin/platform-admin.entity';
 
 @Entity({ name: 'consult_result' })
 export class ConsultResult extends BaseEntity<ConsultResult> {
+  // add admin entity later
+  admin?: PlatformAdmin;
   @Column({
     type: 'varchar',
     nullable: false,
@@ -179,7 +181,4 @@ export class ConsultResult extends BaseEntity<ConsultResult> {
   @OneToOne(type => Reservation)
   @JoinColumn({ name: 'id', referencedColumnName: 'consultId' })
   reservation?: Reservation;
-
-  // add admin entity later
-  admin?: PlatformAdmin;
 }

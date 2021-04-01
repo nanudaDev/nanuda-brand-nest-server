@@ -214,6 +214,15 @@ export class ConsultResultService extends BaseService {
     //   consultResultCreateDto.phone,
     //   consultResultCreateDto.smsAuthCode,
     // );
+    if (
+      consultResultCreateDto.phone &&
+      consultResultCreateDto.phone.includes('-')
+    ) {
+      consultResultCreateDto.phone = consultResultCreateDto.phone.replace(
+        /-/g,
+        '',
+      );
+    }
     const consult = await this.entityManager.transaction(
       async entityManager => {
         // find phone and sms auth code first

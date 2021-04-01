@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 import { Injectable } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { Request } from 'express';
@@ -6,6 +7,7 @@ import { PickcookSlackNotificationService } from 'src/common/utils';
 import { BaseService, BrandAiException } from 'src/core';
 import { BRAND_CONSULT } from 'src/shared';
 import { EntityManager, Repository } from 'typeorm';
+import { PlatformAdmin } from '../admin/platform-admin.entity';
 import { CodeHdong } from '../code-hdong/code-hdong.entity';
 import { ProformaConsultResult } from '../proforma-consult-result/proforma-consult-result.entity';
 import { QuestionGiven } from '../question-given/question-given.entity';
@@ -26,6 +28,8 @@ export class ConsultResultService extends BaseService {
     @InjectEntityManager() private readonly entityManager: EntityManager,
     @InjectRepository(CodeHdong, 'wq')
     private readonly codeHdongRepo: Repository<CodeHdong>,
+    @InjectRepository(PlatformAdmin, 'platform')
+    private readonly platformAdminRepo: Repository<PlatformAdmin>,
     private readonly smsNotificationService: SmsNotificationService,
     private readonly pickcookSlackNotificationService: PickcookSlackNotificationService,
   ) {
@@ -50,6 +54,7 @@ export class ConsultResultService extends BaseService {
         'operationSentenceResponse',
         'consultCodeStatus',
         'proforma',
+        'reservation',
       ])
       .innerJoinAndSelect('proforma.questions', 'questions')
       .AndWhereLike(
@@ -94,10 +99,27 @@ export class ConsultResultService extends BaseService {
         adminConsultResultListDto.deliveryRatioGrade,
         adminConsultResultListDto.exclude('deliveryRatioGrade'),
       )
+      .AndWhereEqual(
+        'consult',
+        'adminId',
+        adminConsultResultListDto.adminId,
+        adminConsultResultListDto.exclude('adminId'),
+      )
       .Paginate(pagination)
-      .WhereAndOrder(adminConsultResultListDto);
+      .WhereAndOrder(adminConsultResultListDto)
+      .getManyAndCount();
 
-    const [items, totalCount] = await qb.getManyAndCount();
+    let [items, totalCount] = await qb;
+
+    // get admin for list
+
+    await Promise.all(
+      items.map(async item => {
+        if (item.adminId) {
+          item.admin = await this.platformAdminRepo.findOne(item.adminId);
+        }
+      }),
+    );
 
     return { items, totalCount };
   }
@@ -145,7 +167,9 @@ export class ConsultResultService extends BaseService {
         question.givens = answers;
       }),
     );
-
+    if (qb.adminId) {
+      qb.admin = await this.platformAdminRepo.findOne(qb.adminId);
+    }
     return qb;
   }
 
@@ -190,6 +214,15 @@ export class ConsultResultService extends BaseService {
     //   consultResultCreateDto.phone,
     //   consultResultCreateDto.smsAuthCode,
     // );
+    if (
+      consultResultCreateDto.phone &&
+      consultResultCreateDto.phone.includes('-')
+    ) {
+      consultResultCreateDto.phone = consultResultCreateDto.phone.replace(
+        /-/g,
+        '',
+      );
+    }
     const consult = await this.entityManager.transaction(
       async entityManager => {
         // find phone and sms auth code first

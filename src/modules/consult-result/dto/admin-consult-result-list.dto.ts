@@ -5,6 +5,7 @@ import { Default, ORDER_BY_VALUE } from 'src/common';
 import { BaseDto } from 'src/core';
 import {
   AGE_GROUP,
+  BRAND_CONSULT,
   FNB_OWNER,
   HOW_OPERATE,
   HOW_SKILL,
@@ -27,6 +28,12 @@ export class AdminConsultResultListDto
   @IsEnum(FNB_OWNER)
   @Expose()
   fnbOwnerStatus: FNB_OWNER;
+
+  @ApiPropertyOptional({ enum: BRAND_CONSULT })
+  @IsOptional()
+  @IsEnum(BRAND_CONSULT)
+  @Expose()
+  consultStatus: BRAND_CONSULT;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -85,6 +92,11 @@ export class AdminConsultResultListDto
   @IsOptional()
   @Expose()
   reservationCode?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Expose()
+  adminId?: number;
 
   @ApiPropertyOptional({ enum: ORDER_BY_VALUE })
   @IsOptional()

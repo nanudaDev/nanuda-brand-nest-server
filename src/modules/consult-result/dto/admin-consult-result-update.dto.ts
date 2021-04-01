@@ -28,4 +28,9 @@ export class AdminConsultResultUpdateDto
   @IsOptional()
   @Expose()
   description?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Expose()
+  adminId?: number;
 }

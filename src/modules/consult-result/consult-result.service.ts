@@ -109,6 +109,13 @@ export class ConsultResultService extends BaseService {
 
     const [items, totalCount] = await qb.getManyAndCount();
 
+    // get admin for list
+    items.map(async item => {
+      if (item.adminId) {
+        item.admin = await this.platformAdminRepo.findOne(item.adminId);
+      }
+    });
+
     return { items, totalCount };
   }
 

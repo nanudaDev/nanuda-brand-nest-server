@@ -4,8 +4,9 @@ import { Min } from 'class-validator';
 import { Default } from '../decorators';
 
 export class PaginatedResponse<Entity> {
-  items: Entity[];
+  items?: Entity[];
   totalCount: number;
+  newItems?: Entity[];
 }
 
 export class PaginatedRequest {

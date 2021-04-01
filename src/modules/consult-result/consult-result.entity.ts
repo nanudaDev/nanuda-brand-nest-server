@@ -15,9 +15,12 @@ import { ResponseArrayClass } from '../aggregate-result-response/aggregate-resul
 import { OperationSentenceResponse } from '../aggregate-result-response/operation-sentence-response.entity';
 import { ProformaConsultResult } from '../proforma-consult-result/proforma-consult-result.entity';
 import { Reservation } from '../reservation/reservation.entity';
+import { PlatformAdmin } from '../admin/platform-admin.entity';
 
 @Entity({ name: 'consult_result' })
 export class ConsultResult extends BaseEntity<ConsultResult> {
+  // add admin entity later
+  admin?: PlatformAdmin;
   @Column({
     type: 'varchar',
     nullable: false,
@@ -29,6 +32,12 @@ export class ConsultResult extends BaseEntity<ConsultResult> {
     nullable: false,
   })
   phone: string;
+
+  @Column({
+    name: 'admin_id',
+    type: 'int',
+  })
+  adminId: number;
 
   @Column({
     name: 'proforma_consult_result_id',

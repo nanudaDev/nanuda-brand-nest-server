@@ -49,6 +49,7 @@ export class ReservationService extends BaseService {
       let newReservation = new Reservation(reservationCreateDto);
       newReservation.name = checkReservation.name;
       newReservation.phone = checkReservation.phone;
+      newReservation.consultId = checkReservation.consultId;
       newReservation = await this.reservationRepo.save(newReservation);
       return newReservation;
     } else {

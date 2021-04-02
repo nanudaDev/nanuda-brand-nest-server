@@ -49,6 +49,12 @@ export class Reservation extends BaseEntity<Reservation> {
   })
   isCancelYn: YN;
 
+  @Column({
+    name: 'delete_reason',
+    type: 'text',
+  })
+  deleteReason: string;
+
   @OneToOne(type => ConsultResult)
   @JoinColumn({
     name: 'consult_id',

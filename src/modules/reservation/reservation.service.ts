@@ -17,6 +17,7 @@ import {
 import { Reservation } from './reservation.entity';
 import Axios from 'axios';
 import { RESERVATION_HOURS, RESERVATION_HOURS_JSON } from 'src/shared';
+import { ReservationDeleteReasonDto } from './dto/reservation-delete-reason.dto';
 @Injectable()
 export class ReservationService extends BaseService {
   constructor(
@@ -225,6 +226,7 @@ export class ReservationService extends BaseService {
   async deleteForUser(
     reservationId: number,
     reservationCheckDto: ReservationCheckDto,
+    reservationDeleteReasonDto: ReservationDeleteReasonDto,
     req?: Request,
   ): Promise<Reservation> {
     const checkIfValid = await this.__check_reservation_code(
@@ -236,6 +238,7 @@ export class ReservationService extends BaseService {
     }
     let reservation = await this.reservationRepo.findOne(reservationId);
     reservation.isCancelYn = YN.YES;
+    reservation.deleteReason = reservationDeleteReasonDto.deleteReason;
     reservation = await this.reservationRepo.save(reservation);
     // send slack and message about deleted
 

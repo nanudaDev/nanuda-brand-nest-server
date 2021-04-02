@@ -17,6 +17,7 @@ import {
   ReservationCheckDto,
   ReservationCheckTimeDto,
   ReservationCreateDto,
+  ReservationDeleteReasonDto,
   ReservationListDto,
   ReservationUpdateDto,
 } from './dto';
@@ -85,11 +86,13 @@ export class ReservationController extends BaseController {
   async deleteReservation(
     @Param('id', ParseIntPipe) reservationId: number,
     @Query() reservationCheckDto: ReservationCheckDto,
+    @Body() reservationDeleteReasonDto: ReservationDeleteReasonDto,
     @Req() req: Request,
   ): Promise<Reservation> {
     return await this.reservationService.deleteForUser(
       reservationId,
       reservationCheckDto,
+      reservationDeleteReasonDto,
       req,
     );
   }

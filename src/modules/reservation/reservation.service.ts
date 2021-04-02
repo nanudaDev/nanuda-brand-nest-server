@@ -16,7 +16,11 @@ import {
 } from './dto';
 import { Reservation } from './reservation.entity';
 import Axios from 'axios';
-import { CONST_RESERVATION_HOURS, RESERVATION_HOURS } from 'src/shared';
+import {
+  CONST_RESERVATION_HOURS,
+  RESERVATION_HOURS,
+  RESERVATION_HOURS_JSON,
+} from 'src/shared';
 @Injectable()
 export class ReservationService extends BaseService {
   constructor(
@@ -279,7 +283,7 @@ export class ReservationService extends BaseService {
   async checkAvailableTimeSlots(
     reservationCheckTimeDto: ReservationCheckTimeDto,
   ) {
-    const resultArray = [...CONST_RESERVATION_HOURS];
+    const resultArray = RESERVATION_HOURS_JSON;
     const availableTimeSlots: RESERVATION_HOURS[] = [];
     const reservations = await this.reservationRepo
       .createQueryBuilder('reservation')
@@ -299,20 +303,29 @@ export class ReservationService extends BaseService {
     const returnArray = [];
     Object.keys(count).forEach(counted => {
       if (count[counted] >= 2) {
-        returnArray.push(counted);
+        returnArray.push({ value: counted, available: false });
       }
     });
-    if (returnArray.length > 0) {
-      returnArray.map(array => {
-        const index = resultArray.indexOf(array);
-        resultArray.splice(index, 1);
+    returnArray.map(array => {
+      resultArray.map(arr => {
+        if (array.value === arr.value) {
+          const index = resultArray.indexOf(arr);
+          resultArray[index].available = false;
+        }
       });
-    }
-    if (returnArray.length === 0) {
-      return { available: false, hours: [...CONST_RESERVATION_HOURS] };
-    } else {
-      return resultArray;
-    }
+    });
+    return resultArray;
+    // if (returnArray.length > 0) {
+    //   returnArray.map(array => {
+    //     const index = resultArray.indexOf(array);
+    //     resultArray.splice(index, 1);
+    //   });
+    // }
+    // if (returnArray.length === 0) {
+    //   return { available: false, hours: [...CONST_RESERVATION_HOURS] };
+    // } else {
+    //   return resultArray;
+    // }
   }
 
   /**

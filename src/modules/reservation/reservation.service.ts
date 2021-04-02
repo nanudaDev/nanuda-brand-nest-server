@@ -16,11 +16,7 @@ import {
 } from './dto';
 import { Reservation } from './reservation.entity';
 import Axios from 'axios';
-import {
-  CONST_RESERVATION_HOURS,
-  RESERVATION_HOURS,
-  RESERVATION_HOURS_JSON,
-} from 'src/shared';
+import { RESERVATION_HOURS, RESERVATION_HOURS_JSON } from 'src/shared';
 @Injectable()
 export class ReservationService extends BaseService {
   constructor(
@@ -41,44 +37,58 @@ export class ReservationService extends BaseService {
     reservationCreateDto: ReservationCreateDto,
     req?: Request,
   ): Promise<Reservation> {
-    const consult = await this.entityManager
-      .getRepository(ConsultResult)
-      .findOne({
-        where: { reservationCode: reservationCreateDto.reservationCode },
-      });
-
-    if (!consult) {
-      throw new BrandAiException('consultResult.notFound');
-    }
-    let reservation = new Reservation(reservationCreateDto);
-    reservation.name = consult.name;
-    reservation.phone = consult.phone;
-    reservation.consultId = consult.id;
-    const checkIfTimeSlotExceeded = await this.reservationRepo.find({
+    const checkReservation = await this.reservationRepo.findOne({
       where: {
-        reservationDate: reservationCreateDto.reservationDate,
-        reservationTime: reservationCreateDto.reservationTime,
-      },
-    });
-    if (checkIfTimeSlotExceeded && checkIfTimeSlotExceeded.length > 1) {
-      throw new BrandAiException('consultResult.exceedTimeSlot');
-    }
-    const checkIfAppliedToSameDateTwice = await this.reservationRepo.find({
-      where: {
-        reservationDate: reservationCreateDto.reservationDate,
         reservationCode: reservationCreateDto.reservationCode,
+        isCancelYn: YN.NO,
       },
     });
-    if (
-      checkIfAppliedToSameDateTwice &&
-      checkIfAppliedToSameDateTwice.length > 2
-    ) {
-      throw new BrandAiException('consultResult.exceedMaxAlotted');
+    if (checkReservation) {
+      checkReservation.isCancelYn = YN.YES;
+      await this.reservationRepo.save(checkReservation);
+      let newReservation = new Reservation(reservationCreateDto);
+      newReservation = await this.reservationRepo.save(newReservation);
+      return newReservation;
+    } else {
+      const consult = await this.entityManager
+        .getRepository(ConsultResult)
+        .findOne({
+          where: { reservationCode: reservationCreateDto.reservationCode },
+        });
+
+      if (!consult) {
+        throw new BrandAiException('consultResult.notFound');
+      }
+      let reservation = new Reservation(reservationCreateDto);
+      reservation.name = consult.name;
+      reservation.phone = consult.phone;
+      reservation.consultId = consult.id;
+      const checkIfTimeSlotExceeded = await this.reservationRepo.find({
+        where: {
+          reservationDate: reservationCreateDto.reservationDate,
+          reservationTime: reservationCreateDto.reservationTime,
+        },
+      });
+      if (checkIfTimeSlotExceeded && checkIfTimeSlotExceeded.length > 1) {
+        throw new BrandAiException('consultResult.exceedTimeSlot');
+      }
+      const checkIfAppliedToSameDateTwice = await this.reservationRepo.find({
+        where: {
+          reservationDate: reservationCreateDto.reservationDate,
+          reservationCode: reservationCreateDto.reservationCode,
+        },
+      });
+      if (
+        checkIfAppliedToSameDateTwice &&
+        checkIfAppliedToSameDateTwice.length > 2
+      ) {
+        throw new BrandAiException('consultResult.exceedMaxAlotted');
+      }
+      reservation = await this.reservationRepo.save(reservation);
+      // send slack
+      // send message
+      return reservation;
     }
-    reservation = await this.reservationRepo.save(reservation);
-    // send slack
-    // send message
-    return reservation;
   }
 
   /**

@@ -268,6 +268,21 @@ export class ReservationService extends BaseService {
     }
   }
 
+  async loginUser(reservationCheckDto: ReservationCheckDto) {
+    const checkConsult = await this.entityManager
+      .getRepository(ConsultResult)
+      .findOne({
+        where: {
+          phone: reservationCheckDto.phone,
+          reservationCode: reservationCheckDto.reservationCode,
+        },
+      });
+    if (!checkConsult) {
+      throw new BrandAiException('reservation.notFound');
+    }
+    return checkConsult;
+  }
+
   /**
    * get google calendar dates for Korean holiday
    */

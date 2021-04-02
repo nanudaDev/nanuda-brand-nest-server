@@ -98,6 +98,15 @@ export class ReservationController extends BaseController {
   }
 
   /**
+   * check if reservation code exists in consult result
+   * @param reservationCheckDto
+   */
+  @Post('/reservation/login')
+  async loginUser(@Body() reservationCheckDto: ReservationCheckDto) {
+    return await this.reservationService.loginUser(reservationCheckDto);
+  }
+
+  /**
    * get holidays
    */
   @Get('/reservation/holidays')

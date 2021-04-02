@@ -2,6 +2,7 @@ import { YN } from 'src/common';
 import { BaseEntity } from 'src/core';
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { ConsultResult } from '../consult-result/consult-result.entity';
+import { RESERVATION_HOURS } from '../../shared';
 
 @Entity({ name: 'reservation' })
 export class Reservation extends BaseEntity<Reservation> {
@@ -39,7 +40,7 @@ export class Reservation extends BaseEntity<Reservation> {
     name: 'reservation_time',
     type: 'varchar',
   })
-  reservationTime: string;
+  reservationTime: RESERVATION_HOURS;
 
   @Column({
     name: 'is_cancel_yn',

@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { BaseController } from 'src/core';
+import { BaseController, BrandAiException } from 'src/core';
 import {
   ReservationCheckDto,
   ReservationCheckTimeDto,
@@ -52,7 +52,7 @@ export class ReservationController extends BaseController {
   @Get('/reservation')
   async findAll(
     @Query() reservationListDto: ReservationListDto,
-  ): Promise<Reservation[]> {
+  ): Promise<Reservation[] | BrandAiException> {
     return await this.reservationService.findAllForUser(reservationListDto);
   }
 

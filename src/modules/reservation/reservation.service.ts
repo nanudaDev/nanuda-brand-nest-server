@@ -248,8 +248,8 @@ export class ReservationService extends BaseService {
    */
   async findAllForUser(
     reservationListDto: ReservationListDto,
-  ): Promise<Reservation[]> {
-    const qb = this.reservationRepo
+  ): Promise<Reservation[] | BrandAiException> {
+    const qb = await this.reservationRepo
       .createQueryBuilder('reservation')
       .CustomInnerJoinAndSelect(['consultResult'])
       .where('reservation.reservationCode = :reservationCode', {
@@ -258,7 +258,11 @@ export class ReservationService extends BaseService {
       .andWhere('reservation.isCancelYn = :isCancelYn', { isCancelYn: YN.NO })
       .getMany();
 
-    return await qb;
+    if (qb.length < 1) {
+      throw new BrandAiException('reservation.notFound');
+    } else {
+      return qb;
+    }
   }
 
   /**

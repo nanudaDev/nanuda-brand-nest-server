@@ -1,13 +1,13 @@
 export enum RESERVATION_HOURS {
-  TEN = '10:00AM',
-  ELEVEL = '11:00AM',
-  TWELVE = '12:00PM',
-  THIRTEEN = '01:00PM',
-  FOURTEEN = '02:00PM',
-  FIFTEEN = '03:00PM',
-  SIXTEEN = '04:00PM',
-  SEVENTEEN = '05:00PM',
-  EIGHTEEN = '06:00PM',
+  TEN = '오전 10:00',
+  ELEVEN = '오전 11:00',
+  TWELVE = '오후 12:00',
+  THIRTEEN = '오후 01:00',
+  FOURTEEN = '오후 02:00',
+  FIFTEEN = '오후 03:00',
+  SIXTEEN = '오후 04:00',
+  SEVENTEEN = '오후 05:00',
+  EIGHTEEN = '오후 06:00',
 }
 
 export const CONST_RESERVATION_HOURS = Object.values(RESERVATION_HOURS);

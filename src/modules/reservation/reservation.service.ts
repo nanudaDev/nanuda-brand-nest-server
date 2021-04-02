@@ -308,7 +308,11 @@ export class ReservationService extends BaseService {
         resultArray.splice(index, 1);
       });
     }
-    return resultArray;
+    if (returnArray.length === 0) {
+      return { available: false, hours: [...CONST_RESERVATION_HOURS] };
+    } else {
+      return resultArray;
+    }
   }
 
   /**

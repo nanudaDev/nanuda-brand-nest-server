@@ -16,7 +16,7 @@ import {
 } from './dto';
 import { Reservation } from './reservation.entity';
 import Axios from 'axios';
-import { RESERVATION_HOURS } from 'src/shared';
+import { CONST_RESERVATION_HOURS, RESERVATION_HOURS } from 'src/shared';
 @Injectable()
 export class ReservationService extends BaseService {
   constructor(
@@ -279,6 +279,7 @@ export class ReservationService extends BaseService {
   async checkAvailableTimeSlots(
     reservationCheckTimeDto: ReservationCheckTimeDto,
   ) {
+    const resultArray = [...CONST_RESERVATION_HOURS];
     const availableTimeSlots: RESERVATION_HOURS[] = [];
     const reservations = await this.reservationRepo
       .createQueryBuilder('reservation')
@@ -290,18 +291,28 @@ export class ReservationService extends BaseService {
     reservations.map(reservation => {
       availableTimeSlots.push(reservation.reservationTime);
     });
+
     const count = {};
     availableTimeSlots.forEach(i => {
       count[i] = (count[i] || 0) + 1;
     });
     const returnArray = [];
-    console.log(count);
     Object.keys(count).forEach(counted => {
-      count[counted] < 2;
-      returnArray.push(counted);
+      if (count[counted] >= 2) {
+        returnArray.push(counted);
+      }
     });
-    console.log(returnArray);
-    return returnArray;
+    if (returnArray.length > 0) {
+      returnArray.map(array => {
+        const index = resultArray.indexOf(array);
+        resultArray.splice(index, 1);
+      });
+    }
+    if (returnArray.length === 0) {
+      return { available: false, hours: [...CONST_RESERVATION_HOURS] };
+    } else {
+      return resultArray;
+    }
   }
 
   /**

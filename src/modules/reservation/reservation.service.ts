@@ -47,6 +47,8 @@ export class ReservationService extends BaseService {
       checkReservation.isCancelYn = YN.YES;
       await this.reservationRepo.save(checkReservation);
       let newReservation = new Reservation(reservationCreateDto);
+      newReservation.name = checkReservation.name;
+      newReservation.phone = checkReservation.phone;
       newReservation = await this.reservationRepo.save(newReservation);
       return newReservation;
     } else {

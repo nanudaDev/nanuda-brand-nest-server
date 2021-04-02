@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { Request } from 'express';
-import { toNamespacedPath } from 'path';
 import { YN } from 'src/common';
 import { BaseService, BrandAiException } from 'src/core';
 import { EntityManager, Repository } from 'typeorm';
@@ -10,14 +9,18 @@ import {
   AdminReservationCreateDto,
   AdminReservationUpdateDto,
   ReservationCheckDto,
+  ReservationCheckTimeDto,
   ReservationCreateDto,
   ReservationListDto,
   ReservationUpdateDto,
 } from './dto';
 import { Reservation } from './reservation.entity';
 import Axios from 'axios';
-import google from 'googleapis';
-
+import {
+  CONST_RESERVATION_HOURS,
+  RESERVATION_HOURS,
+  RESERVATION_HOURS_JSON,
+} from 'src/shared';
 @Injectable()
 export class ReservationService extends BaseService {
   constructor(
@@ -271,6 +274,58 @@ export class ReservationService extends BaseService {
     });
 
     return dates;
+  }
+
+  /**
+   * get available time for each reservation date
+   * @param reservationCheckTimeDto
+   */
+  async checkAvailableTimeSlots(
+    reservationCheckTimeDto: ReservationCheckTimeDto,
+  ) {
+    const resultArray = RESERVATION_HOURS_JSON;
+    const availableTimeSlots: RESERVATION_HOURS[] = [];
+    const reservations = await this.reservationRepo
+      .createQueryBuilder('reservation')
+      .where('reservation.reservationDate like :reservationDate', {
+        reservationDate: `${reservationCheckTimeDto.reservationDate}%`,
+      })
+      .andWhere('reservation.isCancelYn = :isCancelYn', { isCancelYn: YN.NO })
+      .getMany();
+    reservations.map(reservation => {
+      availableTimeSlots.push(reservation.reservationTime);
+    });
+
+    const count = {};
+    availableTimeSlots.forEach(i => {
+      count[i] = (count[i] || 0) + 1;
+    });
+    const returnArray = [];
+    Object.keys(count).forEach(counted => {
+      if (count[counted] >= 2) {
+        returnArray.push({ value: counted, available: false });
+      }
+    });
+    returnArray.map(array => {
+      resultArray.map(arr => {
+        if (array.value === arr.value) {
+          const index = resultArray.indexOf(arr);
+          resultArray[index].available = false;
+        }
+      });
+    });
+    return resultArray;
+    // if (returnArray.length > 0) {
+    //   returnArray.map(array => {
+    //     const index = resultArray.indexOf(array);
+    //     resultArray.splice(index, 1);
+    //   });
+    // }
+    // if (returnArray.length === 0) {
+    //   return { available: false, hours: [...CONST_RESERVATION_HOURS] };
+    // } else {
+    //   return resultArray;
+    // }
   }
 
   /**

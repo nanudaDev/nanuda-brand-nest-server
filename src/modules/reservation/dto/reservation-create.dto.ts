@@ -3,6 +3,7 @@ import { Expose } from 'class-transformer';
 import { IsNotEmpty } from 'class-validator';
 import { BaseDto } from 'src/core';
 import { Reservation } from '../reservation.entity';
+import { RESERVATION_HOURS } from '../../../shared';
 
 export class ReservationCreateDto extends BaseDto<ReservationCreateDto>
   implements Partial<Reservation> {
@@ -14,7 +15,7 @@ export class ReservationCreateDto extends BaseDto<ReservationCreateDto>
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
-  reservationTime: string;
+  reservationTime: RESERVATION_HOURS;
 
   @ApiProperty()
   @IsNotEmpty()

@@ -15,6 +15,7 @@ import { Request } from 'express';
 import { BaseController } from 'src/core';
 import {
   ReservationCheckDto,
+  ReservationCheckTimeDto,
   ReservationCreateDto,
   ReservationListDto,
   ReservationUpdateDto,
@@ -93,8 +94,24 @@ export class ReservationController extends BaseController {
     );
   }
 
+  /**
+   * get holidays
+   */
   @Get('/reservation/holidays')
   async returnHolidays() {
     return await this.reservationService.getGoogleCalendarHolidays();
+  }
+
+  /**
+   * get available times
+   * @param reservationCheckTimeDto
+   */
+  @Get('/reservation/check-available-times')
+  async checkAvailableTimes(
+    @Query() reservationCheckTimeDto: ReservationCheckTimeDto,
+  ) {
+    return await this.reservationService.checkAvailableTimeSlots(
+      reservationCheckTimeDto,
+    );
   }
 }

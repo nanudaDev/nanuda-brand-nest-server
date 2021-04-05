@@ -18,6 +18,8 @@ import { Reservation } from './reservation.entity';
 import Axios from 'axios';
 import { RESERVATION_HOURS, RESERVATION_HOURS_JSON } from 'src/shared';
 import { ReservationDeleteReasonDto } from './dto/reservation-delete-reason.dto';
+import { decryptString, encryptString } from 'src/common/utils';
+import { SmsNotificationService } from '../sms-notification/sms-notification.service';
 @Injectable()
 export class ReservationService extends BaseService {
   constructor(
@@ -26,6 +28,7 @@ export class ReservationService extends BaseService {
     @InjectRepository(ConsultResult)
     private readonly consultRepo: Repository<ConsultResult>,
     @InjectEntityManager() private readonly entityManager: EntityManager,
+    private readonly smsNotificationService: SmsNotificationService,
   ) {
     super();
   }
@@ -38,6 +41,15 @@ export class ReservationService extends BaseService {
     reservationCreateDto: ReservationCreateDto,
     req?: Request,
   ): Promise<Reservation> {
+    // if reservation code starts with PC
+    if (reservationCreateDto.reservationCode.startsWith('PC')) {
+      reservationCreateDto.reservationCode = encryptString(
+        reservationCreateDto.reservationCode,
+      );
+    }
+    reservationCreateDto.reservationCode = decryptString(
+      reservationCreateDto.reservationCode,
+    );
     const checkReservation = await this.reservationRepo.findOne({
       where: {
         reservationCode: reservationCreateDto.reservationCode,
@@ -52,6 +64,16 @@ export class ReservationService extends BaseService {
       newReservation.phone = checkReservation.phone;
       newReservation.consultId = checkReservation.consultId;
       newReservation = await this.reservationRepo.save(newReservation);
+      newReservation.reservationCode = encryptString(
+        newReservation.reservationCode,
+      );
+      // send message
+      await this.smsNotificationService.sendReservationCreateNotification(
+        newReservation,
+        req,
+        YN.YES,
+      );
+      // send slack notification
       return newReservation;
     } else {
       const consult = await this.entityManager
@@ -89,8 +111,14 @@ export class ReservationService extends BaseService {
         throw new BrandAiException('consultResult.exceedMaxAlotted');
       }
       reservation = await this.reservationRepo.save(reservation);
+      reservation.reservationCode = encryptString(reservation.reservationCode);
       // send slack
       // send message
+      await this.smsNotificationService.sendReservationCreateNotification(
+        reservation,
+        req,
+        YN.NO,
+      );
       return reservation;
     }
   }
@@ -174,6 +202,7 @@ export class ReservationService extends BaseService {
     reservationUpdateDto: ReservationUpdateDto,
     req?: Request,
   ): Promise<Reservation> {
+    console.log(reservationUpdateDto);
     const checkIfValid = await this.__check_reservation_code(
       reservationUpdateDto.phone,
       reservationUpdateDto.reservationCode,
@@ -229,6 +258,9 @@ export class ReservationService extends BaseService {
     reservationDeleteReasonDto: ReservationDeleteReasonDto,
     req?: Request,
   ): Promise<Reservation> {
+    reservationCheckDto.reservationCode = decryptString(
+      reservationCheckDto.reservationCode,
+    );
     const checkIfValid = await this.__check_reservation_code(
       reservationCheckDto.phone,
       reservationCheckDto.reservationCode,
@@ -268,6 +300,10 @@ export class ReservationService extends BaseService {
     }
   }
 
+  /**
+   * check if user's reservation code exists in consult table
+   * @param reservationCheckDto
+   */
   async loginUser(reservationCheckDto: ReservationCheckDto) {
     const checkConsult = await this.entityManager
       .getRepository(ConsultResult)

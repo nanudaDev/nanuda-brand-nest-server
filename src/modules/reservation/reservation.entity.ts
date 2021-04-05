@@ -32,9 +32,9 @@ export class Reservation extends BaseEntity<Reservation> {
 
   @Column({
     name: 'reservation_date',
-    type: 'datetime',
+    type: 'timestamp',
   })
-  reservationDate: Date;
+  reservationDate: Date | string;
 
   @Column({
     name: 'reservation_time',
@@ -60,4 +60,6 @@ export class Reservation extends BaseEntity<Reservation> {
     name: 'consult_id',
   })
   consultResult?: ConsultResult;
+
+  encryptedReservationCode?: string;
 }

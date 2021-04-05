@@ -63,6 +63,9 @@ export class ReservationService extends BaseService {
       newReservation.name = checkReservation.name;
       newReservation.phone = checkReservation.phone;
       newReservation.consultId = checkReservation.consultId;
+      newReservation.formatReservationDate = new Date(
+        reservationCreateDto.reservationDate.toLocaleString().substr(0, 10),
+      ).toString();
       newReservation = await this.reservationRepo.save(newReservation);
       const messageReservation = new Reservation(newReservation);
       messageReservation.reservationCode = encryptString(
@@ -111,6 +114,9 @@ export class ReservationService extends BaseService {
       ) {
         throw new BrandAiException('consultResult.exceedMaxAlotted');
       }
+      reservation.formatReservationDate = new Date(
+        reservationCreateDto.reservationDate.toLocaleString().substr(0, 10),
+      ).toString();
       reservation = await this.reservationRepo.save(reservation);
       const messageReservation = new Reservation(reservation);
 
@@ -240,6 +246,7 @@ export class ReservationService extends BaseService {
    */
   async deleteForAdmin(
     reservationId: number,
+    reservationdeletereasondto: ReservationDeleteReasonDto,
     req?: Request,
   ): Promise<Reservation> {
     let reservation = await this.reservationRepo.findOne(reservationId);
@@ -247,6 +254,7 @@ export class ReservationService extends BaseService {
       throw new BrandAiException('reservation.notFoundOrCancelled');
     }
     reservation.isCancelYn = YN.YES;
+    reservation.deleteReason = reservationdeletereasondto.deleteReason;
     reservation = await this.reservationRepo.save(reservation);
     // send slack and message about deleted
     return reservation;
@@ -371,25 +379,30 @@ export class ReservationService extends BaseService {
     reservations.map(reservation => {
       availableTimeSlots.push(reservation.reservationTime);
     });
-
-    const count = {};
-    availableTimeSlots.forEach(i => {
-      count[i] = (count[i] || 0) + 1;
-    });
-    const returnArray = [];
-    Object.keys(count).forEach(counted => {
-      if (count[counted] >= 2) {
-        returnArray.push({ value: counted, available: false });
-      }
-    });
-    returnArray.map(array => {
-      resultArray.map(arr => {
-        if (array.value === arr.value) {
-          const index = resultArray.indexOf(arr);
-          resultArray[index].available = false;
+    console.log(reservations.length);
+    if (reservations && reservations.length > 0) {
+      const count = new Object();
+      availableTimeSlots.forEach(i => {
+        count[i] = (count[i] || 0) + 1;
+      });
+      const returnArray = [];
+      Object.keys(count).forEach(counted => {
+        if (count[counted] >= 2) {
+          returnArray.push({ value: counted, available: false });
         }
       });
-    });
+      if (returnArray.length > 0 && reservations.length > 0) {
+        returnArray.map(array => {
+          resultArray.map(arr => {
+            if (array.value === arr.value) {
+              const index = resultArray.indexOf(arr);
+              resultArray[index].available = false;
+            }
+          });
+        });
+        return resultArray;
+      }
+    }
     return resultArray;
     // if (returnArray.length > 0) {
     //   returnArray.map(array => {

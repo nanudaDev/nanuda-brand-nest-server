@@ -61,5 +61,11 @@ export class Reservation extends BaseEntity<Reservation> {
   })
   consultResult?: ConsultResult;
 
+  @Column({
+    name: 'format_reservation_date',
+    type: 'varchar',
+  })
+  formatReservationDate: string;
+
   encryptedReservationCode?: string;
 }

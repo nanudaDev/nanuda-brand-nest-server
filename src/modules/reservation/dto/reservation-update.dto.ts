@@ -2,8 +2,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { IsNotEmpty, IsPhoneNumber } from 'class-validator';
 import { AdminResultResponseCreateDto } from 'src/modules/result-response/dto';
+import { AdminReservationUpdateDto } from './admin-reservation-update.dto';
 
-export class ReservationUpdateDto extends AdminResultResponseCreateDto {
+export class ReservationUpdateDto extends AdminReservationUpdateDto {
   @ApiProperty()
   @IsNotEmpty()
   @Expose()

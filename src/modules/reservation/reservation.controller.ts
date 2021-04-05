@@ -12,11 +12,12 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { BaseController } from 'src/core';
+import { BaseController, BrandAiException } from 'src/core';
 import {
   ReservationCheckDto,
   ReservationCheckTimeDto,
   ReservationCreateDto,
+  ReservationDeleteReasonDto,
   ReservationListDto,
   ReservationUpdateDto,
 } from './dto';
@@ -52,7 +53,7 @@ export class ReservationController extends BaseController {
   @Get('/reservation')
   async findAll(
     @Query() reservationListDto: ReservationListDto,
-  ): Promise<Reservation[]> {
+  ): Promise<Reservation[] | BrandAiException> {
     return await this.reservationService.findAllForUser(reservationListDto);
   }
 
@@ -85,13 +86,24 @@ export class ReservationController extends BaseController {
   async deleteReservation(
     @Param('id', ParseIntPipe) reservationId: number,
     @Query() reservationCheckDto: ReservationCheckDto,
+    @Body() reservationDeleteReasonDto: ReservationDeleteReasonDto,
     @Req() req: Request,
   ): Promise<Reservation> {
     return await this.reservationService.deleteForUser(
       reservationId,
       reservationCheckDto,
+      reservationDeleteReasonDto,
       req,
     );
+  }
+
+  /**
+   * check if reservation code exists in consult result
+   * @param reservationCheckDto
+   */
+  @Post('/reservation/login')
+  async loginUser(@Body() reservationCheckDto: ReservationCheckDto) {
+    return await this.reservationService.loginUser(reservationCheckDto);
   }
 
   /**

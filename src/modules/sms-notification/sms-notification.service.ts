@@ -11,6 +11,7 @@ import { Repository } from 'typeorm';
 import { SmsAuthNotificationDto } from './dto';
 import { BrandAiException } from 'src/core';
 import { UserType } from '../auth';
+import { Reservation } from '../reservation/reservation.entity';
 
 class AligoAuth {
   key: string;
@@ -36,6 +37,30 @@ export class SmsNotificationService {
     @InjectRepository(SmsAuth, 'platform')
     private readonly smsAuthRepo: Repository<SmsAuth>,
   ) {}
+
+  /**
+   * 사용자에게 예약 알림
+   * @param reservation
+   * @param req
+   */
+  async sendReservationCreateNotification(
+    reservation: Reservation,
+    req?: Request,
+    isUpdated?: YN,
+  ) {
+    if (isUpdated === YN.NO) {
+      const smsContent = await this.__get_auth_body();
+      smsContent.body.receiver = reservation.phone;
+      smsContent.body.msg = `Link: ${process.env.PICKCOOK_SITE_URL}?reservationCode=${reservation.reservationCode}`;
+      console.log(smsContent.body.msg);
+    } else {
+      const smsContent = await this.__get_auth_body();
+      smsContent.body.receiver = reservation.phone;
+      smsContent.body.msg = `Link: ${process.env.PICKCOOK_SITE_URL}?reservationCode=${reservation.reservationCode}`;
+      console.log(smsContent.body.msg);
+    }
+  }
+
   // send to user to notify
   // TODO: add reservation code
   async sendConsultNotification(consultData: ConsultResult, req: Request) {

@@ -64,12 +64,13 @@ export class ReservationService extends BaseService {
       newReservation.phone = checkReservation.phone;
       newReservation.consultId = checkReservation.consultId;
       newReservation = await this.reservationRepo.save(newReservation);
-      newReservation.reservationCode = encryptString(
-        newReservation.reservationCode,
+      const messageReservation = new Reservation(newReservation);
+      messageReservation.reservationCode = encryptString(
+        messageReservation.reservationCode,
       );
       // send message
       await this.smsNotificationService.sendReservationCreateNotification(
-        newReservation,
+        messageReservation,
         req,
         YN.YES,
       );
@@ -111,11 +112,15 @@ export class ReservationService extends BaseService {
         throw new BrandAiException('consultResult.exceedMaxAlotted');
       }
       reservation = await this.reservationRepo.save(reservation);
-      reservation.reservationCode = encryptString(reservation.reservationCode);
+      const messageReservation = new Reservation(reservation);
+
+      messageReservation.reservationCode = encryptString(
+        messageReservation.reservationCode,
+      );
       // send slack
       // send message
       await this.smsNotificationService.sendReservationCreateNotification(
-        reservation,
+        messageReservation,
         req,
         YN.NO,
       );

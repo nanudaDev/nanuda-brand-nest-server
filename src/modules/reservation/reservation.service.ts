@@ -17,10 +17,13 @@ import {
 import { Reservation } from './reservation.entity';
 import Axios from 'axios';
 import {
-  CONST_RESERVATION_HOURS,
+  NEW_RESERVATION_HOURS_JSON,
   RESERVATION_HOURS,
   RESERVATION_HOURS_JSON,
 } from 'src/shared';
+import { ReservationDeleteReasonDto } from './dto/reservation-delete-reason.dto';
+import { decryptString, encryptString } from 'src/common/utils';
+import { SmsNotificationService } from '../sms-notification/sms-notification.service';
 @Injectable()
 export class ReservationService extends BaseService {
   constructor(
@@ -29,6 +32,7 @@ export class ReservationService extends BaseService {
     @InjectRepository(ConsultResult)
     private readonly consultRepo: Repository<ConsultResult>,
     @InjectEntityManager() private readonly entityManager: EntityManager,
+    private readonly smsNotificationService: SmsNotificationService,
   ) {
     super();
   }
@@ -41,44 +45,97 @@ export class ReservationService extends BaseService {
     reservationCreateDto: ReservationCreateDto,
     req?: Request,
   ): Promise<Reservation> {
-    const consult = await this.entityManager
-      .getRepository(ConsultResult)
-      .findOne({
-        where: { reservationCode: reservationCreateDto.reservationCode },
-      });
-
-    if (!consult) {
-      throw new BrandAiException('consultResult.notFound');
+    // if reservation code starts with PC
+    if (reservationCreateDto.reservationCode.startsWith('PC')) {
+      reservationCreateDto.reservationCode = encryptString(
+        reservationCreateDto.reservationCode,
+      );
     }
-    let reservation = new Reservation(reservationCreateDto);
-    reservation.name = consult.name;
-    reservation.phone = consult.phone;
-    reservation.consultId = consult.id;
-    const checkIfTimeSlotExceeded = await this.reservationRepo.find({
+    reservationCreateDto.reservationCode = decryptString(
+      reservationCreateDto.reservationCode,
+    );
+    const checkReservation = await this.reservationRepo.findOne({
       where: {
-        reservationDate: reservationCreateDto.reservationDate,
-        reservationTime: reservationCreateDto.reservationTime,
-      },
-    });
-    if (checkIfTimeSlotExceeded && checkIfTimeSlotExceeded.length > 1) {
-      throw new BrandAiException('consultResult.exceedTimeSlot');
-    }
-    const checkIfAppliedToSameDateTwice = await this.reservationRepo.find({
-      where: {
-        reservationDate: reservationCreateDto.reservationDate,
         reservationCode: reservationCreateDto.reservationCode,
+        isCancelYn: YN.NO,
       },
     });
-    if (
-      checkIfAppliedToSameDateTwice &&
-      checkIfAppliedToSameDateTwice.length > 2
-    ) {
-      throw new BrandAiException('consultResult.exceedMaxAlotted');
+    if (checkReservation) {
+      checkReservation.isCancelYn = YN.YES;
+      await this.reservationRepo.save(checkReservation);
+      let newReservation = new Reservation(reservationCreateDto);
+      newReservation.name = checkReservation.name;
+      newReservation.phone = checkReservation.phone;
+      newReservation.consultId = checkReservation.consultId;
+      newReservation.formatReservationDate = new Date(
+        reservationCreateDto.reservationDate.toLocaleString().substr(0, 10),
+      ).toString();
+      newReservation = await this.reservationRepo.save(newReservation);
+      const messageReservation = new Reservation(newReservation);
+      messageReservation.reservationCode = encryptString(
+        messageReservation.reservationCode,
+      );
+      // send message
+      await this.smsNotificationService.sendReservationCreateNotification(
+        messageReservation,
+        req,
+        YN.YES,
+      );
+      // send slack notification
+      return newReservation;
+    } else {
+      const consult = await this.entityManager
+        .getRepository(ConsultResult)
+        .findOne({
+          where: { reservationCode: reservationCreateDto.reservationCode },
+        });
+
+      if (!consult) {
+        throw new BrandAiException('consultResult.notFound');
+      }
+      let reservation = new Reservation(reservationCreateDto);
+      reservation.name = consult.name;
+      reservation.phone = consult.phone;
+      reservation.consultId = consult.id;
+      const checkIfTimeSlotExceeded = await this.reservationRepo.find({
+        where: {
+          reservationDate: reservationCreateDto.reservationDate,
+          reservationTime: reservationCreateDto.reservationTime,
+        },
+      });
+      if (checkIfTimeSlotExceeded && checkIfTimeSlotExceeded.length > 1) {
+        throw new BrandAiException('consultResult.exceedTimeSlot');
+      }
+      const checkIfAppliedToSameDateTwice = await this.reservationRepo.find({
+        where: {
+          reservationDate: reservationCreateDto.reservationDate,
+          reservationCode: reservationCreateDto.reservationCode,
+        },
+      });
+      if (
+        checkIfAppliedToSameDateTwice &&
+        checkIfAppliedToSameDateTwice.length > 2
+      ) {
+        throw new BrandAiException('consultResult.exceedMaxAlotted');
+      }
+      reservation.formatReservationDate = new Date(
+        reservationCreateDto.reservationDate.toLocaleString().substr(0, 10),
+      ).toString();
+      reservation = await this.reservationRepo.save(reservation);
+      const messageReservation = new Reservation(reservation);
+
+      messageReservation.reservationCode = encryptString(
+        messageReservation.reservationCode,
+      );
+      // send slack
+      // send message
+      await this.smsNotificationService.sendReservationCreateNotification(
+        messageReservation,
+        req,
+        YN.NO,
+      );
+      return reservation;
     }
-    reservation = await this.reservationRepo.save(reservation);
-    // send slack
-    // send message
-    return reservation;
   }
 
   /**
@@ -102,6 +159,8 @@ export class ReservationService extends BaseService {
         reservationTime: adminReservationCreateDto.reservationTime,
       },
     });
+    reservation.name = checkConsult.name;
+    reservation.phone = checkConsult.phone;
     if (checkIfTimeSlotExceeded && checkIfTimeSlotExceeded.length > 1) {
       throw new BrandAiException('consultResult.exceedTimeSlot');
     }
@@ -143,7 +202,18 @@ export class ReservationService extends BaseService {
     await this.reservationRepo.save(reservation);
     // reservation = reservation.set(adminReservationUpdateDto);
     let newReservation = new Reservation(adminReservationUpdateDto);
+    if (
+      newReservation.reservationDate === reservation.reservationDate &&
+      newReservation.reservationTime === reservation.reservationTime
+    ) {
+      throw new BrandAiException('reservation.sameReservationTimeAndDate');
+    }
+    newReservation.consultId = reservation.consultId;
+    newReservation.phone = reservation.phone;
+    newReservation.name = reservation.name;
+    newReservation.reservationCode = reservation.reservationCode;
     newReservation = await this.reservationRepo.save(newReservation);
+
     // send update slack
     // send update message - reservation from to when
 
@@ -160,6 +230,7 @@ export class ReservationService extends BaseService {
     reservationUpdateDto: ReservationUpdateDto,
     req?: Request,
   ): Promise<Reservation> {
+    console.log(reservationUpdateDto);
     const checkIfValid = await this.__check_reservation_code(
       reservationUpdateDto.phone,
       reservationUpdateDto.reservationCode,
@@ -192,6 +263,7 @@ export class ReservationService extends BaseService {
    */
   async deleteForAdmin(
     reservationId: number,
+    reservationdeletereasondto: ReservationDeleteReasonDto,
     req?: Request,
   ): Promise<Reservation> {
     let reservation = await this.reservationRepo.findOne(reservationId);
@@ -199,6 +271,7 @@ export class ReservationService extends BaseService {
       throw new BrandAiException('reservation.notFoundOrCancelled');
     }
     reservation.isCancelYn = YN.YES;
+    reservation.deleteReason = reservationdeletereasondto.deleteReason;
     reservation = await this.reservationRepo.save(reservation);
     // send slack and message about deleted
     return reservation;
@@ -212,8 +285,12 @@ export class ReservationService extends BaseService {
   async deleteForUser(
     reservationId: number,
     reservationCheckDto: ReservationCheckDto,
+    reservationDeleteReasonDto: ReservationDeleteReasonDto,
     req?: Request,
   ): Promise<Reservation> {
+    reservationCheckDto.reservationCode = decryptString(
+      reservationCheckDto.reservationCode,
+    );
     const checkIfValid = await this.__check_reservation_code(
       reservationCheckDto.phone,
       reservationCheckDto.reservationCode,
@@ -223,6 +300,7 @@ export class ReservationService extends BaseService {
     }
     let reservation = await this.reservationRepo.findOne(reservationId);
     reservation.isCancelYn = YN.YES;
+    reservation.deleteReason = reservationDeleteReasonDto.deleteReason;
     reservation = await this.reservationRepo.save(reservation);
     // send slack and message about deleted
 
@@ -235,8 +313,8 @@ export class ReservationService extends BaseService {
    */
   async findAllForUser(
     reservationListDto: ReservationListDto,
-  ): Promise<Reservation[]> {
-    const qb = this.reservationRepo
+  ): Promise<Reservation[] | BrandAiException> {
+    const qb = await this.reservationRepo
       .createQueryBuilder('reservation')
       .CustomInnerJoinAndSelect(['consultResult'])
       .where('reservation.reservationCode = :reservationCode', {
@@ -245,7 +323,30 @@ export class ReservationService extends BaseService {
       .andWhere('reservation.isCancelYn = :isCancelYn', { isCancelYn: YN.NO })
       .getMany();
 
-    return await qb;
+    if (qb.length < 1) {
+      throw new BrandAiException('reservation.notFound');
+    } else {
+      return qb;
+    }
+  }
+
+  /**
+   * check if user's reservation code exists in consult table
+   * @param reservationCheckDto
+   */
+  async loginUser(reservationCheckDto: ReservationCheckDto) {
+    const checkConsult = await this.entityManager
+      .getRepository(ConsultResult)
+      .findOne({
+        where: {
+          phone: reservationCheckDto.phone,
+          reservationCode: reservationCheckDto.reservationCode,
+        },
+      });
+    if (!checkConsult) {
+      throw new BrandAiException('reservation.notFound');
+    }
+    return checkConsult;
   }
 
   /**
@@ -295,37 +396,33 @@ export class ReservationService extends BaseService {
     reservations.map(reservation => {
       availableTimeSlots.push(reservation.reservationTime);
     });
-
-    const count = {};
-    availableTimeSlots.forEach(i => {
-      count[i] = (count[i] || 0) + 1;
-    });
-    const returnArray = [];
-    Object.keys(count).forEach(counted => {
-      if (count[counted] >= 2) {
-        returnArray.push({ value: counted, available: false });
-      }
-    });
-    returnArray.map(array => {
-      resultArray.map(arr => {
-        if (array.value === arr.value) {
-          const index = resultArray.indexOf(arr);
-          resultArray[index].available = false;
+    console.log(reservations.length);
+    if (reservations && reservations.length > 0) {
+      const count = new Object();
+      availableTimeSlots.forEach(i => {
+        count[i] = (count[i] || 0) + 1;
+      });
+      const returnArray = [];
+      Object.keys(count).forEach(counted => {
+        if (count[counted] >= 2) {
+          returnArray.push({ value: counted, available: false });
         }
       });
-    });
-    return resultArray;
-    // if (returnArray.length > 0) {
-    //   returnArray.map(array => {
-    //     const index = resultArray.indexOf(array);
-    //     resultArray.splice(index, 1);
-    //   });
-    // }
-    // if (returnArray.length === 0) {
-    //   return { available: false, hours: [...CONST_RESERVATION_HOURS] };
-    // } else {
-    //   return resultArray;
-    // }
+      if (returnArray.length > 0 && reservations.length > 0) {
+        console.log('test');
+        returnArray.map(array => {
+          resultArray.map(arr => {
+            if (array.value === arr.value) {
+              const index = resultArray.indexOf(arr);
+              resultArray[index].available = false;
+            }
+          });
+        });
+        return resultArray;
+      }
+    }
+    const newHours = NEW_RESERVATION_HOURS_JSON;
+    return newHours;
   }
 
   /**

@@ -16,7 +16,11 @@ import {
 } from './dto';
 import { Reservation } from './reservation.entity';
 import Axios from 'axios';
-import { RESERVATION_HOURS, RESERVATION_HOURS_JSON } from 'src/shared';
+import {
+  NEW_RESERVATION_HOURS_JSON,
+  RESERVATION_HOURS,
+  RESERVATION_HOURS_JSON,
+} from 'src/shared';
 import { ReservationDeleteReasonDto } from './dto/reservation-delete-reason.dto';
 import { decryptString, encryptString } from 'src/common/utils';
 import { SmsNotificationService } from '../sms-notification/sms-notification.service';
@@ -198,9 +202,18 @@ export class ReservationService extends BaseService {
     await this.reservationRepo.save(reservation);
     // reservation = reservation.set(adminReservationUpdateDto);
     let newReservation = new Reservation(adminReservationUpdateDto);
-    newReservation = await this.reservationRepo.save(newReservation);
+    if (
+      newReservation.reservationDate === reservation.reservationDate &&
+      newReservation.reservationTime === reservation.reservationTime
+    ) {
+      throw new BrandAiException('reservation.sameReservationTimeAndDate');
+    }
+    newReservation.consultId = reservation.consultId;
     newReservation.phone = reservation.phone;
     newReservation.name = reservation.name;
+    newReservation.reservationCode = reservation.reservationCode;
+    newReservation = await this.reservationRepo.save(newReservation);
+
     // send update slack
     // send update message - reservation from to when
 
@@ -396,6 +409,7 @@ export class ReservationService extends BaseService {
         }
       });
       if (returnArray.length > 0 && reservations.length > 0) {
+        console.log('test');
         returnArray.map(array => {
           resultArray.map(arr => {
             if (array.value === arr.value) {
@@ -407,18 +421,8 @@ export class ReservationService extends BaseService {
         return resultArray;
       }
     }
-    return resultArray;
-    // if (returnArray.length > 0) {
-    //   returnArray.map(array => {
-    //     const index = resultArray.indexOf(array);
-    //     resultArray.splice(index, 1);
-    //   });
-    // }
-    // if (returnArray.length === 0) {
-    //   return { available: false, hours: [...CONST_RESERVATION_HOURS] };
-    // } else {
-    //   return resultArray;
-    // }
+    const newHours = NEW_RESERVATION_HOURS_JSON;
+    return newHours;
   }
 
   /**

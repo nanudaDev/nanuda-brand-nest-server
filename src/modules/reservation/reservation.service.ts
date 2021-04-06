@@ -16,7 +16,11 @@ import {
 } from './dto';
 import { Reservation } from './reservation.entity';
 import Axios from 'axios';
-import { RESERVATION_HOURS, RESERVATION_HOURS_JSON } from 'src/shared';
+import {
+  NEW_RESERVATION_HOURS_JSON,
+  RESERVATION_HOURS,
+  RESERVATION_HOURS_JSON,
+} from 'src/shared';
 import { ReservationDeleteReasonDto } from './dto/reservation-delete-reason.dto';
 import { decryptString, encryptString } from 'src/common/utils';
 import { SmsNotificationService } from '../sms-notification/sms-notification.service';
@@ -63,6 +67,9 @@ export class ReservationService extends BaseService {
       newReservation.name = checkReservation.name;
       newReservation.phone = checkReservation.phone;
       newReservation.consultId = checkReservation.consultId;
+      newReservation.formatReservationDate = new Date(
+        reservationCreateDto.reservationDate.toLocaleString().substr(0, 10),
+      ).toString();
       newReservation = await this.reservationRepo.save(newReservation);
       const messageReservation = new Reservation(newReservation);
       messageReservation.reservationCode = encryptString(
@@ -111,6 +118,9 @@ export class ReservationService extends BaseService {
       ) {
         throw new BrandAiException('consultResult.exceedMaxAlotted');
       }
+      reservation.formatReservationDate = new Date(
+        reservationCreateDto.reservationDate.toLocaleString().substr(0, 10),
+      ).toString();
       reservation = await this.reservationRepo.save(reservation);
       const messageReservation = new Reservation(reservation);
 
@@ -149,6 +159,8 @@ export class ReservationService extends BaseService {
         reservationTime: adminReservationCreateDto.reservationTime,
       },
     });
+    reservation.name = checkConsult.name;
+    reservation.phone = checkConsult.phone;
     if (checkIfTimeSlotExceeded && checkIfTimeSlotExceeded.length > 1) {
       throw new BrandAiException('consultResult.exceedTimeSlot');
     }
@@ -190,7 +202,18 @@ export class ReservationService extends BaseService {
     await this.reservationRepo.save(reservation);
     // reservation = reservation.set(adminReservationUpdateDto);
     let newReservation = new Reservation(adminReservationUpdateDto);
+    if (
+      newReservation.reservationDate === reservation.reservationDate &&
+      newReservation.reservationTime === reservation.reservationTime
+    ) {
+      throw new BrandAiException('reservation.sameReservationTimeAndDate');
+    }
+    newReservation.consultId = reservation.consultId;
+    newReservation.phone = reservation.phone;
+    newReservation.name = reservation.name;
+    newReservation.reservationCode = reservation.reservationCode;
     newReservation = await this.reservationRepo.save(newReservation);
+
     // send update slack
     // send update message - reservation from to when
 
@@ -240,6 +263,7 @@ export class ReservationService extends BaseService {
    */
   async deleteForAdmin(
     reservationId: number,
+    reservationdeletereasondto: ReservationDeleteReasonDto,
     req?: Request,
   ): Promise<Reservation> {
     let reservation = await this.reservationRepo.findOne(reservationId);
@@ -247,6 +271,7 @@ export class ReservationService extends BaseService {
       throw new BrandAiException('reservation.notFoundOrCancelled');
     }
     reservation.isCancelYn = YN.YES;
+    reservation.deleteReason = reservationdeletereasondto.deleteReason;
     reservation = await this.reservationRepo.save(reservation);
     // send slack and message about deleted
     return reservation;
@@ -371,37 +396,33 @@ export class ReservationService extends BaseService {
     reservations.map(reservation => {
       availableTimeSlots.push(reservation.reservationTime);
     });
-
-    const count = {};
-    availableTimeSlots.forEach(i => {
-      count[i] = (count[i] || 0) + 1;
-    });
-    const returnArray = [];
-    Object.keys(count).forEach(counted => {
-      if (count[counted] >= 2) {
-        returnArray.push({ value: counted, available: false });
-      }
-    });
-    returnArray.map(array => {
-      resultArray.map(arr => {
-        if (array.value === arr.value) {
-          const index = resultArray.indexOf(arr);
-          resultArray[index].available = false;
+    console.log(reservations.length);
+    if (reservations && reservations.length > 0) {
+      const count = new Object();
+      availableTimeSlots.forEach(i => {
+        count[i] = (count[i] || 0) + 1;
+      });
+      const returnArray = [];
+      Object.keys(count).forEach(counted => {
+        if (count[counted] >= 2) {
+          returnArray.push({ value: counted, available: false });
         }
       });
-    });
-    return resultArray;
-    // if (returnArray.length > 0) {
-    //   returnArray.map(array => {
-    //     const index = resultArray.indexOf(array);
-    //     resultArray.splice(index, 1);
-    //   });
-    // }
-    // if (returnArray.length === 0) {
-    //   return { available: false, hours: [...CONST_RESERVATION_HOURS] };
-    // } else {
-    //   return resultArray;
-    // }
+      if (returnArray.length > 0 && reservations.length > 0) {
+        console.log('test');
+        returnArray.map(array => {
+          resultArray.map(arr => {
+            if (array.value === arr.value) {
+              const index = resultArray.indexOf(arr);
+              resultArray[index].available = false;
+            }
+          });
+        });
+        return resultArray;
+      }
+    }
+    const newHours = NEW_RESERVATION_HOURS_JSON;
+    return newHours;
   }
 
   /**

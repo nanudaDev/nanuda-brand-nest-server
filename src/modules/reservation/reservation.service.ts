@@ -201,6 +201,7 @@ export class ReservationService extends BaseService {
     newReservation = await this.reservationRepo.save(newReservation);
     newReservation.phone = reservation.phone;
     newReservation.name = reservation.name;
+    newReservation.reservationCode = reservation.reservationCode;
     // send update slack
     // send update message - reservation from to when
 

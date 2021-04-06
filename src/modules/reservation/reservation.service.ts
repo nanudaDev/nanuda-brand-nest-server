@@ -335,6 +335,14 @@ export class ReservationService extends BaseService {
    * @param reservationCheckDto
    */
   async loginUser(reservationCheckDto: ReservationCheckDto) {
+    if (reservationCheckDto.reservationCode.startsWith('PC')) {
+      reservationCheckDto.reservationCode = encryptString(
+        reservationCheckDto.reservationCode,
+      );
+    }
+    reservationCheckDto.reservationCode = decryptString(
+      reservationCheckDto.reservationCode,
+    );
     const checkConsult = await this.entityManager
       .getRepository(ConsultResult)
       .findOne({

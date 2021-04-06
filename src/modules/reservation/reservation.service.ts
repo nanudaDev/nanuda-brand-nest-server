@@ -198,10 +198,18 @@ export class ReservationService extends BaseService {
     await this.reservationRepo.save(reservation);
     // reservation = reservation.set(adminReservationUpdateDto);
     let newReservation = new Reservation(adminReservationUpdateDto);
-    newReservation = await this.reservationRepo.save(newReservation);
+    if (
+      newReservation.reservationDate === reservation.reservationDate &&
+      newReservation.reservationTime === reservation.reservationTime
+    ) {
+      throw new BrandAiException('reservation.sameReservationTimeAndDate');
+    }
+    newReservation.consultId = reservation.consultId;
     newReservation.phone = reservation.phone;
     newReservation.name = reservation.name;
     newReservation.reservationCode = reservation.reservationCode;
+    newReservation = await this.reservationRepo.save(newReservation);
+
     // send update slack
     // send update message - reservation from to when
 

@@ -155,6 +155,8 @@ export class ReservationService extends BaseService {
         reservationTime: adminReservationCreateDto.reservationTime,
       },
     });
+    reservation.name = checkConsult.name;
+    reservation.phone = checkConsult.phone;
     if (checkIfTimeSlotExceeded && checkIfTimeSlotExceeded.length > 1) {
       throw new BrandAiException('consultResult.exceedTimeSlot');
     }
@@ -197,6 +199,8 @@ export class ReservationService extends BaseService {
     // reservation = reservation.set(adminReservationUpdateDto);
     let newReservation = new Reservation(adminReservationUpdateDto);
     newReservation = await this.reservationRepo.save(newReservation);
+    newReservation.phone = reservation.phone;
+    newReservation.name = reservation.name;
     // send update slack
     // send update message - reservation from to when
 

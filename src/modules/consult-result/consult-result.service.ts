@@ -3,7 +3,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { Request } from 'express';
 import { PaginatedRequest, PaginatedResponse } from 'src/common';
-import { PickcookSlackNotificationService } from 'src/common/utils';
+import {
+  encryptString,
+  PickcookSlackNotificationService,
+} from 'src/common/utils';
 import { BaseService, BrandAiException } from 'src/core';
 import { BRAND_CONSULT } from 'src/shared';
 import { EntityManager, Repository } from 'typeorm';
@@ -244,6 +247,7 @@ export class ConsultResultService extends BaseService {
         const randomCode = Math.floor(1000000 + Math.random() * 9000000);
         newConsult.reservationCode = `PC${lastFourPhoneDigits}-${newConsult.id}-${randomCode}`;
         await entityManager.save(newConsult);
+        newConsult.reservationCode = encryptString(newConsult.reservationCode);
         await this.smsNotificationService.sendConsultNotification(
           newConsult,
           req,

@@ -230,6 +230,14 @@ export class ReservationService extends BaseService {
     reservationUpdateDto: ReservationUpdateDto,
     req?: Request,
   ): Promise<Reservation> {
+    if (reservationUpdateDto.reservationCode.startsWith('PC')) {
+      reservationUpdateDto.reservationCode = encryptString(
+        reservationUpdateDto.reservationCode,
+      );
+    }
+    reservationUpdateDto.reservationCode = decryptString(
+      reservationUpdateDto.reservationCode,
+    );
     console.log(reservationUpdateDto);
     const checkIfValid = await this.__check_reservation_code(
       reservationUpdateDto.phone,
@@ -288,9 +296,15 @@ export class ReservationService extends BaseService {
     reservationDeleteReasonDto: ReservationDeleteReasonDto,
     req?: Request,
   ): Promise<Reservation> {
+    if (reservationCheckDto.reservationCode.startsWith('PC')) {
+      reservationCheckDto.reservationCode = encryptString(
+        reservationCheckDto.reservationCode,
+      );
+    }
     reservationCheckDto.reservationCode = decryptString(
       reservationCheckDto.reservationCode,
     );
+
     const checkIfValid = await this.__check_reservation_code(
       reservationCheckDto.phone,
       reservationCheckDto.reservationCode,
@@ -314,6 +328,14 @@ export class ReservationService extends BaseService {
   async findAllForUser(
     reservationListDto: ReservationListDto,
   ): Promise<Reservation[] | BrandAiException> {
+    if (reservationListDto.reservationCode.startsWith('PC')) {
+      reservationListDto.reservationCode = encryptString(
+        reservationListDto.reservationCode,
+      );
+    }
+    reservationListDto.reservationCode = decryptString(
+      reservationListDto.reservationCode,
+    );
     const qb = await this.reservationRepo
       .createQueryBuilder('reservation')
       .CustomInnerJoinAndSelect(['consultResult'])
@@ -335,6 +357,14 @@ export class ReservationService extends BaseService {
    * @param reservationCheckDto
    */
   async loginUser(reservationCheckDto: ReservationCheckDto) {
+    if (reservationCheckDto.reservationCode.startsWith('PC')) {
+      reservationCheckDto.reservationCode = encryptString(
+        reservationCheckDto.reservationCode,
+      );
+    }
+    reservationCheckDto.reservationCode = decryptString(
+      reservationCheckDto.reservationCode,
+    );
     const checkConsult = await this.entityManager
       .getRepository(ConsultResult)
       .findOne({

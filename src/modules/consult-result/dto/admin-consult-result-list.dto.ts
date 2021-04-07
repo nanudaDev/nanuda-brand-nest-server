@@ -3,6 +3,7 @@ import { Expose } from 'class-transformer';
 import { IsEnum, IsOptional, IsPhoneNumber } from 'class-validator';
 import { Default, ORDER_BY_VALUE } from 'src/common';
 import { BaseDto } from 'src/core';
+import { RESERVATION_DELETE_REASON } from 'src/modules/reservation/reservation.entity';
 import {
   AGE_GROUP,
   BRAND_CONSULT,
@@ -38,7 +39,7 @@ export class AdminConsultResultListDto
   @ApiPropertyOptional()
   @IsOptional()
   @Expose()
-  @IsPhoneNumber('KR')
+  // @IsPhoneNumber('KR')
   phone?: string;
 
   @ApiPropertyOptional()
@@ -83,8 +84,6 @@ export class AdminConsultResultListDto
   @IsOptional()
   @Expose()
   @IsEnum(KB_MEDIUM_CATEGORY)
-  @ApiPropertyOptional()
-  @IsOptional()
   @Expose()
   deliveryRatioGrade?: number;
 
@@ -97,6 +96,12 @@ export class AdminConsultResultListDto
   @IsOptional()
   @Expose()
   adminId?: number;
+
+  @ApiPropertyOptional({ enum: RESERVATION_DELETE_REASON })
+  @IsOptional()
+  @Expose()
+  @IsEnum(RESERVATION_DELETE_REASON)
+  deleteReason?: RESERVATION_DELETE_REASON;
 
   @ApiPropertyOptional({ enum: ORDER_BY_VALUE })
   @IsOptional()

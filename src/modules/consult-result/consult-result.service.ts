@@ -2,8 +2,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { Request } from 'express';
-import { PaginatedRequest, PaginatedResponse } from 'src/common';
-import { PickcookSlackNotificationService } from 'src/common/utils';
+import {
+  ORDER_BY_VALUE,
+  PaginatedRequest,
+  PaginatedResponse,
+} from 'src/common';
+import {
+  encryptString,
+  PickcookSlackNotificationService,
+} from 'src/common/utils';
 import { BaseService, BrandAiException } from 'src/core';
 import { BRAND_CONSULT } from 'src/shared';
 import { EntityManager, Repository } from 'typeorm';
@@ -12,6 +19,7 @@ import { CodeHdong } from '../code-hdong/code-hdong.entity';
 import { ProformaConsultResult } from '../proforma-consult-result/proforma-consult-result.entity';
 import { QuestionGiven } from '../question-given/question-given.entity';
 import { QuestionProformaGivenMapper } from '../question-proforma-given-mapper/question-proforma-given-mapper.entity';
+import { Reservation } from '../reservation/reservation.entity';
 import { SmsNotificationService } from '../sms-notification/sms-notification.service';
 import { ConsultResult } from './consult-result.entity';
 import {
@@ -54,7 +62,6 @@ export class ConsultResultService extends BaseService {
         'operationSentenceResponse',
         'consultCodeStatus',
         'proforma',
-        'reservation',
       ])
       .innerJoinAndSelect('proforma.questions', 'questions')
       .AndWhereLike(
@@ -105,11 +112,36 @@ export class ConsultResultService extends BaseService {
         adminConsultResultListDto.adminId,
         adminConsultResultListDto.exclude('adminId'),
       )
-      .Paginate(pagination)
-      .WhereAndOrder(adminConsultResultListDto)
-      .getManyAndCount();
-
-    let [items, totalCount] = await qb;
+      // .AndWhereLike(
+      //   'reservation',
+      //   'deleteReason',
+      //   adminConsultResultListDto.deleteReason,
+      //   adminConsultResultListDto.exclude('deleteReason'),
+      // )
+      .Paginate(pagination);
+    // .WhereAndOrder(adminConsultResultListDto)
+    // .getManyAndCount();
+    if (adminConsultResultListDto.deleteReason) {
+      const ids = [];
+      const reservations = await this.entityManager
+        .getRepository(Reservation)
+        .createQueryBuilder('reservation')
+        .where('reservation.deleteReason = :deleteReason', {
+          deleteReason: adminConsultResultListDto.deleteReason,
+        })
+        .getMany();
+      await Promise.all(
+        reservations.map(reservation => {
+          ids.push(reservation.consultId);
+        }),
+      );
+      qb.whereInIds(ids);
+      delete adminConsultResultListDto.deleteReason;
+      qb.WhereAndOrder(adminConsultResultListDto);
+    } else {
+      qb.WhereAndOrder(adminConsultResultListDto);
+    }
+    let [items, totalCount] = await qb.getManyAndCount();
 
     // get admin for list
 
@@ -118,6 +150,13 @@ export class ConsultResultService extends BaseService {
         if (item.adminId) {
           item.admin = await this.platformAdminRepo.findOne(item.adminId);
         }
+        const reservation = await this.entityManager
+          .getRepository(Reservation)
+          .createQueryBuilder('reservation')
+          .where('reservation.consultId = :consultId', { consultId: item.id })
+          .orderBy('reservation.id', ORDER_BY_VALUE.DESC)
+          .getMany();
+        item.reservation = reservation[0];
       }),
     );
 
@@ -138,12 +177,23 @@ export class ConsultResultService extends BaseService {
         'operationSentenceResponse',
         'consultCodeStatus',
         'proforma',
-        'reservation',
       ])
       .innerJoinAndSelect('proforma.questions', 'questions')
       .where('consult.id = :id', { id: id })
       .getOne();
 
+    const reserveList = await this.entityManager
+      .getRepository(Reservation)
+      .createQueryBuilder('reservation')
+      .where('reservation.consultId = :consultId', { consultId: id })
+      .orderBy('reservation.id', ORDER_BY_VALUE.DESC)
+      .getMany();
+    qb.reservation = reserveList[0];
+    if (qb.reservation) {
+      qb.reservation.reservationDate = new Date(
+        qb.reservation.reservationDate,
+      ).toLocaleString();
+    }
     await Promise.all(
       qb.proforma.questions.map(async question => {
         const givenIds: number[] = [];
@@ -244,6 +294,7 @@ export class ConsultResultService extends BaseService {
         const randomCode = Math.floor(1000000 + Math.random() * 9000000);
         newConsult.reservationCode = `PC${lastFourPhoneDigits}-${newConsult.id}-${randomCode}`;
         await entityManager.save(newConsult);
+        newConsult.reservationCode = encryptString(newConsult.reservationCode);
         await this.smsNotificationService.sendConsultNotification(
           newConsult,
           req,

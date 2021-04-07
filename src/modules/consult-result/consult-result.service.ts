@@ -147,6 +147,11 @@ export class ConsultResultService extends BaseService {
       .where('consult.id = :id', { id: id })
       .getOne();
 
+    if (qb.reservation) {
+      qb.reservation.reservationDate = new Date(
+        qb.reservation.reservationDate,
+      ).toLocaleString();
+    }
     await Promise.all(
       qb.proforma.questions.map(async question => {
         const givenIds: number[] = [];

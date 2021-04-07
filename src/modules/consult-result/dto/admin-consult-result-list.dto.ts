@@ -39,7 +39,7 @@ export class AdminConsultResultListDto
   @ApiPropertyOptional()
   @IsOptional()
   @Expose()
-  @IsPhoneNumber('KR')
+  // @IsPhoneNumber('KR')
   phone?: string;
 
   @ApiPropertyOptional()

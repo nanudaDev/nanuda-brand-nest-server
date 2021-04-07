@@ -112,17 +112,36 @@ export class ConsultResultService extends BaseService {
         adminConsultResultListDto.adminId,
         adminConsultResultListDto.exclude('adminId'),
       )
-      .AndWhereLike(
-        'reservation',
-        'deleteReason',
-        adminConsultResultListDto.deleteReason,
-        adminConsultResultListDto.exclude('deleteReason'),
-      )
-      .Paginate(pagination)
-      .WhereAndOrder(adminConsultResultListDto)
-      .getManyAndCount();
-
-    let [items, totalCount] = await qb;
+      // .AndWhereLike(
+      //   'reservation',
+      //   'deleteReason',
+      //   adminConsultResultListDto.deleteReason,
+      //   adminConsultResultListDto.exclude('deleteReason'),
+      // )
+      .Paginate(pagination);
+    // .WhereAndOrder(adminConsultResultListDto)
+    // .getManyAndCount();
+    if (adminConsultResultListDto.deleteReason) {
+      const ids = [];
+      const reservations = await this.entityManager
+        .getRepository(Reservation)
+        .createQueryBuilder('reservation')
+        .where('reservation.deleteReason = :deleteReason', {
+          deleteReason: adminConsultResultListDto.deleteReason,
+        })
+        .getMany();
+      await Promise.all(
+        reservations.map(reservation => {
+          ids.push(reservation.consultId);
+        }),
+      );
+      qb.whereInIds(ids);
+      delete adminConsultResultListDto.deleteReason;
+      qb.WhereAndOrder(adminConsultResultListDto);
+    } else {
+      qb.WhereAndOrder(adminConsultResultListDto);
+    }
+    let [items, totalCount] = await qb.getManyAndCount();
 
     // get admin for list
 

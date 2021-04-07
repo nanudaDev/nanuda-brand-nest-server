@@ -23,6 +23,7 @@ import {
 } from 'src/shared';
 import { ReservationDeleteReasonDto } from './dto/reservation-delete-reason.dto';
 import {
+  DateFormatter,
   decryptString,
   encryptString,
   ReservationHourFormat,
@@ -71,8 +72,8 @@ export class ReservationService extends BaseService {
       newReservation.name = checkReservation.name;
       newReservation.phone = checkReservation.phone;
       newReservation.consultId = checkReservation.consultId;
-      newReservation.formatReservationDate = new Date(
-        reservationCreateDto.reservationDate.toLocaleString().substr(0, 10),
+      newReservation.formatReservationDate = DateFormatter(
+        reservationCreateDto.reservationDate,
       );
       newReservation.formatReservationTime = ReservationHourFormat(
         reservationCreateDto.reservationTime,
@@ -125,8 +126,8 @@ export class ReservationService extends BaseService {
       ) {
         throw new BrandAiException('consultResult.exceedMaxAlotted');
       }
-      reservation.formatReservationDate = new Date(
-        reservationCreateDto.reservationDate.toLocaleString().substr(0, 10),
+      reservation.formatReservationDate = DateFormatter(
+        reservationCreateDto.reservationDate,
       );
       reservation.formatReservationTime = ReservationHourFormat(
         reservationCreateDto.reservationTime,
@@ -186,11 +187,9 @@ export class ReservationService extends BaseService {
     ) {
       throw new BrandAiException('consultResult.exceedMaxAlotted');
     }
-    reservation.formatReservationDate = new Date(
+    reservation.formatReservationDate = DateFormatter(
       adminReservationCreateDto.reservationDate,
-    )
-      .toLocaleString()
-      .substr(0, 10);
+    );
     reservation.formatReservationTime = ReservationHourFormat(
       adminReservationCreateDto.reservationTime,
     );
@@ -230,11 +229,9 @@ export class ReservationService extends BaseService {
     newReservation.phone = reservation.phone;
     newReservation.name = reservation.name;
     newReservation.reservationCode = reservation.reservationCode;
-    newReservation.formatReservationDate = new Date(
+    newReservation.formatReservationDate = DateFormatter(
       adminReservationUpdateDto.reservationDate,
-    )
-      .toLocaleDateString()
-      .substr(0, 10);
+    );
     newReservation.formatReservationTime = ReservationHourFormat(
       adminReservationUpdateDto.reservationTime,
     );
@@ -285,11 +282,9 @@ export class ReservationService extends BaseService {
     reservation.isCancelYn = YN.YES;
     reservation = await this.reservationRepo.save(reservation);
     let newReservation = new Reservation(reservationUpdateDto);
-    newReservation.formatReservationDate = new Date(
-      reservationUpdateDto.reservationDate,
-    )
-      .toLocaleString()
-      .substr(0, 10);
+    newReservation.formatReservationDate = DateFormatter(
+      newReservation.reservationDate,
+    );
     newReservation.formatReservationTime = ReservationHourFormat(
       reservationUpdateDto.reservationTime,
     );
@@ -347,8 +342,9 @@ export class ReservationService extends BaseService {
       throw new BrandAiException('reservation.notFoundOrCancelled');
     }
     let reservation = await this.reservationRepo.findOne(reservationId);
+    reservation = reservation.set(reservationDeleteReasonDto);
     reservation.isCancelYn = YN.YES;
-    reservation.deleteReason = reservationDeleteReasonDto.deleteReason;
+
     reservation = await this.reservationRepo.save(reservation);
     // send slack and message about deleted
 
@@ -460,7 +456,6 @@ export class ReservationService extends BaseService {
     reservations.map(reservation => {
       availableTimeSlots.push(reservation.reservationTime);
     });
-    console.log(reservations.length);
     if (reservations && reservations.length > 0) {
       const count = new Object();
       availableTimeSlots.forEach(i => {

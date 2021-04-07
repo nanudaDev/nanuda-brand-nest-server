@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { BaseException } from './base.exception';
 
 /* exception.message {
@@ -64,6 +64,7 @@ function messageValueStringToArray(message) {
 */
 
 export class BrandAiException extends BaseException {
+  private readonly logger: Logger;
   /**
    * TODO: change syntex
    * @param message {

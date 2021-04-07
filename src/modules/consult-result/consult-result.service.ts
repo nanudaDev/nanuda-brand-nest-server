@@ -108,6 +108,12 @@ export class ConsultResultService extends BaseService {
         adminConsultResultListDto.adminId,
         adminConsultResultListDto.exclude('adminId'),
       )
+      .AndWhereLike(
+        'reservation',
+        'deleteReason',
+        adminConsultResultListDto.deleteReason,
+        adminConsultResultListDto.exclude('deleteReason'),
+      )
       .Paginate(pagination)
       .WhereAndOrder(adminConsultResultListDto)
       .getManyAndCount();

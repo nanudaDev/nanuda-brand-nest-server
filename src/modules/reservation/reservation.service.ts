@@ -312,8 +312,8 @@ export class ReservationService extends BaseService {
     if (reservation.isCancelYn === YN.YES) {
       throw new BrandAiException('reservation.notFoundOrCancelled');
     }
+    reservation = reservation.set(reservationdeletereasondto);
     reservation.isCancelYn = YN.YES;
-    reservation.deleteReason = reservationdeletereasondto.deleteReason;
     reservation = await this.reservationRepo.save(reservation);
     // send slack and message about deleted
     return reservation;

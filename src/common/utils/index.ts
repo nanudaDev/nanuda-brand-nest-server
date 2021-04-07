@@ -4,3 +4,4 @@ export * from './service';
 export * from './sentence-constructor.util';
 export * from './remove-duplicate-object-by-key.util';
 export * from './cryptr.utils';
+export * from './reservation-hour-format.util';

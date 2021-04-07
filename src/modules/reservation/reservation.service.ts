@@ -22,7 +22,11 @@ import {
   RESERVATION_HOURS_JSON,
 } from 'src/shared';
 import { ReservationDeleteReasonDto } from './dto/reservation-delete-reason.dto';
-import { decryptString, encryptString } from 'src/common/utils';
+import {
+  decryptString,
+  encryptString,
+  ReservationHourFormat,
+} from 'src/common/utils';
 import { SmsNotificationService } from '../sms-notification/sms-notification.service';
 @Injectable()
 export class ReservationService extends BaseService {
@@ -69,7 +73,10 @@ export class ReservationService extends BaseService {
       newReservation.consultId = checkReservation.consultId;
       newReservation.formatReservationDate = new Date(
         reservationCreateDto.reservationDate.toLocaleString().substr(0, 10),
-      ).toString();
+      );
+      newReservation.formatReservationTime = ReservationHourFormat(
+        reservationCreateDto.reservationTime,
+      );
       newReservation = await this.reservationRepo.save(newReservation);
       const messageReservation = new Reservation(newReservation);
       messageReservation.reservationCode = encryptString(
@@ -120,7 +127,10 @@ export class ReservationService extends BaseService {
       }
       reservation.formatReservationDate = new Date(
         reservationCreateDto.reservationDate.toLocaleString().substr(0, 10),
-      ).toString();
+      );
+      reservation.formatReservationTime = ReservationHourFormat(
+        reservationCreateDto.reservationTime,
+      );
       reservation = await this.reservationRepo.save(reservation);
       const messageReservation = new Reservation(reservation);
 
@@ -176,6 +186,14 @@ export class ReservationService extends BaseService {
     ) {
       throw new BrandAiException('consultResult.exceedMaxAlotted');
     }
+    reservation.formatReservationDate = new Date(
+      adminReservationCreateDto.reservationDate,
+    )
+      .toLocaleString()
+      .substr(0, 10);
+    reservation.formatReservationTime = ReservationHourFormat(
+      adminReservationCreateDto.reservationTime,
+    );
     reservation = await this.reservationRepo.save(reservation);
     // send message
     // send slack
@@ -212,6 +230,14 @@ export class ReservationService extends BaseService {
     newReservation.phone = reservation.phone;
     newReservation.name = reservation.name;
     newReservation.reservationCode = reservation.reservationCode;
+    newReservation.formatReservationDate = new Date(
+      adminReservationUpdateDto.reservationDate,
+    )
+      .toLocaleDateString()
+      .substr(0, 10);
+    newReservation.formatReservationTime = ReservationHourFormat(
+      adminReservationUpdateDto.reservationTime,
+    );
     newReservation = await this.reservationRepo.save(newReservation);
 
     // send update slack
@@ -230,6 +256,14 @@ export class ReservationService extends BaseService {
     reservationUpdateDto: ReservationUpdateDto,
     req?: Request,
   ): Promise<Reservation> {
+    if (reservationUpdateDto.reservationCode.startsWith('PC')) {
+      reservationUpdateDto.reservationCode = encryptString(
+        reservationUpdateDto.reservationCode,
+      );
+    }
+    reservationUpdateDto.reservationCode = decryptString(
+      reservationUpdateDto.reservationCode,
+    );
     console.log(reservationUpdateDto);
     const checkIfValid = await this.__check_reservation_code(
       reservationUpdateDto.phone,
@@ -251,6 +285,14 @@ export class ReservationService extends BaseService {
     reservation.isCancelYn = YN.YES;
     reservation = await this.reservationRepo.save(reservation);
     let newReservation = new Reservation(reservationUpdateDto);
+    newReservation.formatReservationDate = new Date(
+      reservationUpdateDto.reservationDate,
+    )
+      .toLocaleString()
+      .substr(0, 10);
+    newReservation.formatReservationTime = ReservationHourFormat(
+      reservationUpdateDto.reservationTime,
+    );
     newReservation = await this.reservationRepo.save(newReservation);
     // send slack
     // send message
@@ -288,9 +330,15 @@ export class ReservationService extends BaseService {
     reservationDeleteReasonDto: ReservationDeleteReasonDto,
     req?: Request,
   ): Promise<Reservation> {
+    if (reservationCheckDto.reservationCode.startsWith('PC')) {
+      reservationCheckDto.reservationCode = encryptString(
+        reservationCheckDto.reservationCode,
+      );
+    }
     reservationCheckDto.reservationCode = decryptString(
       reservationCheckDto.reservationCode,
     );
+
     const checkIfValid = await this.__check_reservation_code(
       reservationCheckDto.phone,
       reservationCheckDto.reservationCode,
@@ -314,6 +362,14 @@ export class ReservationService extends BaseService {
   async findAllForUser(
     reservationListDto: ReservationListDto,
   ): Promise<Reservation[] | BrandAiException> {
+    if (reservationListDto.reservationCode.startsWith('PC')) {
+      reservationListDto.reservationCode = encryptString(
+        reservationListDto.reservationCode,
+      );
+    }
+    reservationListDto.reservationCode = decryptString(
+      reservationListDto.reservationCode,
+    );
     const qb = await this.reservationRepo
       .createQueryBuilder('reservation')
       .CustomInnerJoinAndSelect(['consultResult'])

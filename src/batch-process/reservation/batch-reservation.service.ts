@@ -26,7 +26,9 @@ export class BatchReservationService extends BaseService {
   // @Cron(CronExpression.EVERY_5_SECONDS)
   async deleteAllReservations() {
     const date = DateFormatter(new Date());
-    const time = new Date().toLocaleTimeString().substr(0, 2);
+    const time = new Date()
+      .toLocaleTimeString([], { hour: '2-digit', hour12: false })
+      .substr(0, 2);
     const qb = await this.reservationRepo
       .createQueryBuilder('reservation')
       .where('reservation.formatReservationDate = :date', { date: date })

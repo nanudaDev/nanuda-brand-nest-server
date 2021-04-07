@@ -69,7 +69,7 @@ export class SmsNotificationService {
       `${process.env.PICKCOOK_SITE_URL}reservation?reservationCode=${consultData.reservationCode}`,
     );
     smsContent.body.receiver = consultData.phone;
-    smsContent.body.msg = `안녕하세요, ${consultData.name}님. 픽쿡입니다.\n신청해주셔서 감사합니다.\n현재 전문 상담사가 배정되어 빠른 시간 내로 연락드리겠습니다.\n감사합니다.`;
+    smsContent.body.msg = `안녕하세요, ${consultData.name}님. 픽쿡입니다.\n신청해주셔서 감사합니다.\n현재 전문 상담사가 배정되어 빠른 시간 내로 연락드리겠습니다.\n감사합니다.\n예약링크: ${process.env.PICKCOOK_SITE_URL}reservation?reservationCode=${consultData.reservationCode}`;
     req.body = smsContent.body;
     const sms = await aligoapi.send(req, smsContent.auth);
     if (process.env.NODE_ENV !== ENVIRONMENT.PRODUCTION) {

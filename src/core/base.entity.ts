@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-inferrable-types */
 import {
   BaseEntity as TyepOrmBaseEntity,
   UpdateDateColumn,
@@ -20,7 +21,7 @@ export class BaseEntity<Entity> extends TyepOrmBaseEntity {
       });
   }
 
-  set(partial: Object, deep: boolean = false): this {
+  set(partial: Record<string, any>, deep: boolean = false): this {
     partial &&
       Object.keys(partial).map(key => {
         // if (key !== 'id' && this.hasOwnProperty(key)) {

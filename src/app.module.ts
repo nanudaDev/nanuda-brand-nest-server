@@ -23,6 +23,7 @@ import {
   ProformaConsultResultModule,
   ReservationModule,
   BatchReservationModule,
+  PickcookUserModule,
 } from './modules';
 const env = process.env;
 @Module({
@@ -82,8 +83,9 @@ const env = process.env;
     QuestionModule,
     LocationAnalysisModule,
     MenuAnalysisModule,
-    ResultResponseModule,
+    PickcookUserModule,
     ProformaConsultResultModule,
+    ResultResponseModule,
     ReservationModule,
     BatchReservationModule,
   ],

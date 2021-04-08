@@ -10,6 +10,7 @@ export * from './faq-answer/faq.module';
 export * from './data';
 export * from './result-response/result-response.module';
 export * from './sms-notification/sms-notification.module';
+export * from './pickcook-user/pickcook-user.module';
 export * from './proforma-consult-result/proforma-consult-result.module';
 export * from './reservation/reservation.module';
 

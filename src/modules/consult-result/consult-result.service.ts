@@ -2,6 +2,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { Request } from 'express';
+import { of } from 'rxjs';
 import {
   ORDER_BY_VALUE,
   PaginatedRequest,
@@ -306,6 +307,24 @@ export class ConsultResultService extends BaseService {
         return newConsult;
       },
     );
+    return consult;
+  }
+
+  /**
+   * assign admin
+   * @param adminId
+   * @param consultId
+   */
+  async assignAdmin(
+    adminId: number,
+    consultId: number,
+  ): Promise<ConsultResult> {
+    let consult = await this.consultRepo.findOne(consultId);
+    if (!consult) {
+      throw new BrandAiException('consultResult.notFound');
+    }
+    consult.adminId = adminId;
+    consult = await this.consultRepo.save(consult);
     return consult;
   }
 }

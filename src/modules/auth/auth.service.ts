@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { InjectEntityManager } from '@nestjs/typeorm';
+import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { JwtConfigService } from 'src/config';
 import { BaseService, BaseUserEntity, BrandAiException } from 'src/core';
-import { EntityManager } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { Admin } from '../admin/admin.entity';
+import { PlatformAdmin } from '../admin/platform-admin.entity';
 import { AdminLoginDto } from './dto';
 import { PasswordService } from './password.service';
 import { UserSigninPayload, UserType } from './types';
@@ -13,6 +14,8 @@ import { UserSigninPayload, UserType } from './types';
 export class AuthService extends BaseService {
   constructor(
     @InjectEntityManager() private readonly entityManager: EntityManager,
+    @InjectRepository(PlatformAdmin, 'platform')
+    private readonly platformAdminRepo: Repository<PlatformAdmin>,
     private readonly jwtService: JwtService,
     private readonly passwordService: PasswordService,
   ) {
@@ -72,6 +75,10 @@ export class AuthService extends BaseService {
    */
   async validateAdminById(id: number): Promise<Admin> {
     return await this.entityManager.getRepository(Admin).findOne(id);
+  }
+
+  async validatePlatforAdminById(id: number): Promise<PlatformAdmin> {
+    return await this.platformAdminRepo.findOne(id);
   }
 
   /**

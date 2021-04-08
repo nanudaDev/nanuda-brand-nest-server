@@ -8,3 +8,13 @@ export interface UserSigninPayload {
   userRoles?: ADMIN_ROLES[];
   userType?: UserType;
 }
+
+export interface PlatformUserSigninPayload {
+  _no: number;
+  _id: string;
+  username: string;
+  userType: UserType | string;
+  adminRole?: string;
+  userStatus?: ADMIN_STATUS;
+  userRoles?: ADMIN_ROLES[];
+}

@@ -1,12 +1,7 @@
 export const DateFormatter = (date: Date | string) => {
-  console.log(
-    new Date(date)
-      .toLocaleString('ko-KR')
-      .substr(0, 10)
-      .split(' ')[0],
-  );
-  return new Date(date)
-    .toLocaleString('ko-KR')
-    .substr(0, 10)
-    .split(' ')[0];
+  const month = new Date(date).getMonth() + 1;
+  const day = new Date(date).getDate();
+  const year = new Date(date).getFullYear();
+
+  return `${year}-${month}-${day}`;
 };

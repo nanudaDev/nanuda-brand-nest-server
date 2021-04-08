@@ -2,7 +2,7 @@ require('dotenv').config();
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, ExtractJwt } from 'passport-jwt';
-import { UserSigninPayload, UserType } from '..';
+import { PlatformUserSigninPayload, UserSigninPayload, UserType } from '..';
 import { AuthService } from '../auth.service';
 
 @Injectable()
@@ -18,9 +18,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
    * validate user
    * @param payload
    */
-  async validate(payload: UserSigninPayload): Promise<any> {
-    let user;
-    user = await this.authService.validateAdminById(payload._id);
+  async validate(payload: PlatformUserSigninPayload): Promise<any> {
+    console.log(payload);
+    const user = await this.authService.validatePlatforAdminById(payload._no);
     if (!user) {
       throw new UnauthorizedException();
     }

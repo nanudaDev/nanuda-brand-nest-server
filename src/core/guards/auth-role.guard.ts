@@ -5,20 +5,19 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ADMIN_ROLES } from 'src/shared';
+import { ACCOUNT_STATUS, ADMIN_ROLES } from 'src/shared';
 import { ExecutionContextHost } from '@nestjs/core/helpers/execution-context-host';
 import { ENVIRONMENT } from 'src/config';
 import Debug from 'debug';
 import { basename } from 'path';
+import { PickcookUser } from 'src/modules/pickcook-user/pickcook-user.entity';
 
 const debug = Debug(`app:${basename(__dirname)}:${basename(__filename)}`);
 
 @Injectable()
 export class AuthRolesGuard extends AuthGuard('jwt') {
-  readonly roles: ADMIN_ROLES[];
-  constructor(...roles: ADMIN_ROLES[]) {
+  constructor() {
     super();
-    this.roles = roles;
   }
 
   handleRequest(err, user, info, context: ExecutionContextHost) {
@@ -32,14 +31,8 @@ export class AuthRolesGuard extends AuthGuard('jwt') {
           error: 401,
         });
     }
-    if (this.roles.length) {
-      debug(this.roles);
-      const hasRole = () =>
-        this.roles.some(role => user.userRoles.includes(role));
-
-      if (!user.userRoles || !hasRole()) {
-        throw new ForbiddenException();
-      }
+    if (user.accountStatus !== ACCOUNT_STATUS.ACCOUNT_STATUS_ACTIVE) {
+      throw new ForbiddenException();
     }
     return user;
   }

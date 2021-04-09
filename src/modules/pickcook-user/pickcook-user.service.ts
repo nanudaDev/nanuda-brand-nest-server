@@ -3,12 +3,13 @@ import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { BaseService, BrandAiException } from 'src/core';
 import { EntityManager, Repository } from 'typeorm';
 import { SmsNotificationService } from '../sms-notification/sms-notification.service';
-import { PickcookUserCreateDto } from './dto';
+import { PickcookUserCreateDto, PickcookUserUpdateDto } from './dto';
 import { PickcookUser } from './pickcook-user.entity';
 import { Request } from 'express';
 import { PickCookUserHistory } from '../pickcook-user-history/pickcook-user-history.entity';
 import { YN } from 'src/common';
 import { NanudaUser } from '../platform-module/nanuda-user/nanuda-user.entity';
+import { PasswordService } from '../auth';
 
 @Injectable()
 export class PickcookUserService extends BaseService {
@@ -21,6 +22,7 @@ export class PickcookUserService extends BaseService {
     @InjectRepository(NanudaUser, 'platform')
     private readonly nanudaUserRepo: Repository<NanudaUser>,
     private readonly smsNotificationService: SmsNotificationService,
+    private readonly passwordService: PasswordService,
   ) {
     super();
   }
@@ -43,6 +45,9 @@ export class PickcookUserService extends BaseService {
         '',
       );
     }
+    pickcookUserCreateDto.password = await this.passwordService.hashPassword(
+      pickcookUserCreateDto.password,
+    );
     pickcookUserCreateDto = pickcookUserCreateDto.setAttribute(
       this.__create_new_dates_for_agreements(
         pickcookUserCreateDto.serviceAgreeYn,
@@ -73,6 +78,67 @@ export class PickcookUserService extends BaseService {
       //   create history
       await this.__create_user_history(newUser);
       return newUser;
+    });
+    return user;
+  }
+
+  /**
+   * update user
+   * @param id
+   * @param pickcookUserUpdateDto
+   */
+  async updatePickcookUser(
+    id: number,
+    pickcookUserUpdateDto: PickcookUserUpdateDto,
+  ): Promise<PickcookUser> {
+    const pickcookUser = await this.pickcookUserRepo.findOne(id);
+    if (!pickcookUser) {
+      throw new BrandAiException('pickcookUser.notFound');
+    }
+    if (
+      pickcookUserUpdateDto.username &&
+      pickcookUser.username !== pickcookUserUpdateDto.username
+    ) {
+      await this.checkUserName(pickcookUserUpdateDto.username);
+    }
+    if (
+      pickcookUserUpdateDto.email &&
+      pickcookUser.email !== pickcookUserUpdateDto.email
+    ) {
+      await this.checkEmail(pickcookUserUpdateDto.email);
+      // send email verification
+    }
+    if (
+      pickcookUserUpdateDto.phone &&
+      pickcookUser.phone !== pickcookUserUpdateDto.phone
+    ) {
+      await this.checkPhone(pickcookUserUpdateDto.phone);
+      // send phone verification
+    }
+    const user = await this.entityManager.transaction(async entityManager => {
+      let updatedUser = pickcookUser.set(pickcookUserUpdateDto);
+      // needs refactoring
+      if (
+        updatedUser.serviceAgreeYn !== pickcookUser.serviceAgreeYn &&
+        updatedUser.serviceAgreeYn === YN.NO
+      ) {
+        updatedUser.serviceDisagreeDate = new Date();
+      }
+      if (
+        updatedUser.privacyAgreeYn !== pickcookUser.privacyAgreeYn &&
+        updatedUser.privacyAgreeYn === YN.NO
+      ) {
+        updatedUser.privacyAgreeDate = new Date();
+      }
+      if (
+        updatedUser.marketingAgreeYn !== pickcookUser.marketingAgreeYn &&
+        updatedUser.marketingAgreeYn === YN.NO
+      ) {
+        updatedUser.marketingAgreeDate = new Date();
+      }
+      updatedUser = await entityManager.save(updatedUser);
+      await this.__create_user_history(updatedUser);
+      return updatedUser;
     });
     return user;
   }

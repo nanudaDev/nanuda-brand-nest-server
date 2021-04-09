@@ -1,27 +1,22 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import {
-  IsEmail,
-  IsEnum,
   IsNotEmpty,
-  IsOptional,
   IsPhoneNumber,
-  Min,
+  IsOptional,
+  IsEmail,
   MinLength,
+  Min,
+  IsEnum,
 } from 'class-validator';
-import { Default, IsEqualTo, IsPassword, YN } from 'src/common';
+import { IsPassword, IsEqualTo, YN, Default } from 'src/common';
 import { BaseDto } from 'src/core';
 import { PickcookUser } from '../pickcook-user.entity';
 
-export class PickcookUserCreateDto extends BaseDto<PickcookUserCreateDto>
+export class PickcookUserUpdateDto extends BaseDto<PickcookUserUpdateDto>
   implements Partial<PickcookUser> {
-  @ApiProperty()
-  @IsNotEmpty()
-  @Expose()
-  name: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsPhoneNumber('KR', { message: '옳바른 전화번호를 입력해주세요' })
   @Expose()
   phone: string;
@@ -37,19 +32,6 @@ export class PickcookUserCreateDto extends BaseDto<PickcookUserCreateDto>
   @Expose()
   @MinLength(8)
   username?: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @Expose()
-  @IsPassword()
-  @MinLength(8)
-  password: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @Expose()
-  @IsEqualTo('password')
-  passwordCheck: string;
 
   @ApiPropertyOptional({ enum: YN })
   @IsOptional()

@@ -73,10 +73,10 @@ const env = process.env;
       //   Do not turn to true!!!! 나누다 키친 데이터 다 날라가요 ~ ㅠㅠ
       synchronize: false,
     }),
+    AuthModule,
     FaqModule,
     AdminModule,
     AggregateResultResponseModule,
-    AuthModule,
     CommonCodeModule,
     CodeHdongModule,
     ConsultResultModule,

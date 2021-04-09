@@ -24,8 +24,8 @@ import { QuestionService } from './question.service';
 
 @Controller()
 @ApiTags('ADMIN QUESTION')
-@ApiBearerAuth()
-@UseGuards(new AuthRolesGuard(...CONST_ADMIN_ROLES))
+// @ApiBearerAuth()
+// @UseGuards(new AuthRolesGuard(...CONST_ADMIN_ROLES))
 export class AdminQuestionController extends BaseController {
   constructor(private readonly questionService: QuestionService) {
     super();

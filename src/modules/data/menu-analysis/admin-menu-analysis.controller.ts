@@ -1,8 +1,12 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PaginatedRequest, PaginatedResponse } from 'src/common';
-import { AuthRolesGuard, BaseController } from 'src/core';
-import { CONST_ADMIN_ROLES } from 'src/shared';
+import {
+  AuthRolesGuard,
+  BaseController,
+  PlatformAuthRolesGuard,
+} from 'src/core';
+import { CONST_ADMIN_ROLES, CONST_ADMIN_USER } from 'src/shared';
 import { KbFoodCategoryGroup } from '../entities';
 import { AdminKbFoodCategoryGroupListDto } from './dto';
 import { MenuAnalysisService } from './menu-analysis.service';
@@ -10,7 +14,7 @@ import { MenuAnalysisService } from './menu-analysis.service';
 @Controller()
 @ApiTags('ADMIN KB CATEGORY')
 @ApiBearerAuth()
-@UseGuards(new AuthRolesGuard(...CONST_ADMIN_ROLES))
+@UseGuards(new PlatformAuthRolesGuard(...CONST_ADMIN_USER))
 export class AdminKbCategoryController extends BaseController {
   constructor(private readonly menuAnalysisService: MenuAnalysisService) {
     super();

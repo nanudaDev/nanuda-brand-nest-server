@@ -1,7 +1,26 @@
-import { Controller, Get, Query, Post, Body } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
-import { BaseController } from 'src/core';
-import { PickcookUserCreateDto, PickcookUserCredentialCheckDto } from './dto';
+import {
+  Controller,
+  Get,
+  Query,
+  Post,
+  Body,
+  Patch,
+  Param,
+  ParseIntPipe,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { UserInfo } from 'src/common';
+import {
+  AuthRolesGuard,
+  BaseController,
+  PlatformAuthRolesGuard,
+} from 'src/core';
+import {
+  PickcookUserCreateDto,
+  PickcookUserCredentialCheckDto,
+  PickcookUserUpdateDto,
+} from './dto';
 import { PickcookUser } from './pickcook-user.entity';
 import { PickcookUserService } from './pickcook-user.service';
 
@@ -22,6 +41,24 @@ export class PickcookUserController extends BaseController {
   ): Promise<PickcookUser> {
     return await this.pickcookUserService.createPickcookUser(
       pickcookUserCreateDto,
+    );
+  }
+
+  /**
+   * update pickcook user
+   * @param id
+   * @param pickcookUserUpdateDto
+   */
+  @ApiBearerAuth()
+  @UseGuards(new AuthRolesGuard())
+  @Patch('/pickcook-user')
+  async updateUser(
+    @UserInfo() user: PickcookUser,
+    @Body() pickcookUserUpdateDto: PickcookUserUpdateDto,
+  ): Promise<PickcookUser> {
+    return await this.pickcookUserService.updatePickcookUser(
+      user.id,
+      pickcookUserUpdateDto,
     );
   }
 }

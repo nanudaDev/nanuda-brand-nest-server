@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PickcookSlackNotificationService } from 'src/common/utils';
+import { PasswordService } from '../auth';
 import { PickCookUserHistory } from '../pickcook-user-history/pickcook-user-history.entity';
 import { NanudaUser } from '../platform-module/nanuda-user/nanuda-user.entity';
 import { SmsNotificationModule } from '../sms-notification/sms-notification.module';
@@ -16,6 +17,10 @@ import { PickcookUserService } from './pickcook-user.service';
     SmsNotificationModule,
   ],
   controllers: [CheckPickcookUserController, PickcookUserController],
-  providers: [PickcookUserService, PickcookSlackNotificationService],
+  providers: [
+    PickcookUserService,
+    PickcookSlackNotificationService,
+    PasswordService,
+  ],
 })
 export class PickcookUserModule {}

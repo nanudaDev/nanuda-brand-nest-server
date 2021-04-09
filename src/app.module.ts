@@ -23,6 +23,7 @@ import {
   ProformaConsultResultModule,
   ReservationModule,
   BatchReservationModule,
+  PickcookUserModule,
 } from './modules';
 const env = process.env;
 @Module({
@@ -72,18 +73,19 @@ const env = process.env;
       //   Do not turn to true!!!! 나누다 키친 데이터 다 날라가요 ~ ㅠㅠ
       synchronize: false,
     }),
+    AuthModule,
     FaqModule,
     AdminModule,
     AggregateResultResponseModule,
-    AuthModule,
     CommonCodeModule,
     CodeHdongModule,
     ConsultResultModule,
     QuestionModule,
     LocationAnalysisModule,
     MenuAnalysisModule,
-    ResultResponseModule,
+    PickcookUserModule,
     ProformaConsultResultModule,
+    ResultResponseModule,
     ReservationModule,
     BatchReservationModule,
   ],

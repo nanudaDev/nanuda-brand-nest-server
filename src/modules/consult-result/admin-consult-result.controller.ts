@@ -10,8 +10,12 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PaginatedRequest, PaginatedResponse, UserInfo } from 'src/common';
-import { AuthRolesGuard, BaseController } from 'src/core';
-import { CONST_ADMIN_ROLES } from 'src/shared';
+import {
+  AuthRolesGuard,
+  BaseController,
+  PlatformAuthRolesGuard,
+} from 'src/core';
+import { CONST_ADMIN_ROLES, CONST_ADMIN_USER } from 'src/shared';
 import { PlatformAdmin } from '../admin/platform-admin.entity';
 import { ConsultResult } from './consult-result.entity';
 import { ConsultResultService } from './consult-result.service';
@@ -19,8 +23,8 @@ import { AdminConsultResultListDto, AdminConsultResultUpdateDto } from './dto';
 
 @Controller()
 @ApiTags('ADMIN CONSULT RESPONSE')
-// @ApiBearerAuth()
-// @UseGuards(new AuthRolesGuard(...CONST_ADMIN_ROLES))
+@ApiBearerAuth()
+@UseGuards(new PlatformAuthRolesGuard(...CONST_ADMIN_USER))
 export class AdminConsultResponseController extends BaseController {
   constructor(private readonly consultResultService: ConsultResultService) {
     super();
@@ -67,6 +71,11 @@ export class AdminConsultResponseController extends BaseController {
     );
   }
 
+  /**
+   * assign myself
+   * @param admin
+   * @param consultId
+   */
   @Patch('/admin/consult-response/:id([0-9]+)/assign-myself')
   async assignMyself(
     @UserInfo() admin: PlatformAdmin,

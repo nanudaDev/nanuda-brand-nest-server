@@ -15,8 +15,8 @@ import { FaqService } from './faq.service';
 
 @Controller()
 @ApiTags('ADMIN FAQ')
-@ApiBearerAuth()
-@UseGuards(new AuthRolesGuard(...CONST_ADMIN_ROLES))
+// @ApiBearerAuth()
+// @UseGuards(new AuthRolesGuard(...CONST_ADMIN_ROLES))
 export class AdminFaqController extends BaseController {
   constructor(private readonly faqService: FaqService) {
     super();

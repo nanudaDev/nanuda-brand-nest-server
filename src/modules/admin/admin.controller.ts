@@ -17,8 +17,6 @@ import { AdminCreateDto } from './dto';
 
 @Controller()
 @ApiTags('ADMIN')
-@ApiBearerAuth()
-@UseGuards(new AuthRolesGuard(...CONST_ADMIN_ROLES))
 export class AdminController extends BaseController {
   constructor(private readonly adminService: AdminService) {
     super();

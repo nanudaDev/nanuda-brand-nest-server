@@ -1,9 +1,8 @@
 import { createParamDecorator } from '@nestjs/common';
-import * as express from 'express';
 import { Request } from 'express';
 
 // TODO: SWITCH TO REQUEST FOR REQ
-export const UserInfo = createParamDecorator((data: string, req: any) => {
+export const UserInfo = createParamDecorator((data: string, req: Request) => {
   return data ? req.user && req.user[data] : req.user;
 });
 

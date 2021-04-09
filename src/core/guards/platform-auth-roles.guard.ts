@@ -1,23 +1,19 @@
 require('dotenv').config();
 import {
-  ForbiddenException,
   Injectable,
   UnauthorizedException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ACCOUNT_STATUS, ADMIN_ROLES } from 'src/shared';
 import { ExecutionContextHost } from '@nestjs/core/helpers/execution-context-host';
+import { ADMIN_USER } from 'src/shared';
 import { ENVIRONMENT } from 'src/config';
-import Debug from 'debug';
-import { basename } from 'path';
-import { PickcookUser } from 'src/modules/pickcook-user/pickcook-user.entity';
-
-const debug = Debug(`app:${basename(__dirname)}:${basename(__filename)}`);
-
 @Injectable()
-export class AuthRolesGuard extends AuthGuard('jwt') {
-  constructor() {
+export class PlatformAuthRolesGuard extends AuthGuard('jwt') {
+  readonly roles: ADMIN_USER[];
+  constructor(...roles: ADMIN_USER[]) {
     super();
+    this.roles = roles;
   }
 
   handleRequest(err, user, info, context: ExecutionContextHost) {
@@ -31,8 +27,17 @@ export class AuthRolesGuard extends AuthGuard('jwt') {
           error: 401,
         });
     }
-    if (user.accountStatus !== ACCOUNT_STATUS.ACCOUNT_STATUS_ACTIVE) {
-      throw new ForbiddenException();
+    if (this.roles.length) {
+      const newArray = [];
+      const arrayedRoles = user.authCode.split(',');
+      arrayedRoles.map(levels => newArray.push(levels));
+      const hasRoles = () => this.roles.some(role => newArray.includes(role));
+      if (!user || !hasRoles()) {
+        throw new ForbiddenException({
+          message: '죄송합니다. 권한이 없습니다.',
+          error: 403,
+        });
+      }
     }
     return user;
   }

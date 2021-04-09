@@ -7,17 +7,22 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { PaginatedRequest, PaginatedResponse } from 'src/common';
-import { AuthRolesGuard, BaseController } from 'src/core';
-import { CONST_ADMIN_ROLES } from 'src/shared';
+import { PaginatedRequest, PaginatedResponse, UserInfo } from 'src/common';
+import {
+  AuthRolesGuard,
+  BaseController,
+  PlatformAuthRolesGuard,
+} from 'src/core';
+import { CONST_ADMIN_ROLES, CONST_ADMIN_USER } from 'src/shared';
+import { PlatformAdmin } from '../admin/platform-admin.entity';
 import { CommonCode } from './common-code.entity';
 import { CommonCodeService } from './common-code.service';
 import { AdminCommonCodeListDto } from './dto';
 
 @Controller()
 @ApiTags('ADMIN COMMON CODE')
-// @ApiBearerAuth()
-// @UseGuards(new AuthRolesGuard(...CONST_ADMIN_ROLES))
+@ApiBearerAuth()
+@UseGuards(new PlatformAuthRolesGuard(...CONST_ADMIN_USER))
 export class AdminCommonCodeController extends BaseController {
   constructor(private readonly commonCodeService: CommonCodeService) {
     super();

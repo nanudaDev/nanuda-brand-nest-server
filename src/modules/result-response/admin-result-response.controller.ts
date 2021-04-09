@@ -8,8 +8,8 @@ import { ResultResponseService } from './result-response.service';
 
 @Controller()
 @ApiTags('ADMIN RESULT RESPONSE')
-@ApiBearerAuth()
-@UseGuards(new AuthRolesGuard(...CONST_ADMIN_ROLES))
+// @ApiBearerAuth()
+// @UseGuards(new AuthRolesGuard(...CONST_ADMIN_ROLES))
 export class AdminResultResponseController extends BaseController {
   constructor(private readonly resultResponseService: ResultResponseService) {
     super();

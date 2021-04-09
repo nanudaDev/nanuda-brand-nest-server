@@ -55,7 +55,7 @@ export class PickcookUserController extends BaseController {
   async updateUser(
     @UserInfo() user: PickcookUser,
     @Body() pickcookUserUpdateDto: PickcookUserUpdateDto,
-  ): Promise<PickcookUser> {
+  ) {
     return await this.pickcookUserService.updatePickcookUser(
       user.id,
       pickcookUserUpdateDto,

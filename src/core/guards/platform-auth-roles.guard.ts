@@ -20,7 +20,6 @@ export class PlatformAuthRolesGuard extends AuthGuard('jwt') {
     if (err || !user) {
       if (process.env.NODE_ENV !== ENVIRONMENT.PRODUCTION) {
         console.log(err, 'err');
-        console.log(user, 'user');
       }
       throw err ||
         new UnauthorizedException({

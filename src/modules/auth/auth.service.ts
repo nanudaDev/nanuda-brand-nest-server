@@ -181,10 +181,7 @@ export class AuthService extends BaseService {
       name: user.name,
       userRoles: user.userRoles,
       userStatus: user.adminStatus,
-      userType:
-        UserType.ADMIN ||
-        UserType.NON_REGISTERED_USER ||
-        UserType.PICKCOOK_USER,
+      userType: UserType.ADMIN,
     };
     return this.jwtService.sign({ ...userSignInInfo, ...extend }, options);
   }
@@ -210,6 +207,7 @@ export class AuthService extends BaseService {
       accountStatus: user.accountStatus,
       username: user.username,
       passwordUpdateDate: user.passwordUpdateDate,
+      userType: UserType.PICKCOOK_USER,
     };
 
     return this.jwtService.sign({ ...userSigninPayload, ...extend }, options);

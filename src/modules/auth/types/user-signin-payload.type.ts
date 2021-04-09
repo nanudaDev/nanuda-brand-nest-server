@@ -10,8 +10,7 @@ export interface UserSigninPayload {
 }
 
 export interface PlatformUserSigninPayload {
-  _no: number;
-  _id: string;
+  _id: number;
   username: string;
   userType: UserType | string;
   adminRole?: string;
@@ -26,4 +25,5 @@ export interface PickcookUserSigninPayload {
   email?: string;
   accountStatus: ACCOUNT_STATUS;
   passwordUpdateDate?: Date;
+  userType: UserType;
 }

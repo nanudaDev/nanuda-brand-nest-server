@@ -37,20 +37,17 @@ export class PickcookUserUpdateDto extends BaseDto<PickcookUserUpdateDto>
   @IsOptional()
   @Expose()
   @IsEnum(YN)
-  @Default(YN.NO)
   serviceAgreeYn?: YN;
 
   @ApiPropertyOptional({ enum: YN })
   @IsOptional()
   @Expose()
   @IsEnum(YN)
-  @Default(YN.NO)
   privacyAgreeYn?: YN;
 
   @ApiPropertyOptional({ enum: YN })
   @IsOptional()
   @Expose()
   @IsEnum(YN)
-  @Default(YN.NO)
   marketingAgreeYn?: YN;
 }

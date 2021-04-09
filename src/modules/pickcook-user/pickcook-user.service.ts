@@ -55,7 +55,7 @@ export class PickcookUserService extends BaseService {
         pickcookUserCreateDto.marketingAgreeYn,
       ),
     );
-    console.log(pickcookUserCreateDto);
+
     if (pickcookUserCreateDto.username) {
       await this.checkUserName(pickcookUserCreateDto.username);
     }
@@ -99,20 +99,32 @@ export class PickcookUserService extends BaseService {
       pickcookUserUpdateDto.username &&
       pickcookUser.username !== pickcookUserUpdateDto.username
     ) {
-      await this.checkUserName(pickcookUserUpdateDto.username);
+      await this.__check_duplicate_property(
+        pickcookUser.id,
+        'username',
+        pickcookUserUpdateDto.username,
+      );
     }
     if (
       pickcookUserUpdateDto.email &&
       pickcookUser.email !== pickcookUserUpdateDto.email
     ) {
-      await this.checkEmail(pickcookUserUpdateDto.email);
+      await this.__check_duplicate_property(
+        pickcookUser.id,
+        'email',
+        pickcookUserUpdateDto.email,
+      );
       // send email verification
     }
     if (
       pickcookUserUpdateDto.phone &&
       pickcookUser.phone !== pickcookUserUpdateDto.phone
     ) {
-      await this.checkPhone(pickcookUserUpdateDto.phone);
+      await this.__check_duplicate_property(
+        pickcookUser.id,
+        'phone',
+        pickcookUserUpdateDto.phone,
+      );
       // send phone verification
     }
     const user = await this.entityManager.transaction(async entityManager => {
@@ -223,5 +235,31 @@ export class PickcookUserService extends BaseService {
       privacyAgreeDate: arrDates[1],
       marketingAgreeDate: arrDates[2],
     };
+  }
+
+  /**
+   * check for duplicate property values when updating
+   * @param id
+   * @param property
+   * @param value
+   */
+  private async __check_duplicate_property(
+    id: number,
+    property: string,
+    value: string,
+  ) {
+    const qb = await this.pickcookUserRepo
+      .createQueryBuilder('pickcookUser')
+      .where(`pickcookUser.id <> ${id}`)
+      .andWhere(`pickcookUser.${property} = :property`, {
+        property: `${value}`,
+      })
+      .getMany();
+
+    if (qb && qb.length > 0) {
+      return false;
+    }
+
+    return true;
   }
 }

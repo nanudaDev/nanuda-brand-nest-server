@@ -6,9 +6,11 @@ import { BaseService, BaseUserEntity, BrandAiException } from 'src/core';
 import { EntityManager, Repository } from 'typeorm';
 import { Admin } from '../admin/admin.entity';
 import { PlatformAdmin } from '../admin/platform-admin.entity';
+import { PickcookUserCheckPasswordDto } from '../pickcook-user/dto';
 import { PickcookUser } from '../pickcook-user/pickcook-user.entity';
 import { AdminLoginDto, PickcookUserLoginDto } from './dto';
 import { PasswordService } from './password.service';
+import { PickcookUserPasswordService } from './pickcook-user-password.service';
 import {
   PickcookUserSigninPayload,
   UserSigninPayload,
@@ -25,6 +27,7 @@ export class AuthService extends BaseService {
     private readonly platformAdminRepo: Repository<PlatformAdmin>,
     private readonly jwtService: JwtService,
     private readonly passwordService: PasswordService,
+    private readonly pickcookUserPasswordService: PickcookUserPasswordService,
   ) {
     super();
   }
@@ -105,13 +108,12 @@ export class AuthService extends BaseService {
     if (!user) {
       throw new BrandAiException('pickcookUser.notFound');
     }
-    const validatePassword = await this.passwordService.validatePassword(
-      pickcookUserLoginDto.password,
-      user.password,
+    const passwordCheckDto = new PickcookUserCheckPasswordDto();
+    passwordCheckDto.password = pickcookUserLoginDto.password;
+    await this.pickcookUserPasswordService.checkPassword(
+      user.id,
+      passwordCheckDto,
     );
-    if (!validatePassword) {
-      throw new BrandAiException('auth.invalidPassword');
-    }
 
     const token = await this.signPickcookUser(
       user,

@@ -27,3 +27,10 @@ export interface PickcookUserSigninPayload {
   passwordUpdateDate?: Date;
   userType: UserType;
 }
+
+export interface UserTempSigninPayload {
+  userType: UserType;
+  id: number;
+  email: string;
+  expiresIn: string;
+}

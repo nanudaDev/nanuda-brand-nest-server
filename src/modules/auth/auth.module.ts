@@ -11,6 +11,7 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt/jwt.strategy';
 import { PasswordService } from './password.service';
 import { PickcookAuthController } from './pickcook-user-auth.controller';
+import { PickcookUserPasswordService } from './pickcook-user-password.service';
 
 @Module({
   imports: [
@@ -20,7 +21,12 @@ import { PickcookAuthController } from './pickcook-user-auth.controller';
     JwtModule.registerAsync({ useClass: JwtConfigService }),
   ],
   controllers: [AdminAuthController, PickcookAuthController],
-  providers: [AuthService, PasswordService, JwtStrategy],
-  exports: [AuthService],
+  providers: [
+    AuthService,
+    PasswordService,
+    JwtStrategy,
+    PickcookUserPasswordService,
+  ],
+  exports: [AuthService, PickcookUserPasswordService],
 })
 export class AuthModule {}

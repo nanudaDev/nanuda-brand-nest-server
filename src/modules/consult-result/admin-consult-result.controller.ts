@@ -9,9 +9,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { PaginatedRequest, PaginatedResponse } from 'src/common';
+import { PaginatedRequest, PaginatedResponse, UserInfo } from 'src/common';
 import { AuthRolesGuard, BaseController } from 'src/core';
 import { CONST_ADMIN_ROLES } from 'src/shared';
+import { PlatformAdmin } from '../admin/platform-admin.entity';
 import { ConsultResult } from './consult-result.entity';
 import { ConsultResultService } from './consult-result.service';
 import { AdminConsultResultListDto, AdminConsultResultUpdateDto } from './dto';
@@ -64,5 +65,13 @@ export class AdminConsultResponseController extends BaseController {
       id,
       adminConsultResponseUpdateDto,
     );
+  }
+
+  @Patch('/admin/consult-response/:id([0-9]+)/assign-myself')
+  async assignMyself(
+    @UserInfo() admin: PlatformAdmin,
+    @Param('id', ParseIntPipe) consultId: number,
+  ): Promise<ConsultResult> {
+    return await this.consultResultService.assignAdmin(admin.no, consultId);
   }
 }

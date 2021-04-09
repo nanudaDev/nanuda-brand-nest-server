@@ -140,7 +140,8 @@ export class AggregateResultResponseService extends BaseService {
         deliveryRatioData[key] === 'F05' ||
         deliveryRatioData[key] === 'F08' ||
         deliveryRatioData[key] === 'F09' ||
-        deliveryRatioData[key] === 'F13'
+        deliveryRatioData[key] === 'F13' ||
+        deliveryRatioData[key] === 'F03'
       ) {
         delete deliveryRatioData[key];
       }
@@ -401,7 +402,7 @@ export class AggregateResultResponseService extends BaseService {
     let preDataSets = [];
     const labels = [];
     graph.labels = labels;
-    const data = [];
+    const newData = [];
     const times = [breakFastTime, lunchTime, dinnerTime, lateNight];
     await Promise.all(
       times.map(async time => {
@@ -426,6 +427,7 @@ export class AggregateResultResponseService extends BaseService {
         revenue.order = time.order;
         preDataSets.push({
           data: revenue[0][`${time.englishName}`],
+          percentage: null,
           order: revenue.order,
         });
       }),
@@ -435,8 +437,15 @@ export class AggregateResultResponseService extends BaseService {
       if (datas.data < 1 || datas.data === null) {
         datas.data = Math.random() * 800000;
       }
-      data.push(datas.data);
+      newData.push(datas.data);
     });
+    const totalAmount = newData.reduce((a, b) => a + b, 0);
+    const data = [];
+    newData.map(d => {
+      const perc = (d / totalAmount) * 100;
+      data.push(perc.toFixed(2));
+    });
+
     datasets.push({ data: data });
     return graph;
   }

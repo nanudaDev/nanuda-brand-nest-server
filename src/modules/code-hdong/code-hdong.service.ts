@@ -1,5 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { YN } from 'src/common';
+import { ORDER_BY_VALUE, YN } from 'src/common';
 import { BaseService } from 'src/core';
 import { Repository } from 'typeorm';
 import { CodeHdong } from './code-hdong.entity';
@@ -65,6 +65,7 @@ export class CodeHdongService extends BaseService {
       //     codeHdongListDto.hdongCode,
       //     codeHdongListDto.exclude('hdongCode'),
       //   )
+      .orderBy('codeHdong.guName', ORDER_BY_VALUE.ASC)
       .getMany();
 
     return qb;
@@ -107,6 +108,7 @@ export class CodeHdongService extends BaseService {
       //     codeHdongListDto.hdongCode,
       //     codeHdongListDto.exclude('hdongCode'),
       //   )
+      .orderBy('codeHdong.hdongName', ORDER_BY_VALUE.ASC)
       .getMany();
 
     return qb;

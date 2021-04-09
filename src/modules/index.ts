@@ -1,3 +1,4 @@
+// service modules
 export * from './admin/admin.module';
 export * from './aggregate-result-response/aggregate-result-resource.module';
 export * from './auth/auth.module';
@@ -11,3 +12,6 @@ export * from './result-response/result-response.module';
 export * from './sms-notification/sms-notification.module';
 export * from './proforma-consult-result/proforma-consult-result.module';
 export * from './reservation/reservation.module';
+
+// batch modules
+export * from '../batch-process';

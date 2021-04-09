@@ -9,7 +9,7 @@ import {
   Min,
   IsEnum,
 } from 'class-validator';
-import { IsPassword, IsEqualTo, YN, Default } from 'src/common';
+import { IsPassword, IsEqualTo, YN, Default } from '../../../common';
 import { BaseDto } from 'src/core';
 import { PickcookUser } from '../pickcook-user.entity';
 

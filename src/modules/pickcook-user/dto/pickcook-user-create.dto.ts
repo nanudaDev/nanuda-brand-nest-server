@@ -9,7 +9,7 @@ import {
   Min,
   MinLength,
 } from 'class-validator';
-import { Default, IsEqualTo, IsPassword, YN } from 'src/common';
+import { Default, IsEqualTo, IsPassword, YN } from '../../../common';
 import { BaseDto } from 'src/core';
 import { PickcookUser } from '../pickcook-user.entity';
 

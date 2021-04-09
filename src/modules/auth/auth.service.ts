@@ -138,7 +138,7 @@ export class AuthService extends BaseService {
    * @param id
    */
   async validatePlatforAdminById(id: number): Promise<PlatformAdmin> {
-    return await this.platformAdminRepo.findOne(id);
+    return await this.platformAdminRepo.findOne({ phone: id.toString() });
   }
 
   /**

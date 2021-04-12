@@ -88,7 +88,7 @@ export class AuthService extends BaseService {
     let user: PickcookUser;
     if (pickcookUserLoginDto.loginCredential.includes('@')) {
       user = await this.pickcookUserRepo.findOne({
-        where: { email: pickcookUserLoginDto.loginCredential },
+        email: pickcookUserLoginDto.loginCredential,
       });
     }
     if (pickcookUserLoginDto.loginCredential.startsWith('010')) {
@@ -97,17 +97,15 @@ export class AuthService extends BaseService {
         '',
       );
       user = await this.pickcookUserRepo.findOne({
-        where: { phone: pickcookUserLoginDto.loginCredential },
+        phone: pickcookUserLoginDto.loginCredential,
       });
     }
     if (pickcookUserLoginDto.isUsername) {
       user = await this.pickcookUserRepo.findOne({
-        where: { username: pickcookUserLoginDto.loginCredential },
+        username: pickcookUserLoginDto.loginCredential,
       });
     }
-    if (!user) {
-      throw new BrandAiException('pickcookUser.notFound');
-    }
+    if (!user) throw new BrandAiException('pickcookUser.notFound');
     const passwordCheckDto = new PickcookUserCheckPasswordDto();
     passwordCheckDto.password = pickcookUserLoginDto.password;
     await this.pickcookUserPasswordService.checkPassword(

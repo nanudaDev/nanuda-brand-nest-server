@@ -138,6 +138,25 @@ export class PickCookUserHistory extends BaseEntity<PickCookUserHistory> {
   })
   lastLoginAt?: Date;
 
+  @Column({
+    name: 'sent_dormant_warning_yn',
+    type: 'char',
+    default: () => YN.NO,
+  })
+  sentDormantWarningYn: YN;
+
+  @Column({
+    name: 'sent_dormant_warning_date',
+    type: 'datetime',
+  })
+  sentDormantWarningDate: Date;
+
+  @Column({
+    name: 'admin_id',
+    type: 'int',
+  })
+  adminId: number;
+
   @ManyToOne(
     type => PickcookUser,
     pickcookUser => pickcookUser.pickcookUserHistories,

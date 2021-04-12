@@ -1,9 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { BaseService, BrandAiException } from 'src/core';
-import { EntityManager, Repository } from 'typeorm';
+import { EntityManager, getConnection, Repository } from 'typeorm';
 import { SmsNotificationService } from '../sms-notification/sms-notification.service';
-import { PickcookUserCreateDto, PickcookUserUpdateDto } from './dto';
+import {
+  AdminPickcookUserCreateDto,
+  PickcookUserCreateDto,
+  PickcookUserUpdateDto,
+} from './dto';
 import { PickcookUser } from './pickcook-user.entity';
 import { Request } from 'express';
 import { PickCookUserHistory } from '../pickcook-user-history/pickcook-user-history.entity';
@@ -33,7 +37,8 @@ export class PickcookUserService extends BaseService {
    * @param req
    */
   async createPickcookUser(
-    pickcookUserCreateDto: PickcookUserCreateDto,
+    pickcookUserCreateDto: PickcookUserCreateDto | AdminPickcookUserCreateDto,
+    adminId?: number,
     req?: Request,
   ): Promise<PickcookUser> {
     if (
@@ -68,12 +73,11 @@ export class PickcookUserService extends BaseService {
 
     const user = await this.entityManager.transaction(async entityManager => {
       const checkIfNanudaUser = await this.nanudaUserRepo.findOne({
-        where: { phone: pickcookUserCreateDto.phone },
+        phone: pickcookUserCreateDto.phone,
       });
       let newUser = new PickcookUser(pickcookUserCreateDto);
-      if (checkIfNanudaUser) {
-        newUser.isNanudaUser = YN.YES;
-      }
+      if (checkIfNanudaUser) newUser.isNanudaUser = YN.YES;
+      if (adminId) newUser.adminId = adminId;
       newUser = await entityManager.save(newUser);
       //   create history
       await this.__create_user_history(newUser);
@@ -156,16 +160,32 @@ export class PickcookUserService extends BaseService {
   }
 
   /**
+   * hard delete user
+   * @param id
+   */
+  async hardDeleteUser(id: number) {
+    await getConnection()
+      .createQueryBuilder()
+      .AndWhereHardDelete('PickcookUser', `id`, id);
+
+    // delete user history
+    await getConnection()
+      .createQueryBuilder()
+      .AndWhereHardDelete('PickcookUserHistory', 'pickcookUserId', id);
+  }
+
+  /**
    * check username for user
    * @param username
    */
   async checkUserName(username: string) {
     const checkIfAllowed = await this.pickcookUserRepo.findOne({
-      where: { username: username },
+      username,
     });
     if (checkIfAllowed) {
       throw new BrandAiException('pickcookUser.usernameTaken');
     }
+    return checkIfAllowed;
   }
 
   /**
@@ -173,12 +193,12 @@ export class PickcookUserService extends BaseService {
    * @param email
    */
   async checkEmail(email: string) {
-    const checkIfAllowed = await this.pickcookUserRepo.findOne({
-      where: { email: email },
-    });
+    const checkIfAllowed = await this.pickcookUserRepo.findOne({ email });
     if (checkIfAllowed) {
       throw new BrandAiException('pickcookUser.emailTaken');
     }
+
+    return checkIfAllowed;
   }
 
   /**
@@ -190,13 +210,13 @@ export class PickcookUserService extends BaseService {
       phone = phone.replace(/-/g, '');
     }
     const checkIfAllowed = await this.pickcookUserRepo.findOne({
-      where: { phone: phone },
+      phone,
     });
     if (checkIfAllowed) {
       throw new BrandAiException('pickcookUser.phoneTaken');
     }
 
-    return true;
+    return checkIfAllowed;
   }
 
   /**

@@ -5,6 +5,7 @@ import { PasswordService } from '../auth';
 import { PickCookUserHistory } from '../pickcook-user-history/pickcook-user-history.entity';
 import { NanudaUser } from '../platform-module/nanuda-user/nanuda-user.entity';
 import { SmsNotificationModule } from '../sms-notification/sms-notification.module';
+import { AdminPickcookUserController } from './admin-pickcook-user.controller';
 import { CheckPickcookUserController } from './check-pickcook-user.controller';
 import { PickcookUserController } from './pickcook-user.controller';
 import { PickcookUser } from './pickcook-user.entity';
@@ -16,7 +17,11 @@ import { PickcookUserService } from './pickcook-user.service';
     TypeOrmModule.forFeature([NanudaUser], 'platform'),
     SmsNotificationModule,
   ],
-  controllers: [CheckPickcookUserController, PickcookUserController],
+  controllers: [
+    AdminPickcookUserController,
+    CheckPickcookUserController,
+    PickcookUserController,
+  ],
   providers: [
     PickcookUserService,
     PickcookSlackNotificationService,

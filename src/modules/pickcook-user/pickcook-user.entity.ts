@@ -2,6 +2,7 @@ import { YN } from 'src/common';
 import { BaseUserEntity } from 'src/core';
 import { ACCOUNT_STATUS } from 'src/shared';
 import { Column, Entity, OneToMany } from 'typeorm';
+import { PlatformAdmin } from '../admin/platform-admin.entity';
 import { PickCookUserHistory } from '../pickcook-user-history/pickcook-user-history.entity';
 
 @Entity({ name: 'pickcook_user' })
@@ -111,6 +112,27 @@ export class PickcookUser extends BaseUserEntity {
     type: 'datetime',
   })
   passwordUpdateDate: Date;
+
+  @Column({
+    name: 'admin_id',
+    type: 'int',
+  })
+  adminId: number;
+
+  admin?: PlatformAdmin;
+
+  @Column({
+    name: 'sent_dormant_warning_yn',
+    type: 'char',
+    default: () => YN.NO,
+  })
+  sentDormantWarningYn: YN;
+
+  @Column({
+    name: 'sent_dormant_warning_date',
+    type: 'datetime',
+  })
+  sentDormantWarningDate: Date;
 
   @OneToMany(
     type => PickCookUserHistory,

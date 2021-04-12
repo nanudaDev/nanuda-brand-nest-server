@@ -75,7 +75,7 @@ const env = process.env;
     }),
     AuthModule,
     FaqModule,
-    AdminModule,
+    // AdminModule,
     AggregateResultResponseModule,
     CommonCodeModule,
     CodeHdongModule,

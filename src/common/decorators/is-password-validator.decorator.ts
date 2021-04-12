@@ -17,7 +17,7 @@ export const IsPassword = (validationOptions?: ValidationOptions) => {
             return false;
           }
           const regexIt = value.match(
-            /^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&+_()^%=;?`~-])[A-Za-z\d$@$!%*#?&+_()^%=;?`~-]{6,}$/,
+            /^(?=.{8,})(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+*!=]).*$/,
           );
           if (!regexIt) return false;
           return true;

@@ -44,7 +44,7 @@
         "sameReservationTimeAndDate": "동일한 날짜 및 시간대로 예약 변경 할 수 없습니다"
     }, 
     "pickcookUser": {
-        "notFound": "User was not found",
+        "notFound": "존재하지 않는 계정입니다. 회원가입 해주시길 바랍니다",
         "usernameTaken": "이미 사용중인 사용자명입니다",
         "emailTaken": "이미 가입된 이메일 계정입니다. 로그인 해주세요",
         "phoneTaken": "이미 가입된 휴대폰 번호입니다. 로그인 해주세요"

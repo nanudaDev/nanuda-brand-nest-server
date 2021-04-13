@@ -94,6 +94,8 @@ export class PickcookUserService extends BaseService {
   async updatePickcookUser(
     id: number,
     pickcookUserUpdateDto: PickcookUserUpdateDto,
+    adminId?: number,
+    req?: Request,
   ): Promise<PickcookUser> {
     const pickcookUser = await this.pickcookUserRepo.findOne(id);
     if (!pickcookUser) {
@@ -152,6 +154,7 @@ export class PickcookUserService extends BaseService {
       ) {
         updatedUser.marketingAgreeDate = new Date();
       }
+      if (adminId) updatedUser.adminId = adminId;
       updatedUser = await entityManager.save(updatedUser);
       await this.__create_user_history(updatedUser);
       return updatedUser;

@@ -4,6 +4,7 @@ import {
   Delete,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -12,7 +13,7 @@ import { UserInfo } from 'src/common';
 import { BaseController, PlatformAuthRolesGuard } from 'src/core';
 import { CONST_ADMIN_USER } from 'src/shared';
 import { PlatformAdmin } from '../admin/platform-admin.entity';
-import { AdminPickcookUserCreateDto } from './dto';
+import { AdminPickcookUserCreateDto, AdminPickcookUserUpdateDto } from './dto';
 import { PickcookUser } from './pickcook-user.entity';
 import { PickcookUserService } from './pickcook-user.service';
 
@@ -37,6 +38,26 @@ export class AdminPickcookUserController extends BaseController {
   ): Promise<PickcookUser> {
     return await this.pickcookUserService.createPickcookUser(
       adminPickcookUserCreateDto,
+      admin.no,
+    );
+  }
+
+  /**
+   * update for admin
+   * @param id
+   * @param adminPickcookUserUpdateDto
+   * @param admin
+   * @returns
+   */
+  @Patch('/admin/pickcook-user/:id([0-9]+)')
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() adminPickcookUserUpdateDto: AdminPickcookUserUpdateDto,
+    @UserInfo() admin: PlatformAdmin,
+  ) {
+    return await this.pickcookUserService.updatePickcookUser(
+      id,
+      adminPickcookUserUpdateDto,
       admin.no,
     );
   }

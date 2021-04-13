@@ -15,6 +15,7 @@ import { PaginatedRequest, PaginatedResponse, UserInfo } from 'src/common';
 import { BaseController, PlatformAuthRolesGuard } from 'src/core';
 import { CONST_ADMIN_USER } from 'src/shared';
 import { PlatformAdmin } from '../admin/platform-admin.entity';
+import { PickCookUserHistory } from '../pickcook-user-history/pickcook-user-history.entity';
 import {
   AdminPickcookUserCreateDto,
   AdminPickcookUserListDto,
@@ -67,6 +68,19 @@ export class AdminPickcookUserController extends BaseController {
   @Get('/admin/pickcook-user/:id([0-9]+)')
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<PickcookUser> {
     return await this.pickcookUserService.findOne(id);
+  }
+
+  /**
+   * find one for admin
+   * @param id
+   * @returns
+   */
+  @Get('/admin/pickcook-user/:id([0-9]+)/histories')
+  async findUserHistory(
+    @Param('id', ParseIntPipe) id: number,
+    @Query() pagination: PaginatedRequest,
+  ): Promise<PaginatedResponse<PickCookUserHistory>> {
+    return await this.pickcookUserService.findAllHistories(id, pagination);
   }
 
   /**

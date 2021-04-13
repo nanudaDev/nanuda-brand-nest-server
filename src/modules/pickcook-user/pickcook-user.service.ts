@@ -279,6 +279,24 @@ export class PickcookUserService extends BaseService {
   }
 
   /**
+   * find all history for admin
+   * @param id
+   * @param pagination
+   * @returns
+   */
+  async findAllHistories(
+    id: number,
+    pagination: PaginatedRequest,
+  ): Promise<PaginatedResponse<PickCookUserHistory>> {
+    const qb = this.pickcookUserHistoryRepo
+      .createQueryBuilder('history')
+      .where('history.pickcookUserId = :pickcookUserId', { pickcookUserId: id })
+      .Paginate(pagination);
+    const [items, totalCount] = await qb.getManyAndCount();
+    return { items, totalCount };
+  }
+
+  /**
    * create new user history
    * @param pickcookUser
    */

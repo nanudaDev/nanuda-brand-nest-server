@@ -13,6 +13,7 @@ export class ErrorResponse {
   message: string;
   value?: object = {};
   errors?: { [key: string]: FieldError };
+  errorLocale?: any;
 }
 
 export class FieldError {

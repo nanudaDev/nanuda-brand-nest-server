@@ -5,15 +5,17 @@ import { EntityManager, getConnection, Repository } from 'typeorm';
 import { SmsNotificationService } from '../sms-notification/sms-notification.service';
 import {
   AdminPickcookUserCreateDto,
+  AdminPickcookUserListDto,
   PickcookUserCreateDto,
   PickcookUserUpdateDto,
 } from './dto';
 import { PickcookUser } from './pickcook-user.entity';
 import { Request } from 'express';
 import { PickCookUserHistory } from '../pickcook-user-history/pickcook-user-history.entity';
-import { YN } from 'src/common';
+import { PaginatedRequest, PaginatedResponse, YN } from 'src/common';
 import { NanudaUser } from '../platform-module/nanuda-user/nanuda-user.entity';
 import { PasswordService } from '../auth';
+import { admin } from 'googleapis/build/src/apis/admin';
 
 @Injectable()
 export class PickcookUserService extends BaseService {
@@ -220,6 +222,49 @@ export class PickcookUserService extends BaseService {
     }
 
     return checkIfAllowed;
+  }
+
+  /**
+   * find all for admin
+   * @param adminPickcookUserListDto
+   * @param pagination
+   */
+  async findAllForAdmin(
+    adminPickcookUserListDto: AdminPickcookUserListDto,
+    pagination: PaginatedRequest,
+  ): Promise<PaginatedResponse<PickcookUser>> {
+    const qb = this.pickcookUserRepo
+      .createQueryBuilder('pickcookUser')
+      .AndWhereLike(
+        'pickcookUser',
+        'name',
+        adminPickcookUserListDto.name,
+        adminPickcookUserListDto.exclude('name'),
+      )
+      .AndWhereLike(
+        'pickcookUser',
+        'email',
+        adminPickcookUserListDto.email,
+        adminPickcookUserListDto.exclude('email'),
+      )
+      .AndWhereLike(
+        'pickcookUser',
+        'username',
+        adminPickcookUserListDto.username,
+        adminPickcookUserListDto.exclude('username'),
+      );
+    if (adminPickcookUserListDto.phone) {
+      qb.andWhere(`pickcookUser.phone like :phone`, {
+        phone: `%${adminPickcookUserListDto.phone}`,
+      });
+      delete adminPickcookUserListDto.phone;
+    }
+    qb.Paginate(pagination);
+    qb.WhereAndOrder(adminPickcookUserListDto);
+
+    const [items, totalCount] = await qb.getManyAndCount();
+
+    return { items, totalCount };
   }
 
   /**

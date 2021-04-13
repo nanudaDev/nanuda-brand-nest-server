@@ -60,6 +60,16 @@ export class AdminPickcookUserController extends BaseController {
   }
 
   /**
+   * find one for admin
+   * @param id
+   * @returns
+   */
+  @Get('/admin/pickcook-user/:id([0-9]+)')
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<PickcookUser> {
+    return await this.pickcookUserService.findOne(id);
+  }
+
+  /**
    * update for admin
    * @param id
    * @param adminPickcookUserUpdateDto

@@ -268,6 +268,17 @@ export class PickcookUserService extends BaseService {
   }
 
   /**
+   * find one for admin
+   * @param id
+   * @returns
+   */
+  async findOne(id: number): Promise<PickcookUser> {
+    const user = await this.pickcookUserRepo.findOne(id);
+    if (!user) throw new BrandAiException('pickcookUser.notFound');
+    return user;
+  }
+
+  /**
    * create new user history
    * @param pickcookUser
    */

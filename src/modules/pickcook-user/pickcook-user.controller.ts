@@ -61,4 +61,16 @@ export class PickcookUserController extends BaseController {
       pickcookUserUpdateDto,
     );
   }
+
+  /**
+   * find me
+   * @param pickcookUser
+   * @returns
+   */
+  @ApiBearerAuth()
+  @UseGuards(new AuthRolesGuard())
+  @Get('/pickcook-user/find-me')
+  async findMe(@UserInfo() pickcookUser: PickcookUser): Promise<PickcookUser> {
+    return await this.pickcookUserService.findOne(pickcookUser.id);
+  }
 }

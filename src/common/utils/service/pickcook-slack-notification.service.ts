@@ -45,12 +45,10 @@ export class PickcookSlackNotificationService {
   // send notification
   private __send_slack(message: object, slackType?: SLACK_TYPE) {
     // potential slack types
-    if (slackType === SLACK_TYPE.PICKCOOK_SERVICE) {
+    if (slackType === SLACK_TYPE.PICKCOOK_SERVICE)
       this.slackUrl = process.env.PICKCOOK_SITE_URL;
-    }
-    if (this.slackUrl === SLACK_TYPE.PICKCOOK_ERROR) {
+    if (this.slackUrl === SLACK_TYPE.PICKCOOK_ERROR)
       this.slackUrl = process.env.PICKCOOK_ERROR_NOTIFICATION_SLACK_URL;
-    }
     this.slack.setWebhook(this.slackUrl);
     this.slack.webhook(message, function(err, response) {
       if (err) {

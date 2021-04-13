@@ -39,7 +39,39 @@ export class PickcookSlackNotificationService {
         },
       ],
     };
-    this.__send_slack(message);
+    this.__send_slack(message, SLACK_TYPE.PICKCOOK_SERVICE);
+  }
+
+  /**
+   * send error code
+   * @param error
+   */
+  async sendErrorNotification(error: any) {
+    const message = {
+      text: `PICKCOOK SERVER ERROR`,
+      attachments: [
+        {
+          // color: '#009900',
+          // actions: [
+          //   {
+          //     name: 'slack action button',
+          //     text: '신청서 상세보기',
+          //     type: 'button',
+          //     // TODO: once URL is set up
+          //     // url: `${process.env.ADMIN_BASEURL}delivery-founder-consult/${deliveryFounderConsult.no}`,
+          //     style: 'primary',
+          //   },
+          // ],
+          fields: [
+            {
+              title: `PICKCOOK SERVER ERROR DETAILS`,
+              value: `${error.code}`,
+              short: false,
+            },
+          ],
+        },
+      ],
+    };
   }
 
   // send notification

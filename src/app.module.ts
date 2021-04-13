@@ -6,6 +6,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { getMetadataArgsStorage } from 'typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import {
+  PickcookNotificationModule,
+  PickcookSlackNotificationService,
+} from './common/utils';
 import { TypeOrmConfigService } from './config';
 import { HttpExceptionFilter, ErrorsInterceptor } from './core';
 import {

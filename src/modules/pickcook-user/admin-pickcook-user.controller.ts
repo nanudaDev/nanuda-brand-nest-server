@@ -5,15 +5,21 @@ import {
   Param,
   ParseIntPipe,
   Patch,
+  Get,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { UserInfo } from 'src/common';
+import { PaginatedRequest, PaginatedResponse, UserInfo } from 'src/common';
 import { BaseController, PlatformAuthRolesGuard } from 'src/core';
 import { CONST_ADMIN_USER } from 'src/shared';
 import { PlatformAdmin } from '../admin/platform-admin.entity';
-import { AdminPickcookUserCreateDto, AdminPickcookUserUpdateDto } from './dto';
+import {
+  AdminPickcookUserCreateDto,
+  AdminPickcookUserListDto,
+  AdminPickcookUserUpdateDto,
+} from './dto';
 import { PickcookUser } from './pickcook-user.entity';
 import { PickcookUserService } from './pickcook-user.service';
 
@@ -39,6 +45,17 @@ export class AdminPickcookUserController extends BaseController {
     return await this.pickcookUserService.createPickcookUser(
       adminPickcookUserCreateDto,
       admin.no,
+    );
+  }
+
+  @Get('/admin/pickcook-user')
+  async findAll(
+    @Query() adminPickcookUserListDto: AdminPickcookUserListDto,
+    @Query() pagination: PaginatedRequest,
+  ): Promise<PaginatedResponse<PickcookUser>> {
+    return await this.pickcookUserService.findAllForAdmin(
+      adminPickcookUserListDto,
+      pagination,
     );
   }
 

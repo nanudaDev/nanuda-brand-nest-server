@@ -52,7 +52,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
         const k = Object.keys(cur.constraints)[0];
         const message = `validator.${key}.${k}`;
         acc[key] = { validator: k, message };
-        console.log(acc);
       }
       return acc;
     }, errors);
@@ -90,9 +89,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
         type: ERROR_TYPE.SERVER,
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: exception.message.error,
-        errorLocale: `${errorResponse.code.split('.')[0]} - ${
-          errorResponse.code.split('.')[1]
-        }`,
+        errorLocale: exception.message.error
+          ? '권한 없음'
+          : 'Something went wrong',
       };
     }
     res.status(exception.getStatus()).json({

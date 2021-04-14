@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PickcookMailerService } from 'src/common';
 import { PickcookSlackNotificationService } from 'src/common/utils';
 import { PasswordService } from '../auth';
 import { PickCookUserHistory } from '../pickcook-user-history/pickcook-user-history.entity';
@@ -26,6 +27,7 @@ import { PickcookUserService } from './pickcook-user.service';
     PickcookUserService,
     PickcookSlackNotificationService,
     PasswordService,
+    PickcookMailerService,
   ],
 })
 export class PickcookUserModule {}

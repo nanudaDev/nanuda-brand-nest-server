@@ -1,10 +1,11 @@
 require('dotenv').config();
+import { MailerModule } from '@nest-modules/mailer';
 import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule/dist/schedule.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { getMetadataArgsStorage } from 'typeorm';
-import { TypeOrmConfigService } from './config';
+import { PickcookMailerConfigService, TypeOrmConfigService } from './config';
 import { HttpExceptionFilter, ErrorsInterceptor } from './core';
 import {
   AuthModule,
@@ -25,6 +26,7 @@ import {
 const env = process.env;
 @Module({
   imports: [
+    MailerModule.forRootAsync({ useClass: PickcookMailerConfigService }),
     ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync({
       useClass: TypeOrmConfigService,
@@ -50,6 +52,7 @@ const env = process.env;
       //   Do not turn to true!!!! 나누다 키친 데이터 다 날라가요 ~ ㅠㅠ
       synchronize: false,
     }),
+    // platform db
     TypeOrmModule.forRoot({
       name: 'platform',
       type: 'mysql' as 'mysql',

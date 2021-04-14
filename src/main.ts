@@ -101,7 +101,7 @@ async function bootstrap() {
   await app.listen(process.env.SERVER_PORT);
 
   const url = await app.getUrl();
-  if (process.env.NODE_ENV === ENVIRONMENT.DEVELOPMENT) {
+  if (process.env.NODE_ENV !== ENVIRONMENT.PRODUCTION) {
     Logger.log(`${url}`, 'NestApplication');
     Logger.log(`${url}/swagger`, 'NestApplication');
   }
@@ -136,13 +136,14 @@ async function shutdown() {
 }
 
 // catch app is closing
-process.on('exit', code => {
+process.on('exit', async code => {
   console.log(`About to exit with code: ${code}`);
 });
 
 // catch ctrl+c event and exit normally
-process.on('SIGINT', () => {
+process.on('SIGINT', async () => {
   console.log('SIGINT signal received.');
+  await app.close();
   shutdown();
 });
 
@@ -157,15 +158,9 @@ process.on('SIGUSR1', () => {
   console.log('Got SIGUSR1 signal.');
   shutdown();
 });
-process.on('SIGUSR2', () => {
+process.on('SIGUSR2', async () => {
   console.log('Got SIGUSR2 signal.');
+  await app.close();
   shutdown();
 });
-
-// catch uncaught exceptions
-// process.on('uncaughtException', err => {
-//   console.error('uncaughtException', err);
-//   shutdown();
-// });
-
 bootstrap();

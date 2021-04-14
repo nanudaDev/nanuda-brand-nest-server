@@ -252,15 +252,15 @@ export class PickcookUserService extends BaseService {
         'username',
         adminPickcookUserListDto.username,
         adminPickcookUserListDto.exclude('username'),
-      );
-    if (adminPickcookUserListDto.phone) {
-      qb.andWhere(`pickcookUser.phone like :phone`, {
-        phone: `%${adminPickcookUserListDto.phone}`,
-      });
-      delete adminPickcookUserListDto.phone;
-    }
-    qb.Paginate(pagination);
-    qb.WhereAndOrder(adminPickcookUserListDto);
+      )
+      .AndWhereLike(
+        'pickcookUser',
+        'phone',
+        adminPickcookUserListDto.phone,
+        adminPickcookUserListDto.exclude('phone'),
+      )
+      .Paginate(pagination)
+      .WhereAndOrder(adminPickcookUserListDto);
 
     const [items, totalCount] = await qb.getManyAndCount();
 

@@ -20,38 +20,23 @@ export class ErrorsInterceptor implements NestInterceptor {
     const req = ctx.getRequest<Request>();
     return next.handle().pipe(
       catchError(err => {
-        // if (err && err instanceof Error) {
-        //   console.log(err);
-        //   console.log('err.name', err.name);
-        //   console.log('err.message', err.message);
-        //   return throwError(new BadRequestException());
-        // }
-        const message = {
-          text: `PICKCOOK SERVER ERROR`,
-          attachments: [
-            {
-              // color: '#009900',
-              // actions: [
-              //   {
-              //     name: 'slack action button',
-              //     text: '신청서 상세보기',
-              //     type: 'button',
-              //     // TODO: once URL is set up
-              //     // url: `${process.env.ADMIN_BASEURL}delivery-founder-consult/${deliveryFounderConsult.no}`,
-              //     style: 'primary',
-              //   },
-              // ],
-              fields: [
-                {
-                  title: `PICKCOOK SERVER ERROR DETAILS`,
-                  value: `path: ${req.url}\nmethod: ${req.method}\nerror: ${err}`,
-                  short: false,
-                },
-              ],
-            },
-          ],
-        };
-        this.__send_slack(message);
+        if (!err.status || err.length < 1) {
+          const message = {
+            text: `PICKCOOK SERVER ERROR`,
+            attachments: [
+              {
+                fields: [
+                  {
+                    title: `PICKCOOK SERVER ERROR DETAILS`,
+                    value: `path: ${req.url}\nmethod: ${req.method}\nerror: ${err}`,
+                    short: false,
+                  },
+                ],
+              },
+            ],
+          };
+          this.__send_slack(message);
+        }
         return throwError(err);
       }),
     );

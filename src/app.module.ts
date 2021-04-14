@@ -4,16 +4,9 @@ import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule/dist/schedule.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { getMetadataArgsStorage } from 'typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import {
-  PickcookNotificationModule,
-  PickcookSlackNotificationService,
-} from './common/utils';
 import { TypeOrmConfigService } from './config';
 import { HttpExceptionFilter, ErrorsInterceptor } from './core';
 import {
-  AdminModule,
   AuthModule,
   CommonCodeModule,
   QuestionModule,
@@ -95,7 +88,6 @@ const env = process.env;
   ],
   controllers: [],
   providers: [
-    AppService,
     { provide: APP_FILTER, useClass: HttpExceptionFilter },
     { provide: APP_INTERCEPTOR, useClass: ErrorsInterceptor },
   ],

@@ -106,7 +106,7 @@ async function bootstrap() {
   // const document = SwaggerModule.createDocument(app, options);
 
   // SwaggerModule.setup('swagger', app, document);
-  await app.listen(4700);
+  await app.listen(process.env.SERVER_PORT);
 
   const url = await app.getUrl();
   if (process.env.NODE_ENV === ENVIRONMENT.DEVELOPMENT) {
@@ -166,8 +166,9 @@ process.on('SIGUSR1', () => {
   console.log('Got SIGUSR1 signal.');
   shutdown();
 });
-process.on('SIGUSR2', () => {
+process.on('SIGUSR2', async () => {
   console.log('Got SIGUSR2 signal.');
+  await app.close();
   shutdown();
 });
 bootstrap();

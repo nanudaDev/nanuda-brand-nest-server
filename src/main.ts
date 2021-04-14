@@ -35,16 +35,16 @@ async function bootstrap() {
   // only if npm run start:
   // await generate.generate;
   // await generate.generateKbCategory;
-  if (env !== ENVIRONMENT.PRODUCTION) {
-    console.log('Running in development mode. 개발 모드로 진행중');
-    app = await NestFactory.create<NestExpressApplication>(AppModule, {
-      logger: ['error', 'warn', 'debug'],
-    });
-  } else {
-    app = await NestFactory.create<NestExpressApplication>(AppModule, {
-      logger: true,
-    });
-  }
+  // if (env !== ENVIRONMENT.PRODUCTION) {
+  //   console.log('Running in development mode. 개발 모드로 진행중');
+  //   app = await NestFactory.create<NestExpressApplication>(AppModule, {});
+  // } else {
+  //   app = await NestFactory.create<NestExpressApplication>(AppModule, {
+  //     logger: true,
+  //   });
+  // }
+
+  app = await NestFactory.create<NestExpressApplication>(AppModule, {});
 
   app.use(urlencoded({ extended: true }));
   app.use(json({ limit: '50mb' }));

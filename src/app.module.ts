@@ -6,7 +6,11 @@ import { ScheduleModule } from '@nestjs/schedule/dist/schedule.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { getMetadataArgsStorage } from 'typeorm';
 import { PickcookMailerConfigService, TypeOrmConfigService } from './config';
-import { HttpExceptionFilter, ErrorsInterceptor } from './core';
+import {
+  HttpExceptionFilter,
+  ErrorsInterceptor,
+  LoggingInterceptor,
+} from './core';
 import {
   AuthModule,
   CommonCodeModule,
@@ -93,6 +97,7 @@ const env = process.env;
   providers: [
     { provide: APP_FILTER, useClass: HttpExceptionFilter },
     { provide: APP_INTERCEPTOR, useClass: ErrorsInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: LoggingInterceptor },
   ],
 })
 export class AppModule {}

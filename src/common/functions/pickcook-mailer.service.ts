@@ -55,5 +55,19 @@ export class PickcookMailerService extends BaseService {
     return await this.__send_mail(newOptions);
   }
 
+  /**
+   * welcome new user
+   * @param pickcookUser
+   * @returns
+   */
+  async withdrawPickcookUser(pickcookUser: PickcookUser) {
+    const newOptions = new EmailInputs();
+    newOptions.to = pickcookUser.email;
+    newOptions.subject = '탈퇴 메시지';
+    newOptions.template = '/pickcook-user/withdraw-pickcook-user';
+    newOptions.context = { pickcookUser };
+    return await this.__send_mail(newOptions);
+  }
+
   // reservation
 }

@@ -178,15 +178,28 @@ export class PickcookUserService extends BaseService {
    * hard delete user
    * @param id
    */
-  async hardDeleteUser(id: number) {
-    await getConnection()
-      .createQueryBuilder()
-      .AndWhereHardDelete('PickcookUser', `id`, id);
+  async hardDeleteUser(id: number): Promise<boolean> {
+    const user = await this.pickcookUserRepo.findOne(id);
+    if (!user) {
+      throw new BrandAiException('pickcookUser.notFound');
+    }
+    await this.entityManager.transaction(async entityManager => {
+      await getConnection()
+        .createQueryBuilder()
+        .AndWhereHardDelete('PickcookUser', `id`, id);
 
-    // delete user history
-    await getConnection()
-      .createQueryBuilder()
-      .AndWhereHardDelete('PickcookUserHistory', 'pickcookUserId', id);
+      // delete user history
+      await getConnection()
+        .createQueryBuilder()
+        .AndWhereHardDelete('PickcookUserHistory', 'pickcookUserId', id);
+    });
+
+    // await 탈퇴 이메일 또는 전화번호
+    if (user.email) {
+      await this.pickcookMailerService.withdrawPickcookUser(user);
+    }
+
+    return true;
   }
 
   /**

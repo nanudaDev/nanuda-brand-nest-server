@@ -12,7 +12,12 @@ import {
 import { PickcookUser } from './pickcook-user.entity';
 import { Request } from 'express';
 import { PickCookUserHistory } from '../pickcook-user-history/pickcook-user-history.entity';
-import { PaginatedRequest, PaginatedResponse, YN } from 'src/common';
+import {
+  PaginatedRequest,
+  PaginatedResponse,
+  PickcookMailerService,
+  YN,
+} from 'src/common';
 import { NanudaUser } from '../platform-module/nanuda-user/nanuda-user.entity';
 import { PasswordService } from '../auth';
 import { admin } from 'googleapis/build/src/apis/admin';
@@ -29,6 +34,7 @@ export class PickcookUserService extends BaseService {
     private readonly nanudaUserRepo: Repository<NanudaUser>,
     private readonly smsNotificationService: SmsNotificationService,
     private readonly passwordService: PasswordService,
+    private readonly pickcookMailerService: PickcookMailerService,
   ) {
     super();
   }
@@ -81,6 +87,10 @@ export class PickcookUserService extends BaseService {
       if (checkIfNanudaUser) newUser.isNanudaUser = YN.YES;
       if (adminId) newUser.adminId = adminId;
       newUser = await entityManager.save(newUser);
+      // send user email if email was provided
+      if (newUser.email) {
+        await this.pickcookMailerService.welcomePickcookUser(newUser);
+      }
       //   create history
       await this.__create_user_history(newUser);
       return newUser;

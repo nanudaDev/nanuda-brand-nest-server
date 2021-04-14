@@ -8,6 +8,7 @@ import {
   Param,
   ParseIntPipe,
   UseGuards,
+  Delete,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UserInfo } from 'src/common';
@@ -72,5 +73,20 @@ export class PickcookUserController extends BaseController {
   @Get('/pickcook-user/find-me')
   async findMe(@UserInfo() pickcookUser: PickcookUser): Promise<PickcookUser> {
     return await this.pickcookUserService.findOne(pickcookUser.id);
+  }
+
+  /**
+   * withdraw user
+   * 회원 탈퇴
+   * @param user
+   * @returns
+   */
+  @ApiBearerAuth()
+  @UseGuards(new AuthRolesGuard())
+  @Delete('/pickcook-user/withdraw')
+  async withdraw(@UserInfo() user: PickcookUser) {
+    return {
+      isDeleted: await this.pickcookUserService.hardDeleteUser(user.id),
+    };
   }
 }

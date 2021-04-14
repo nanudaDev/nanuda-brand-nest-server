@@ -109,6 +109,6 @@ export class AdminPickcookUserController extends BaseController {
    */
   @Delete('/admin/pickcook-user/:id([0-9]+)')
   async hardDelete(@Param('id', ParseIntPipe) id: number) {
-    return await this.pickcookUserService.hardDeleteUser(id);
+    return { isDeleted: await this.pickcookUserService.hardDeleteUser(id) };
   }
 }

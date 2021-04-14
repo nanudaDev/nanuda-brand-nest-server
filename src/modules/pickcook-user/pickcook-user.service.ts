@@ -252,18 +252,47 @@ export class PickcookUserService extends BaseService {
         'username',
         adminPickcookUserListDto.username,
         adminPickcookUserListDto.exclude('username'),
-      );
-    if (adminPickcookUserListDto.phone) {
-      qb.andWhere(`pickcookUser.phone like :phone`, {
-        phone: `%${adminPickcookUserListDto.phone}`,
-      });
-      delete adminPickcookUserListDto.phone;
-    }
-    qb.Paginate(pagination);
-    qb.WhereAndOrder(adminPickcookUserListDto);
+      )
+      .AndWhereLike(
+        'pickcookUser',
+        'phone',
+        adminPickcookUserListDto.phone,
+        adminPickcookUserListDto.exclude('phone'),
+      )
+      .Paginate(pagination)
+      .WhereAndOrder(adminPickcookUserListDto);
 
     const [items, totalCount] = await qb.getManyAndCount();
 
+    return { items, totalCount };
+  }
+
+  /**
+   * find one for admin
+   * @param id
+   * @returns
+   */
+  async findOne(id: number): Promise<PickcookUser> {
+    const user = await this.pickcookUserRepo.findOne(id);
+    if (!user) throw new BrandAiException('pickcookUser.notFound');
+    return user;
+  }
+
+  /**
+   * find all history for admin
+   * @param id
+   * @param pagination
+   * @returns
+   */
+  async findAllHistories(
+    id: number,
+    pagination: PaginatedRequest,
+  ): Promise<PaginatedResponse<PickCookUserHistory>> {
+    const qb = this.pickcookUserHistoryRepo
+      .createQueryBuilder('history')
+      .where('history.pickcookUserId = :pickcookUserId', { pickcookUserId: id })
+      .Paginate(pagination);
+    const [items, totalCount] = await qb.getManyAndCount();
     return { items, totalCount };
   }
 

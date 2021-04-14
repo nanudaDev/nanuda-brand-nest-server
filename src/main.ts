@@ -35,10 +35,10 @@ async function bootstrap() {
   // only if npm run start:
   // await generate.generate;
   // await generate.generateKbCategory;
-  if (env === ENVIRONMENT.DEVELOPMENT) {
+  if (env !== ENVIRONMENT.PRODUCTION) {
     console.log('Running in development mode. 개발 모드로 진행중');
     app = await NestFactory.create<NestExpressApplication>(AppModule, {
-      // logger: true
+      logger: ['error', 'warn', 'debug'],
     });
   } else {
     app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -97,19 +97,11 @@ async function bootstrap() {
     const document = SwaggerModule.createDocument(app, options);
     SwaggerModule.setup('swagger', app, document);
   }
-  // const options = new DocumentBuilder()
-  //   .setTitle(packageInfo.name.toUpperCase())
-  //   .setDescription(packageInfo.description)
-  //   .setVersion(packageInfo.version)
-  //   .addBearerAuth()
-  //   .build();
-  // const document = SwaggerModule.createDocument(app, options);
 
-  // SwaggerModule.setup('swagger', app, document);
   await app.listen(process.env.SERVER_PORT);
 
   const url = await app.getUrl();
-  if (process.env.NODE_ENV === ENVIRONMENT.DEVELOPMENT) {
+  if (process.env.NODE_ENV !== ENVIRONMENT.PRODUCTION) {
     Logger.log(`${url}`, 'NestApplication');
     Logger.log(`${url}/swagger`, 'NestApplication');
   }

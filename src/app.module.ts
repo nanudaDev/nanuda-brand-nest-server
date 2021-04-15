@@ -26,6 +26,7 @@ import {
   ReservationModule,
   BatchReservationModule,
   PickcookUserModule,
+  FileUploadModule,
 } from './modules';
 const env = process.env;
 @Module({
@@ -84,6 +85,7 @@ const env = process.env;
     CommonCodeModule,
     CodeHdongModule,
     ConsultResultModule,
+    FileUploadModule,
     QuestionModule,
     LocationAnalysisModule,
     MenuAnalysisModule,

@@ -20,7 +20,6 @@ import {
 } from 'src/common';
 import { NanudaUser } from '../platform-module/nanuda-user/nanuda-user.entity';
 import { PasswordService } from '../auth';
-import { admin } from 'googleapis/build/src/apis/admin';
 
 @Injectable()
 export class PickcookUserService extends BaseService {

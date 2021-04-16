@@ -14,6 +14,7 @@ export * from './sms-notification/sms-notification.module';
 export * from './pickcook-user/pickcook-user.module';
 export * from './proforma-consult-result/proforma-consult-result.module';
 export * from './reservation/reservation.module';
+export * from './global/global.module';
 
 // batch modules
 export * from '../batch-process';

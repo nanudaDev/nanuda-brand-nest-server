@@ -141,9 +141,8 @@ process.on('exit', async code => {
 });
 
 // catch ctrl+c event and exit normally
-process.on('SIGINT', async () => {
+process.on('SIGINT', () => {
   console.log('SIGINT signal received.');
-  await app.close();
   shutdown();
 });
 
@@ -158,9 +157,9 @@ process.on('SIGUSR1', () => {
   console.log('Got SIGUSR1 signal.');
   shutdown();
 });
-process.on('SIGUSR2', async () => {
+process.on('SIGUSR2', () => {
   console.log('Got SIGUSR2 signal.');
-  await app.close();
+
   shutdown();
 });
 bootstrap();

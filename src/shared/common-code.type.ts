@@ -13,6 +13,14 @@ export enum ADMIN_ROLES {
 }
 export const CONST_ADMIN_ROLES  = Object.values(ADMIN_ROLES);
 
+export enum SERVICE_STATUS {
+  ARCHIVED = 'ARCHIVED',
+  COMPLETE = 'COMPLETE',
+  ONGOING = 'ONGOING',
+  RESOLVED = 'RESOLVED',
+}
+export const CONST_SERVICE_STATUS  = Object.values(SERVICE_STATUS);
+
 export enum KB_MEDIUM_CATEGORY {
   F01 = 'F01',
   F12 = 'F12',
@@ -32,6 +40,13 @@ export enum OPERATION_TIME {
   LUNCH = 'LUNCH',
 }
 export const CONST_OPERATION_TIME  = Object.values(OPERATION_TIME);
+
+export enum SITE_IN_CONSTRUCTION {
+  BUG_FIX = 'BUG_FIX',
+  REGULAR_UPDATE = 'REGULAR_UPDATE',
+  SERVICE_UPDATE = 'SERVICE_UPDATE',
+}
+export const CONST_SITE_IN_CONSTRUCTION  = Object.values(SITE_IN_CONSTRUCTION);
 
 export enum BRAND_CONSULT {
   CONSULT_CANNOT_CONTACT = 'CONSULT_CANNOT_CONTACT',

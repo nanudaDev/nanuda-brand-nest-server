@@ -48,5 +48,8 @@
         "usernameTaken": "이미 사용중인 사용자명입니다",
         "emailTaken": "이미 가입된 이메일 계정입니다. 로그인 해주세요",
         "phoneTaken": "이미 가입된 휴대폰 번호입니다. 로그인 해주세요"
+    },
+    "global": {
+        "notFound": "Could not find requested ticket"
     }
 }

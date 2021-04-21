@@ -189,7 +189,7 @@ export class QuestionService extends BaseService {
         let newQuestionTracker = new QuestionTracker(questionAnsweredDto);
         newQuestionTracker.userType = answeredQuestion.userType;
         newQuestionTracker = await entityManager.save(newQuestionTracker);
-        let findNextQuestion = this.questionRepo
+        const findNextQuestion = this.questionRepo
           .createQueryBuilder('question')
           .CustomInnerJoinAndSelect(['commonCode', 'givens'])
           .leftJoinAndSelect('givens.givenDetails', 'givenDetails')

@@ -49,6 +49,10 @@
         "emailTaken": "이미 가입된 이메일 계정입니다. 로그인 해주세요",
         "phoneTaken": "이미 가입된 휴대폰 번호입니다. 로그인 해주세요"
     },
+    "popup": {
+        "notFound": "Popup not found",
+        "imageUploadFailed": "Failed to upload image(s) for popup"
+    },
     "global": {
         "notFound": "Could not find requested ticket"
     }

@@ -1,14 +1,10 @@
+import { BaseWqEntity } from 'src/core';
 import { KB_FOOD_CATEGORY } from 'src/shared';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { KbOfflineSpacePurchaseRecord } from './kb-offline-space-purchase-record.entity';
 
 @Entity({ name: 'kb_category_info' })
-export class KbCategoryInfo {
-  @PrimaryGeneratedColumn({
-    unsigned: true,
-  })
-  id: number;
-
+export class KbCategoryInfo extends BaseWqEntity<KbCategoryInfo> {
   @Column({
     name: 's_small_category_cd',
     type: 'varchar',

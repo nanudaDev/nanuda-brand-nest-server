@@ -75,6 +75,7 @@ export class CodeHdongService extends BaseService {
    * find all
    * @param codeHdongListDto
    */
+  // 일단 개포 1동 제거
   async findAllDongs(codeHdongListDto: CodeHdongListDto): Promise<CodeHdong[]> {
     const qb = this.codeHdongRepo
       .createQueryBuilder('codeHdong')
@@ -89,6 +90,7 @@ export class CodeHdongService extends BaseService {
       .andWhere('codeHdong.sidoName = :sidoName', {
         sidoName: codeHdongListDto.sidoName,
       })
+      .andWhere('codeHdong.hdongCode != 1168066000')
       .AndWhereLike(
         'codeHdong',
         'guName',

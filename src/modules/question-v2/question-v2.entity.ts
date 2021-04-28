@@ -1,6 +1,6 @@
 import { YN } from 'src/common';
 import { BaseEntity } from 'src/core';
-import { FNB_OWNER } from 'src/shared';
+import { FNB_OWNER, QUESTION_TYPE } from 'src/shared';
 import {
   Column,
   Entity,
@@ -11,6 +11,7 @@ import {
   JoinTable,
 } from 'typeorm';
 import { CommonCode } from '../common-code/common-code.entity';
+import { QuestionGivenV2 } from '../question-given-v2/question-given-v2.entity';
 
 @Entity({ name: 'question_v2' })
 export class QuestionV2 extends BaseEntity<QuestionV2> {
@@ -26,6 +27,12 @@ export class QuestionV2 extends BaseEntity<QuestionV2> {
     type: 'varchar',
   })
   userType: FNB_OWNER;
+
+  @Column({
+    name: 'question_type',
+    nullable: false,
+  })
+  questionType: QUESTION_TYPE;
 
   @Column({
     type: 'int',
@@ -91,4 +98,10 @@ export class QuestionV2 extends BaseEntity<QuestionV2> {
   @OneToOne(type => CommonCode)
   @JoinColumn({ name: 'user_type', referencedColumnName: 'key' })
   commonCode?: CommonCode;
+
+  @OneToMany(
+    type => QuestionGivenV2,
+    givens => givens.question,
+  )
+  givens?: QuestionGivenV2[];
 }

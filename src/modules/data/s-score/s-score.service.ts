@@ -18,5 +18,38 @@ export class SScoreService extends BaseService {
     super();
   }
 
-  //   async findAll(sScoreListDto: SScoreListDto, tableType: RESTAURANT_TYPE): Promise<>
+  /**
+   * find best three menus
+   * @param sScoreListDto
+   * @param restaurantType
+   * @returns
+   */
+  async findAll(
+    sScoreListDto: SScoreListDto,
+    restaurantType: RESTAURANT_TYPE,
+  ): Promise<SScoreDelivery[] | SScoreRestaurant[]> {
+    let qb;
+    if (restaurantType === RESTAURANT_TYPE.RESTAURANT) {
+      qb = this.scoreRestaurantRepo
+        .createQueryBuilder('restaurant')
+        .CustomInnerJoinAndSelect(['attributeValues'])
+        .andWhere('restaurant.hdongCode = :hdongCode', {
+          hdongCode: sScoreListDto.hdongCode,
+        })
+        .limit(3)
+        .getMany();
+    }
+    if (restaurantType === RESTAURANT_TYPE.DELIVERY) {
+      qb = this.scoreDeliveryRepo
+        .createQueryBuilder('restaurant')
+        .CustomInnerJoinAndSelect(['attributeValues'])
+        .andWhere('restaurant.hdongCode = :hdongCode', {
+          hdongCode: sScoreListDto.hdongCode,
+        })
+        .limit(3)
+        .getMany();
+    }
+
+    return await qb;
+  }
 }

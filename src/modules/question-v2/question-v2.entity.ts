@@ -99,6 +99,10 @@ export class QuestionV2 extends BaseEntity<QuestionV2> {
   @JoinColumn({ name: 'user_type', referencedColumnName: 'key' })
   commonCode?: CommonCode;
 
+  @OneToOne(type => CommonCode)
+  @JoinColumn({ name: 'question_type', referencedColumnName: 'key' })
+  questionTypeValue?: CommonCode;
+
   @OneToMany(
     type => QuestionGivenV2,
     givens => givens.question,

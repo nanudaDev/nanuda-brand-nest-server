@@ -16,5 +16,8 @@ export * from './proforma-consult-result/proforma-consult-result.module';
 export * from './reservation/reservation.module';
 export * from './global/global.module';
 
+// version 2 modules
+export * from './question-v2/question-v2.module';
+
 // batch modules
 export * from '../batch-process';

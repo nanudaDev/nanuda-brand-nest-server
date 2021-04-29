@@ -1,5 +1,6 @@
 import { BaseWqEntity } from 'src/core';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import { SScoreAttributeValuesDelivery } from './s-score-attribute-values-delivery.entity';
 
 @Entity({ name: 'pickcook_s_score_delivery' })
 export class SScoreDelivery extends BaseWqEntity<SScoreDelivery> {
@@ -72,4 +73,14 @@ export class SScoreDelivery extends BaseWqEntity<SScoreDelivery> {
     type: 'bigint',
   })
   rankByHdong: string;
+
+  // no column needed
+  appliedCScoreRanking?: number;
+
+  @OneToOne(type => SScoreAttributeValuesDelivery)
+  @JoinColumn({
+    name: 'sSmallCategoryCode',
+    referencedColumnName: 'sSmallCategoryCode',
+  })
+  attributeValues?: SScoreAttributeValuesDelivery;
 }

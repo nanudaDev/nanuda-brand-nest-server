@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
-import { throws } from 'assert';
 import { RESTAURANT_TYPE, YN } from 'src/common';
 import { BaseService, BrandAiException } from 'src/core';
 import { FNB_OWNER, QUESTION_TYPE } from 'src/shared';
@@ -17,6 +16,7 @@ import { QuestionV2Tracker } from '../question-tracker-v2/question-tracker-v2.en
 import { QuestionV2 } from '../question-v2/question-v2.entity';
 import { ProformaConsultResultV2QueryDto } from './dto';
 import { ProformaConsultResultV2 } from './proforma-consult-result-v2.entity';
+import Axios from 'axios';
 
 class CScoreAggregateClass {
   menuscore: number;
@@ -70,15 +70,15 @@ export class ProformaConsultResultV2Service extends BaseService {
       if (deliveryRatioData[key].deliveryRatio === null) {
         deliveryRatioData[key].deliveryRatio = 0;
       }
-      if (
-        deliveryRatioData[key] === 'F05' ||
-        deliveryRatioData[key] === 'F08' ||
-        deliveryRatioData[key] === 'F09' ||
-        deliveryRatioData[key] === 'F13' ||
-        deliveryRatioData[key] === 'F03'
-      ) {
-        delete deliveryRatioData[key];
-      }
+      // if (
+      //   deliveryRatioData[key] === 'F05' ||
+      //   deliveryRatioData[key] === 'F08' ||
+      //   deliveryRatioData[key] === 'F09' ||
+      //   deliveryRatioData[key] === 'F13' ||
+      //   deliveryRatioData[key] === 'F03'
+      // ) {
+      //   delete deliveryRatioData[key];
+      // }
       averageRatioArray.push(deliveryRatioData[key].deliveryRatio);
     });
     const average = Math.ceil(
@@ -103,7 +103,7 @@ export class ProformaConsultResultV2Service extends BaseService {
       RESTAURANT_TYPE.RESTAURANT,
     );
     const appliedCScore = await this.__apply_c_score(
-      average < 40 ? sScoreRestaurant : sScoreDelivery,
+      average < 30 ? sScoreRestaurant : sScoreDelivery,
       questionScores,
       cScoreAttributeValue,
       proformaConsultResultQueryDto.fnbOwnerStatus,
@@ -224,7 +224,7 @@ export class ProformaConsultResultV2Service extends BaseService {
     if (sScoreData && sScoreData.length < 1)
       throw new BrandAiException('proforma.notEnoughData');
     await Promise.all(
-      sScoreData.map(data => {
+      sScoreData.map(async data => {
         const menuPercentageGrade = Math.ceil(
           (questionScore.menuscore /
             (userType === FNB_OWNER.CUR_FNB_OWNER
@@ -261,6 +261,33 @@ export class ProformaConsultResultV2Service extends BaseService {
 
         data.appliedCScoreRanking = finalScore;
         data.appliedReductionScore = data.averageScore - finalScore;
+        // const highestPossibleRevenue = await Axios.get(
+        //   `${this.analysisUrl}location-small-category-revenue-by-quarter`,
+        //   {
+        //     params: {
+        //       hdongCode: data.hdongCode,
+        //       sSmallCategoryCode: data.sSmallCategoryCode,
+        //     },
+        //   },
+        // );
+        // if (data instanceof SScoreDelivery) {
+        //   data.estimatedHighestRevenue = highestPossibleRevenue.data;
+        // }
+        // if (data instanceof SScoreRestaurant) {
+        //   const previousQuarterRevenue = await Axios.get(
+        //     `${this.analysisUrl}location-small-category-revenue-by-last-quarter`,
+        //     {
+        //       params: {
+        //         hdongCode: data.hdongCode,
+        //         sSmallCategoryCode: data.sSmallCategoryCode,
+        //       },
+        //     },
+        //   );
+        //   data.estimatedIncreasedRevenuePercentage =
+        //     highestPossibleRevenue.data /
+        //     previousQuarterRevenue.data /
+        //     previousQuarterRevenue.data;
+        // }
       }),
     );
     // sort by applied ranking

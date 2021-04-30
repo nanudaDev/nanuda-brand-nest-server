@@ -22,6 +22,7 @@ import { ResponseArrayClass } from '../aggregate-result-response/aggregate-resul
 import { Question } from '../question/question.entity';
 import { CScoreAttribute } from '../data';
 import { Json } from 'aws-sdk/clients/robomaker';
+import { YN } from 'src/common';
 
 @Entity({ name: 'proforma_consult_result_v2' })
 export class ProformaConsultResultV2 extends BaseEntity<
@@ -83,6 +84,13 @@ export class ProformaConsultResultV2 extends BaseEntity<
     type: 'json',
   })
   deliveryRatioData: any;
+
+  @Column({
+    name: 'is_consult_yn',
+    type: 'char',
+    default: () => YN.NO,
+  })
+  isConsultYn?: YN;
 
   @OneToOne(type => CommonCode)
   @JoinColumn({ name: 'fnb_owner_status', referencedColumnName: 'key' })

@@ -83,6 +83,13 @@ export class SScoreRestaurant extends BaseWqEntity<SScoreRestaurant> {
   // previous ranking
   appliedNewRanking?: number;
 
+  // no column
+  // create column when banking
+  estimatedHighestRevenue?: number;
+
+  // increased from previous quarter
+  estimatedIncreasedRevenuePercentage?: number;
+
   // 기속성 값 테이블 조인
   @OneToOne(type => SScoreAttributeValuesRestaurant)
   @JoinColumn({

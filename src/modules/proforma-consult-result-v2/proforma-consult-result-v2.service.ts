@@ -81,8 +81,9 @@ export class ProformaConsultResultV2Service extends BaseService {
       }
       averageRatioArray.push(deliveryRatioData[key].deliveryRatio);
     });
-    const average =
-      averageRatioArray.reduce((a, b) => a + b) / averageRatioArray.length;
+    const average = Math.ceil(
+      averageRatioArray.reduce((a, b) => a + b) / averageRatioArray.length,
+    );
     console.log(average, 'average');
     const hdong = await this.codeHdongService.findOneByCode(
       proformaConsultResultQueryDto.hdongCode,
@@ -224,24 +225,28 @@ export class ProformaConsultResultV2Service extends BaseService {
       throw new BrandAiException('proforma.notEnoughData');
     await Promise.all(
       sScoreData.map(data => {
-        const menuPercentageGrade =
+        const menuPercentageGrade = Math.ceil(
           (questionScore.menuscore /
             (userType === FNB_OWNER.CUR_FNB_OWNER
               ? cScoreAttributeValid.curHighestMenuScore
               : cScoreAttributeValid.newHighestMenuScore)) *
-          100;
+            100,
+        );
         const operatingPercentageGrade =
           (questionScore.operationScore /
-            (userType === FNB_OWNER.CUR_FNB_OWNER
-              ? cScoreAttributeValid.curHighestManagingScore
-              : cScoreAttributeValid.newHighestManagingScore)) *
+            Math.ceil(
+              userType === FNB_OWNER.CUR_FNB_OWNER
+                ? cScoreAttributeValid.curHighestManagingScore
+                : cScoreAttributeValid.newHighestManagingScore,
+            )) *
           100;
-        const initialCostPercentageGrade =
+        const initialCostPercentageGrade = Math.ceil(
           (questionScore.initialCostScore /
             (userType === FNB_OWNER.CUR_FNB_OWNER
               ? cScoreAttributeValid.curHighestInitialCostScore
               : cScoreAttributeValid.newHighestInitialCostScore)) *
-          100;
+            100,
+        );
         const finalScore =
           data.averageScore -
           cScoreAttributeValid.multiplier *

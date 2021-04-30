@@ -132,7 +132,7 @@ export class ProformaConsultResultV2Service extends BaseService {
     const response = new ProformaConsultV2ResponseClass();
     response.menuRecommedations = appliedCScore;
     response.deliveryRatio = average;
-    return response;
+    return newProforma;
   }
 
   /**

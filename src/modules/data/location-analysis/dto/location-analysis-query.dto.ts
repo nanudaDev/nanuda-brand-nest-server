@@ -7,7 +7,7 @@ export class LocationAnalysisDto {
   @ApiProperty()
   @IsNotEmpty({ message: '행정동을 전송해주세요.' })
   @Expose()
-  hdongCode: string;
+  hdongCode: string | number;
 
   @ApiPropertyOptional()
   @IsOptional()

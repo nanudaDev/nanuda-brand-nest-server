@@ -28,6 +28,9 @@ import {
   PickcookUserModule,
   FileUploadModule,
   GlobalModule,
+  SScoreModule,
+  QuestionV2Module,
+  ProformaConsultResultV2Module,
 } from './modules';
 const env = process.env;
 @Module({
@@ -80,8 +83,7 @@ const env = process.env;
       synchronize: false,
     }),
     AuthModule,
-    FaqModule,
-    // AdminModule,
+    // FaqModule,
     AggregateResultResponseModule,
     CommonCodeModule,
     CodeHdongModule,
@@ -96,6 +98,11 @@ const env = process.env;
     ResultResponseModule,
     ReservationModule,
     BatchReservationModule,
+    // Version 2 Modules
+    QuestionV2Module,
+    ProformaConsultResultV2Module,
+    // S-Score Module
+    SScoreModule,
   ],
   controllers: [],
   providers: [

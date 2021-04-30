@@ -14,6 +14,7 @@ import {
 } from 'class-validator';
 import { Default } from 'src/common';
 import { BaseDto } from 'src/core';
+import { QuestionGivenV2 } from 'src/modules/question-given-v2/question-given-v2.entity';
 import {
   AGE_GROUP,
   DELIVERY_OR_RESTAURANT,
@@ -36,6 +37,8 @@ export class QuestionGivenArrayClass extends BaseDto<QuestionGivenArrayClass> {
   @IsNotEmpty()
   @Expose()
   givenId: number[];
+
+  given?: QuestionGivenV2;
 }
 
 export class AggregateResultResponseQueryDto
@@ -82,7 +85,7 @@ export class AggregateResultResponseQueryDto
   @IsNotEmpty()
   @Expose()
   @Default('1168051000')
-  hdongCode: string;
+  hdongCode: number | string;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -101,16 +104,4 @@ export class AggregateResultResponseQueryDto
   @Type(() => QuestionGivenArrayClass)
   @Expose()
   questionGivenArray: QuestionGivenArrayClass[];
-
-  // @ApiProperty()
-  // @IsNotEmpty()
-  // @MinLength(2)
-  // @Expose()
-  // name: string;
-
-  // @ApiProperty()
-  // @IsNotEmpty()
-  // @IsPhoneNumber('KR')
-  // @Expose()
-  // phone: string;
 }

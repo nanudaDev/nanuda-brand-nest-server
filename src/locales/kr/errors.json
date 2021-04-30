@@ -25,7 +25,8 @@
         "tooManyOptions": "보기 하나만 선택할 수 있습니다"
     },
     "proforma": {
-        "notFound":"Proforma not found"
+        "notFound":"Proforma not found",
+        "notEnoughData": "Not enough S-Score data"
     },
     "response": {
         "notFound": "결과가 없습니다"
@@ -48,6 +49,10 @@
         "usernameTaken": "이미 사용중인 사용자명입니다",
         "emailTaken": "이미 가입된 이메일 계정입니다. 로그인 해주세요",
         "phoneTaken": "이미 가입된 휴대폰 번호입니다. 로그인 해주세요"
+    },
+    "popup": {
+        "notFound": "Popup not found",
+        "imageUploadFailed": "Failed to upload image(s) for popup"
     },
     "global": {
         "notFound": "Could not find requested ticket"

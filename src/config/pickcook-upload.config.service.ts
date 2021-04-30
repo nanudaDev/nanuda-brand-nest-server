@@ -2,6 +2,7 @@ require('dotenv').config();
 export enum PICKCOOK_UPLOAD_TYPE {
   LOCATION_ANALYSIS = 'location-analysis',
   RESOURCE = 'resource',
+  POPUP = 'popup',
 }
 
 export enum ACL {
@@ -57,12 +58,17 @@ export class PickcookUploadConfigService {
 
   public readonly bucketTypes: UploadOptionConfig = {
     [PICKCOOK_UPLOAD_TYPE.LOCATION_ANALYSIS]: {
-      path: 'amenity',
+      path: 'location-analysis',
       sizeLimit: 1024 * 1024 * 10,
       fileType: FileType.DOCUMENT,
     },
     [PICKCOOK_UPLOAD_TYPE.RESOURCE]: {
-      path: 'amenity',
+      path: 'resource',
+      sizeLimit: 1024 * 1024 * 10,
+      fileType: FileType.DOCUMENT,
+    },
+    [PICKCOOK_UPLOAD_TYPE.POPUP]: {
+      path: 'popup',
       sizeLimit: 1024 * 1024 * 10,
       fileType: FileType.DOCUMENT,
     },

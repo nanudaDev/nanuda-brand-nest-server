@@ -18,6 +18,18 @@ export class QuestionProformaMapperV2 extends BaseMapperEntity<
   })
   questionId: number;
 
+  @Column({
+    name: 'given_id',
+    type: 'json',
+  })
+  givenId: number[];
+
+  @Column({
+    name: 'ip_address',
+    type: 'varchar',
+  })
+  ipAddress: string;
+
   @OneToMany(
     type => QuestionProformaGivenMapper,
     givenMapper => givenMapper.questionProformaMapper,

@@ -21,6 +21,7 @@ import { CommonCode } from '../common-code/common-code.entity';
 import { ResponseArrayClass } from '../aggregate-result-response/aggregate-result-resource.service';
 import { Question } from '../question/question.entity';
 import { CScoreAttribute } from '../data';
+import { Json } from 'aws-sdk/clients/robomaker';
 
 @Entity({ name: 'proforma_consult_result_v2' })
 export class ProformaConsultResultV2 extends BaseEntity<
@@ -70,6 +71,18 @@ export class ProformaConsultResultV2 extends BaseEntity<
     type: 'decimal',
   })
   totalQuestionInitialCostScore: number;
+
+  @Column({
+    name: 'rank_data_w_c_score',
+    type: 'json',
+  })
+  rankDataWCScore: any;
+
+  @Column({
+    name: 'delivery_ratio_data',
+    type: 'json',
+  })
+  deliveryRatioData: any;
 
   @OneToOne(type => CommonCode)
   @JoinColumn({ name: 'fnb_owner_status', referencedColumnName: 'key' })

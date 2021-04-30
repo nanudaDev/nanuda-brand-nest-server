@@ -67,7 +67,7 @@ export class SScoreDelivery extends BaseWqEntity<SScoreDelivery> {
   @Column({
     type: 'bigint',
   })
-  averageScore: string;
+  averageScore: number;
 
   @Column({
     type: 'bigint',
@@ -76,6 +76,11 @@ export class SScoreDelivery extends BaseWqEntity<SScoreDelivery> {
 
   // no column needed
   appliedCScoreRanking?: number;
+
+  // c score 반영 후 절감 점수
+  appliedReductionScore?: number;
+
+  appliedNewRanking?: number;
 
   @OneToOne(type => SScoreAttributeValuesDelivery)
   @JoinColumn({

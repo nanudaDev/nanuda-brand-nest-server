@@ -25,7 +25,8 @@
         "tooManyOptions": "보기 하나만 선택할 수 있습니다"
     },
     "proforma": {
-        "notFound":"Proforma not found"
+        "notFound":"Proforma not found",
+        "notEnoughData": "Not enough S-Score data"
     },
     "response": {
         "notFound": "결과가 없습니다"

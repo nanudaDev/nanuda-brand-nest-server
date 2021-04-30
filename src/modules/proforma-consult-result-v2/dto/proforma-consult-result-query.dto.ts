@@ -5,6 +5,7 @@ import {
   arrayMinSize,
   IsArray,
   IsEnum,
+  IsIP,
   IsNotEmpty,
   IsOptional,
   IsPhoneNumber,
@@ -38,19 +39,26 @@ export class ProformaConsultResultV2QueryDto
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
-  @Default('1168051000')
-  hdongCode: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @Expose()
-  hdongName?: string;
+  //   @Default('1168051000')
+  hdongCode: number;
 
   @ApiPropertyOptional({ enum: KB_MEDIUM_CATEGORY })
   @IsOptional()
   @Expose()
   //   @Default(KB_MEDIUM_CATEGORY.F01)
   selectedKbMediumCategory?: KB_MEDIUM_CATEGORY;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Expose()
+  @IsIP()
+  ipAddress?: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @Expose()
+  @Default('IS IN DEVELOPMENT')
+  uniqueSessionId: string;
 
   @ApiProperty({ type: [QuestionGivenArrayClass] })
   @IsArray()

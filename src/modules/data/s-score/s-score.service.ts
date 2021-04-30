@@ -25,7 +25,7 @@ export class SScoreService extends BaseService {
    * @returns
    */
   async findAll(
-    sScoreListDto: SScoreListDto,
+    hdongCode: number,
     restaurantType: RESTAURANT_TYPE,
   ): Promise<SScoreDelivery[] | SScoreRestaurant[]> {
     let qb;
@@ -34,7 +34,7 @@ export class SScoreService extends BaseService {
         .createQueryBuilder('restaurant')
         .CustomInnerJoinAndSelect(['attributeValues'])
         .andWhere('restaurant.hdongCode = :hdongCode', {
-          hdongCode: sScoreListDto.hdongCode,
+          hdongCode: hdongCode,
         })
         .limit(3)
         .getMany();
@@ -44,7 +44,7 @@ export class SScoreService extends BaseService {
         .createQueryBuilder('restaurant')
         .CustomInnerJoinAndSelect(['attributeValues'])
         .andWhere('restaurant.hdongCode = :hdongCode', {
-          hdongCode: sScoreListDto.hdongCode,
+          hdongCode: hdongCode,
         })
         .limit(3)
         .getMany();

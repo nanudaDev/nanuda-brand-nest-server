@@ -98,7 +98,7 @@ export class QuestionService extends BaseService {
         'question',
         'inUse',
         adminQuestionListDto.inUse,
-        adminQuestionListDto.exclude('inUser'),
+        adminQuestionListDto.exclude('inUse'),
       )
       .AndWhereEqual(
         'question',

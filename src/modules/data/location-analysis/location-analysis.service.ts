@@ -86,7 +86,7 @@ export class LocationAnalysisService extends BaseService {
    * 비중
    * @param hdongCode
    */
-  async locationInfoDetail(hdongCode: string) {
+  async locationInfoDetail(hdongCode: string | number) {
     const data = await Axios.get(`${this.analysisUrl}location-info-detail`, {
       params: { hdongCode: hdongCode },
     });
@@ -97,7 +97,10 @@ export class LocationAnalysisService extends BaseService {
    * location medium small category
    * @param hdongCode
    */
-  async locationMediumSmallCategory(hdongCode: string) {
+  async locationMediumSmallCategory(hdongCode: string | number) {
+    if (typeof hdongCode === 'number') {
+      hdongCode = hdongCode.toString(hdongCode);
+    }
     const hdongFirstTwoStrings = hdongCode.substring(0, 2);
     console.log(hdongFirstTwoStrings);
     // IF 제주 IS OFF

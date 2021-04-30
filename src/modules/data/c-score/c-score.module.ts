@@ -7,6 +7,6 @@ import { CScoreService } from './c-score.service';
   imports: [TypeOrmModule.forFeature([CScoreAttribute])],
   controllers: [],
   providers: [CScoreService],
-  exports: [],
+  exports: [CScoreService],
 })
 export class CScoreAttributeModule {}

@@ -18,6 +18,7 @@ export * from './global/global.module';
 
 // version 2 modules
 export * from './question-v2/question-v2.module';
+export * from './proforma-consult-result-v2/proforma-consult-result-v2.module';
 
 // batch modules
 export * from '../batch-process';

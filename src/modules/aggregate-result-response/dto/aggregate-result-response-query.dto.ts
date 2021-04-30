@@ -85,7 +85,7 @@ export class AggregateResultResponseQueryDto
   @IsNotEmpty()
   @Expose()
   @Default('1168051000')
-  hdongCode: string;
+  hdongCode: number | string;
 
   @ApiPropertyOptional()
   @IsOptional()

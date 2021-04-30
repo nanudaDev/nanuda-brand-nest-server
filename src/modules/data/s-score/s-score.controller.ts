@@ -23,7 +23,7 @@ export class SScoreController extends BaseController {
     @Query() sScoreListDto: SScoreListDto,
   ): Promise<SScoreRestaurant[]> {
     return await this.sScoreService.findAll(
-      sScoreListDto,
+      sScoreListDto.hdongCode,
       RESTAURANT_TYPE.RESTAURANT,
     );
   }
@@ -38,7 +38,7 @@ export class SScoreController extends BaseController {
     @Query() sScoreListDto: SScoreListDto,
   ): Promise<SScoreRestaurant[]> {
     return await this.sScoreService.findAll(
-      sScoreListDto,
+      sScoreListDto.hdongCode,
       RESTAURANT_TYPE.DELIVERY,
     );
   }

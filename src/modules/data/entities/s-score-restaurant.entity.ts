@@ -67,7 +67,7 @@ export class SScoreRestaurant extends BaseWqEntity<SScoreRestaurant> {
   @Column({
     type: 'bigint',
   })
-  averageScore: string;
+  averageScore: number;
 
   @Column({
     type: 'bigint',
@@ -76,6 +76,12 @@ export class SScoreRestaurant extends BaseWqEntity<SScoreRestaurant> {
 
   // no column needed
   appliedCScoreRanking?: number;
+
+  // c score 반영 후 절감 점수
+  appliedReductionScore?: number;
+
+  // previous ranking
+  appliedNewRanking?: number;
 
   // 기속성 값 테이블 조인
   @OneToOne(type => SScoreAttributeValuesRestaurant)

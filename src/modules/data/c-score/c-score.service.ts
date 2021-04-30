@@ -83,7 +83,7 @@ export class CScoreService extends BaseService {
   async findValid(): Promise<CScoreAttribute> {
     const cScoreAttribute = await this.cScoreAttributeRepo
       .createQueryBuilder('cScore')
-      .where('cScore.inUse = :inUser', { inUse: YN.YES })
+      .where('cScore.inUse = :inUse', { inUse: YN.YES })
       .orderBy('cScore.id', ORDER_BY_VALUE.DESC)
       .limit(1)
       .getMany();

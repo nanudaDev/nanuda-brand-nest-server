@@ -2,11 +2,10 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { IsNotEmpty, IsPhoneNumber } from 'class-validator';
 import { BaseDto } from 'src/core';
-import { ConsultResult } from '../consult-result.entity';
+import { ConsultResultV2 } from '../consult-result-v2.entity';
 
-export class ConsultResultResponseCreateDto
-  extends BaseDto<ConsultResultResponseCreateDto>
-  implements Partial<ConsultResult> {
+export class ConsultResultV2CreateDto extends BaseDto<ConsultResultV2CreateDto>
+  implements Partial<ConsultResultV2> {
   @ApiProperty()
   @IsNotEmpty()
   @Expose()

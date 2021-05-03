@@ -3,7 +3,7 @@ import { BaseUserEntity } from 'src/core';
 import { ACCOUNT_STATUS } from 'src/shared';
 import { Column, Entity, OneToMany } from 'typeorm';
 import { PlatformAdmin } from '../admin/platform-admin.entity';
-import { ConsultResultReport } from '../consult-result-report/consult-result-report.entity';
+// import { ConsultResultReport } from '../consult-result-report/consult-result-report.entity';
 import { PickCookUserHistory } from '../pickcook-user-history/pickcook-user-history.entity';
 
 @Entity({ name: 'pickcook_user' })
@@ -141,9 +141,9 @@ export class PickcookUser extends BaseUserEntity {
   )
   pickcookUserHistories?: PickCookUserHistory[];
 
-  @OneToMany(
-    type => ConsultResultReport,
-    report => report.pickcookUser,
-  )
-  consultResultReports?: ConsultResultReport[];
+  // @OneToMany(
+  //   type => ConsultResultReport,
+  //   report => report.pickcookUser,
+  // )
+  // consultResultReports?: ConsultResultReport[];
 }

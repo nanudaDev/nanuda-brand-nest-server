@@ -89,6 +89,11 @@ export class SScoreDelivery extends BaseWqEntity<SScoreDelivery> {
   // increased from previous quarter
   estimatedIncreasedRevenuePercentage?: number;
 
+  appliedFitnessScore?: number;
+
+  // 중분류명
+  mediumCategoryName?: string;
+
   @OneToOne(type => SScoreAttributeValuesDelivery)
   @JoinColumn({
     name: 'sSmallCategoryCode',

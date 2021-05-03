@@ -2,7 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { RESTAURANT_TYPE, YN } from 'src/common';
 import { BaseService, BrandAiException } from 'src/core';
-import { FNB_OWNER, QUESTION_TYPE } from 'src/shared';
+import {
+  CONST_KB_FOOD_CATEGORY,
+  FNB_OWNER,
+  KB_FOOD_CATEGORY,
+  KB_MEDIUM_CATEGORY,
+  QUESTION_TYPE,
+} from 'src/shared';
 import { EntityManager, Repository } from 'typeorm';
 import { QuestionGivenArrayClass } from '../aggregate-result-response/dto';
 import { CodeHdongService } from '../code-hdong/code-hdong.service';
@@ -296,6 +302,14 @@ export class ProformaConsultResultV2Service extends BaseService {
     );
     sScoreData.map(score => {
       score.appliedNewRanking = sScoreData.indexOf(score) + 1;
+      score.mediumCategoryName = KB_FOOD_CATEGORY[score.mediumCategoryCode];
+      if (sScoreData.indexOf(score) === 0) {
+        score.appliedFitnessScore = 96 - 100 / score.appliedCScoreRanking;
+      } else if (sScoreData.indexOf(score) === 1) {
+        score.appliedFitnessScore = 85 - 100 / score.appliedCScoreRanking;
+      } else if (sScoreData.indexOf(score) === 2) {
+        score.appliedFitnessScore = 75 - 100 / score.appliedCScoreRanking;
+      }
     });
     return sScoreData;
   }

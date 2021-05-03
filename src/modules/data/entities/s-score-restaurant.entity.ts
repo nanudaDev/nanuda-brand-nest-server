@@ -90,6 +90,12 @@ export class SScoreRestaurant extends BaseWqEntity<SScoreRestaurant> {
   // increased from previous quarter
   estimatedIncreasedRevenuePercentage?: number;
 
+  // 적합률
+  appliedFitnessScore?: number;
+
+  // 중분류명
+  mediumCategoryName?: string;
+
   // 기속성 값 테이블 조인
   @OneToOne(type => SScoreAttributeValuesRestaurant)
   @JoinColumn({

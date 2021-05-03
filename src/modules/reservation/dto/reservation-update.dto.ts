@@ -13,6 +13,6 @@ export class ReservationUpdateDto extends AdminReservationUpdateDto {
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
-  @IsPhoneNumber('KR', { message: '옳바른 전화번호를 입력해주세요' })
+  @IsPhoneNumber('KR', { message: '올바른 전화번호를 입력해주세요' })
   phone: string;
 }

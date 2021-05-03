@@ -82,6 +82,13 @@ export class SScoreDelivery extends BaseWqEntity<SScoreDelivery> {
 
   appliedNewRanking?: number;
 
+  // no column
+  // create column when banking
+  estimatedHighestRevenue?: number;
+
+  // increased from previous quarter
+  estimatedIncreasedRevenuePercentage?: number;
+
   @OneToOne(type => SScoreAttributeValuesDelivery)
   @JoinColumn({
     name: 'sSmallCategoryCode',

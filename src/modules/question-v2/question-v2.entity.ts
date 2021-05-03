@@ -95,6 +95,18 @@ export class QuestionV2 extends BaseEntity<QuestionV2> {
   })
   triggerIds?: number[];
 
+  @Column({
+    name: 'skip_trigger_ids',
+    type: 'json',
+  })
+  skipTriggerIds?: number[];
+
+  @Column({
+    name: 'skip_trigger_question_id',
+    type: 'int',
+  })
+  skipTriggerQuestionId?: number;
+
   @OneToOne(type => CommonCode)
   @JoinColumn({ name: 'user_type', referencedColumnName: 'key' })
   commonCode?: CommonCode;

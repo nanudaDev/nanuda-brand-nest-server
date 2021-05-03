@@ -58,7 +58,7 @@ const env = process.env;
       // migrations: [],
       // cli: {},
       // subscribers: [],
-      //   Do not turn to true!!!! 나누다 키친 데이터 다 날라가요 ~ ㅠㅠ
+      //   Do not turn to true!!!!
       synchronize: false,
     }),
     // platform db
@@ -79,7 +79,7 @@ const env = process.env;
       // migrations: [],
       // cli: {},
       // subscribers: [],
-      //   Do not turn to true!!!! 나누다 키친 데이터 다 날라가요 ~ ㅠㅠ
+      //   Do not turn to true!!!!
       synchronize: false,
     }),
     // AuthModule,
@@ -87,8 +87,8 @@ const env = process.env;
     // AggregateResultResponseModule,
     CommonCodeModule,
     CodeHdongModule,
-    ConsultResultModule,
-    FileUploadModule,
+    // ConsultResultModule,
+    // FileUploadModule,
     // GlobalModule,
     // QuestionModule,
     LocationAnalysisModule,
@@ -97,7 +97,7 @@ const env = process.env;
     // ProformaConsultResultModule,
     // ResultResponseModule,
     // ReservationModule,
-    BatchReservationModule,
+    // BatchReservationModule,
     // Version 2 Modules
     QuestionV2Module,
     ProformaConsultResultV2Module,

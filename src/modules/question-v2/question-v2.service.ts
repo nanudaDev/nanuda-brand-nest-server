@@ -62,6 +62,33 @@ export class QuestionV2Service extends BaseService {
         let newQuestionTracker = new QuestionV2Tracker(questionAnsweredDto);
         newQuestionTracker.userType = answeredQuestion.userType;
         newQuestionTracker = await entityManager.save(newQuestionTracker);
+        const currentQuestion = await this.questionV2Repo.findOne(
+          questionAnsweredDto.questionId,
+        );
+
+        // if question has a skipped trigger array, skip to the question with the skipped trigger question id joined with givens
+
+        if (
+          currentQuestion.skipTriggerIds &&
+          currentQuestion.skipTriggerIds.length > 0 &&
+          questionAnsweredDto.givenId.some(id =>
+            currentQuestion.skipTriggerIds.includes(id),
+          )
+        ) {
+          const questionSkipped = await this.questionV2Repo
+            .createQueryBuilder('question')
+            .CustomInnerJoinAndSelect(['commonCode', 'givens'])
+            .where('question.userType = :userType', {
+              userType: questionAnsweredDto.userType,
+            })
+            .andWhere('question.inUse = :inUse', { inUse: YN.YES })
+            .andWhere('question.id = :id', {
+              id: currentQuestion.skipTriggerQuestionId,
+            })
+            .getOne();
+
+          return questionSkipped;
+        }
         const findNextQuestion = this.questionV2Repo
           .createQueryBuilder('question')
           .CustomInnerJoinAndSelect(['commonCode', 'givens'])
@@ -85,6 +112,7 @@ export class QuestionV2Service extends BaseService {
           throw new BrandAiException('question.noMoreQuestion');
         }
         const nextQuestion = await findNextQuestion.getMany();
+        console.log(nextQuestion);
         // filter sub question
         nextQuestion.map(question => {
           if (answeredQuestion.hasSubYn === YN.YES) {
@@ -92,8 +120,8 @@ export class QuestionV2Service extends BaseService {
               questionAnsweredDto.givenId &&
               questionAnsweredDto.givenId.length > 0
             ) {
-              const doesInclude = question.triggerIds.includes(
-                questionAnsweredDto.givenId[0],
+              const doesInclude = questionAnsweredDto.givenId.some(id =>
+                question.triggerIds.includes(id),
               );
               if (!doesInclude) {
                 const index = nextQuestion.indexOf(question);

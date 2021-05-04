@@ -14,7 +14,7 @@ import { ConsultResultV2 } from './consult-result-v2.entity';
 import { ConsultResultV2CreateDto } from './dto';
 
 @Injectable()
-export class ConsultResultVService extends BaseService {
+export class ConsultResultV2Service extends BaseService {
   constructor(
     @InjectRepository(ConsultResultV2)
     private readonly consultResultV2Repo: Repository<ConsultResultV2>,

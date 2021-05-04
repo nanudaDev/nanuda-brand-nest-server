@@ -1,5 +1,6 @@
 import { BaseWqEntity } from 'src/core';
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import { PickcookSmallCategoryInfo } from '.';
 import { SScoreAttributeValuesRestaurant } from './s-score-attribute-values-restaurant.entity';
 
 @Entity({ name: 'pickcook_s_score_restaurant' })
@@ -95,6 +96,8 @@ export class SScoreRestaurant extends BaseWqEntity<SScoreRestaurant> {
 
   // 중분류명
   mediumCategoryName?: string;
+
+  pickcookSmallCategoryInfo?: PickcookSmallCategoryInfo;
 
   // 기속성 값 테이블 조인
   @OneToOne(type => SScoreAttributeValuesRestaurant)

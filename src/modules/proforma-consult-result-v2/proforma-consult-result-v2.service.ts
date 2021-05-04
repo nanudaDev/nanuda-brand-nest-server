@@ -23,6 +23,9 @@ import { QuestionV2 } from '../question-v2/question-v2.entity';
 import { ProformaConsultResultV2QueryDto } from './dto';
 import { ProformaConsultResultV2 } from './proforma-consult-result-v2.entity';
 import Axios from 'axios';
+import { PickcookSmallCategoryService } from '../data/pickcook-small-category-info/pickcook-small-category-info.service';
+import { ModifiedRevenueTracker } from '../modified-revenue-tracker/modified-revenue-tracker.entity';
+import { RandomRevenueGenerator } from 'src/common/utils';
 
 class CScoreAggregateClass {
   menuscore: number;
@@ -32,7 +35,8 @@ class CScoreAggregateClass {
 
 class ProformaConsultV2ResponseClass {
   menuRecommedations: any;
-  deliveryRatio: any;
+  deliveryRatio?: any;
+  // revenueData?: any;
 }
 
 @Injectable()
@@ -45,6 +49,7 @@ export class ProformaConsultResultV2Service extends BaseService {
     private readonly cScoreService: CScoreService,
     private readonly codeHdongService: CodeHdongService,
     private readonly sScoreService: SScoreService,
+    private readonly pickcookSmallCategoryInfoService: PickcookSmallCategoryService,
   ) {
     super();
   }
@@ -109,7 +114,7 @@ export class ProformaConsultResultV2Service extends BaseService {
       RESTAURANT_TYPE.RESTAURANT,
     );
     const appliedCScore = await this.__apply_c_score(
-      average < 30 ? sScoreRestaurant : sScoreDelivery,
+      average < 20 ? sScoreRestaurant : sScoreDelivery,
       questionScores,
       cScoreAttributeValue,
       proformaConsultResultQueryDto.fnbOwnerStatus,
@@ -231,6 +236,9 @@ export class ProformaConsultResultV2Service extends BaseService {
       throw new BrandAiException('proforma.notEnoughData');
     await Promise.all(
       sScoreData.map(async data => {
+        data.pickcookSmallCategoryInfo = await this.pickcookSmallCategoryInfoService.findOne(
+          data.sSmallCategoryCode,
+        );
         const menuPercentageGrade = Math.ceil(
           (questionScore.menuscore /
             (userType === FNB_OWNER.CUR_FNB_OWNER
@@ -267,33 +275,16 @@ export class ProformaConsultResultV2Service extends BaseService {
 
         data.appliedCScoreRanking = finalScore;
         data.appliedReductionScore = data.averageScore - finalScore;
-        // const highestPossibleRevenue = await Axios.get(
-        //   `${this.analysisUrl}location-small-category-revenue-by-quarter`,
-        //   {
-        //     params: {
-        //       hdongCode: data.hdongCode,
-        //       sSmallCategoryCode: data.sSmallCategoryCode,
-        //     },
-        //   },
-        // );
-        // if (data instanceof SScoreDelivery) {
-        //   data.estimatedHighestRevenue = highestPossibleRevenue.data;
-        // }
-        // if (data instanceof SScoreRestaurant) {
-        //   const previousQuarterRevenue = await Axios.get(
-        //     `${this.analysisUrl}location-small-category-revenue-by-last-quarter`,
-        //     {
-        //       params: {
-        //         hdongCode: data.hdongCode,
-        //         sSmallCategoryCode: data.sSmallCategoryCode,
-        //       },
-        //     },
-        //   );
-        //   data.estimatedIncreasedRevenuePercentage =
-        //     highestPossibleRevenue.data /
-        //     previousQuarterRevenue.data /
-        //     previousQuarterRevenue.data;
-        // }
+        if (userType === FNB_OWNER.CUR_FNB_OWNER) {
+          data.estimatedHighestRevenue = await this.__get_revenue_data_or_trajectoryData(
+            data,
+          );
+        }
+        if (userType === FNB_OWNER.NEW_FNB_OWNER) {
+          data.estimatedIncreasedRevenuePercentage = await this.__trajectory_data(
+            data,
+          );
+        }
       }),
     );
     // sort by applied ranking
@@ -312,5 +303,120 @@ export class ProformaConsultResultV2Service extends BaseService {
       }
     });
     return sScoreData;
+  }
+
+  /**
+   * 매출 추이 또는 예상 매출
+   * @param sScoreData
+   */
+  private async __get_revenue_data_or_trajectoryData(
+    sScoreData: SScoreDelivery | SScoreRestaurant,
+    userType?: FNB_OWNER,
+  ) {
+    const data = await Axios.get(
+      `${this.analysisUrl}location-small-category-revenue-by-quarter`,
+      {
+        params: {
+          hdongCode: sScoreData.hdongCode,
+          sSmallCategoryCode: sScoreData.sSmallCategoryCode,
+        },
+      },
+    );
+    if (sScoreData instanceof SScoreDelivery) {
+      const checkRevenueTracker = await this.entityManager
+        .getRepository(ModifiedRevenueTracker)
+        .findOne({
+          where: {
+            hdongCode: sScoreData.hdongCode,
+            sSmallCategoryCode: sScoreData.sSmallCategoryCode,
+            restaurantType: RESTAURANT_TYPE.DELIVERY,
+          },
+        });
+      if (!checkRevenueTracker) {
+        if (data.data.value[0].deliveryRevenue < 1000000) {
+          const newRevenue = parseInt(`${RandomRevenueGenerator()}0000`);
+          const newRevenueTracker = new ModifiedRevenueTracker({
+            restaurantType: RESTAURANT_TYPE.DELIVERY,
+            revenue: newRevenue,
+            hdongCode: sScoreData.hdongCode,
+            sSmallCategoryCode: sScoreData.sSmallCategoryCode,
+          });
+          this.entityManager
+            .getRepository(ModifiedRevenueTracker)
+            .save(newRevenueTracker);
+          return newRevenue;
+        }
+      } else {
+        return checkRevenueTracker.revenue;
+      }
+    }
+    if (sScoreData instanceof SScoreRestaurant) {
+      const checkRevenueTracker = await this.entityManager
+        .getRepository(ModifiedRevenueTracker)
+        .findOne({
+          where: {
+            hdongCode: sScoreData.hdongCode,
+            sSmallCategoryCode: sScoreData.sSmallCategoryCode,
+            restaurantType: RESTAURANT_TYPE.RESTAURANT,
+          },
+        });
+      if (!checkRevenueTracker) {
+        if (data.data.value[0].restaurantRevenue < 1000000) {
+          const newRevenue = parseInt(`${RandomRevenueGenerator()}000`);
+          const newRevenueTracker = new ModifiedRevenueTracker({
+            restaurantType: RESTAURANT_TYPE.RESTAURANT,
+            revenue: newRevenue,
+            hdongCode: sScoreData.hdongCode,
+            sSmallCategoryCode: sScoreData.sSmallCategoryCode,
+          });
+          this.entityManager
+            .getRepository(ModifiedRevenueTracker)
+            .save(newRevenueTracker);
+          return newRevenue;
+        }
+      } else {
+        return checkRevenueTracker.revenue;
+      }
+    }
+
+    return null;
+  }
+
+  private async __trajectory_data(
+    sScoreData: SScoreDelivery | SScoreRestaurant,
+  ) {
+    let percentage;
+    const revenue = await Axios.get(
+      `${this.analysisUrl}location-small-category-revenue-by-quarter`,
+      {
+        params: {
+          hdongCode: sScoreData.hdongCode,
+          sSmallCategoryCode: sScoreData.sSmallCategoryCode,
+        },
+      },
+    );
+    const lastQuarterRevenue = await Axios.get(
+      `${this.analysisUrl}location-small-category-revenue-by-last-quarter`,
+      {
+        params: {
+          hdongCode: sScoreData.hdongCode,
+          sSmallCategoryCode: sScoreData.sSmallCategoryCode,
+        },
+      },
+    );
+    if (sScoreData instanceof SScoreDelivery) {
+      percentage =
+        (revenue.data.value[0].deliveryRevenue -
+          lastQuarterRevenue.data.value[0].lastQuarterDeliveryRevenue) /
+        lastQuarterRevenue.data.value[0].lastQuarterDeliveryRevenue;
+    }
+    if (sScoreData instanceof SScoreRestaurant) {
+      percentage =
+        (revenue.data.value[0].restaurantRevenue -
+          lastQuarterRevenue.data.value[0].lastQuarterRestaurantRevenue) /
+        lastQuarterRevenue.data.value[0].lastQuarterRestaurantRevenue;
+    }
+
+    return percentage;
   }
 }

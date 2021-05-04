@@ -31,6 +31,7 @@ import {
   SScoreModule,
   QuestionV2Module,
   ProformaConsultResultV2Module,
+  ConsultResultV2Module,
 } from './modules';
 const env = process.env;
 @Module({
@@ -87,6 +88,7 @@ const env = process.env;
     // AggregateResultResponseModule,
     CommonCodeModule,
     CodeHdongModule,
+    ConsultResultV2Module,
     // ConsultResultModule,
     // FileUploadModule,
     // GlobalModule,

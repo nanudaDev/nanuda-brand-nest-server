@@ -8,7 +8,7 @@ import { QuestionService } from './question.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Question, QuestionTracker])],
-  // controllers: [AdminQuestionController, QuestionController],
+  controllers: [AdminQuestionController, QuestionController],
   providers: [QuestionService],
 })
 export class QuestionModule {}

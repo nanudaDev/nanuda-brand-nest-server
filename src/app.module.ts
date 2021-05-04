@@ -92,7 +92,7 @@ const env = process.env;
     // ConsultResultModule,
     // FileUploadModule,
     // GlobalModule,
-    // QuestionModule,
+    QuestionModule,
     LocationAnalysisModule,
     // MenuAnalysisModule,
     // PickcookUserModule,

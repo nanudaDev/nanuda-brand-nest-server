@@ -118,7 +118,7 @@ export class ProformaConsultResultV2Service extends BaseService {
       RESTAURANT_TYPE.RESTAURANT,
     );
     const appliedCScore = await this.__apply_c_score(
-      average < 15 ? sScoreRestaurant : sScoreDelivery,
+      average < 30 ? sScoreRestaurant : sScoreDelivery,
       questionScores,
       cScoreAttributeValue,
       proformaConsultResultQueryDto.fnbOwnerStatus,
@@ -326,7 +326,6 @@ export class ProformaConsultResultV2Service extends BaseService {
         },
       },
     );
-    console.log(data.data);
     if (sScoreData instanceof SScoreDelivery) {
       const checkRevenueTracker = await this.entityManager
         .getRepository(ModifiedRevenueTracker)
@@ -338,7 +337,10 @@ export class ProformaConsultResultV2Service extends BaseService {
           },
         });
       if (!checkRevenueTracker) {
-        if (data.data.value[0].deliveryRevenue < 1000000) {
+        if (
+          data.data.value[0].deliveryRevenue < 1000000 ||
+          !data.data.value[0].deliveryRevenue
+        ) {
           const newRevenue = parseInt(`${RandomRevenueGenerator()}0000`);
           const newRevenueTracker = new ModifiedRevenueTracker({
             restaurantType: RESTAURANT_TYPE.DELIVERY,
@@ -366,8 +368,11 @@ export class ProformaConsultResultV2Service extends BaseService {
           },
         });
       if (!checkRevenueTracker) {
-        if (data.data.value[0].restaurantRevenue < 1000000) {
-          const newRevenue = parseInt(`${RandomRevenueGenerator()}000`);
+        if (
+          data.data.value[0].restaurantRevenue < 1000000 ||
+          data.data.value[0].restaurantRevenue
+        ) {
+          const newRevenue = parseInt(`${RandomRevenueGenerator()}0000`);
           const newRevenueTracker = new ModifiedRevenueTracker({
             restaurantType: RESTAURANT_TYPE.RESTAURANT,
             revenue: newRevenue,
@@ -424,7 +429,7 @@ export class ProformaConsultResultV2Service extends BaseService {
           (revenue.data.value[0].deliveryRevenue -
             lastQuarterRevenue.data.value[0].lastQuarterDeliveryRevenue) /
           lastQuarterRevenue.data.value[0].lastQuarterDeliveryRevenue;
-        if (percentage < 10) {
+        if (percentage < 10 || !percentage) {
           const newPercentage = RandomTrajectoryGenerator();
           percentage = new ModifiedTrajectoryTracker({
             percentage: newPercentage,
@@ -473,7 +478,7 @@ export class ProformaConsultResultV2Service extends BaseService {
           (revenue.data.value[0].restaurantRevenue -
             lastQuarterRevenue.data.value[0].lastQuarterRestaurantRevenue) /
           lastQuarterRevenue.data.value[0].lastQuarterRestaurantRevenue;
-        if (percentage < 10) {
+        if (percentage < 10 || !percentage) {
           const newPercentage = RandomTrajectoryGenerator();
           percentage = new ModifiedTrajectoryTracker({
             percentage: newPercentage,

@@ -327,6 +327,7 @@ export class ProformaConsultResultV2Service extends BaseService {
         },
       },
     );
+    console.log(data.data);
     if (sScoreData instanceof SScoreDelivery) {
       const checkRevenueTracker = await this.entityManager
         .getRepository(ModifiedRevenueTracker)
@@ -338,11 +339,9 @@ export class ProformaConsultResultV2Service extends BaseService {
           },
         });
       if (!checkRevenueTracker) {
-        if (
-          data.data.value[0].deliveryRevenue < 1000000 ||
-          !data.data.value[0].deliveryRevenue
-        ) {
+        if (data.data.value[0].deliveryRevenue < 1000000) {
           const newRevenue = parseInt(`${RandomRevenueGenerator()}0000`);
+
           const newRevenueTracker = new ModifiedRevenueTracker({
             restaurantType: RESTAURANT_TYPE.DELIVERY,
             revenue: newRevenue,
@@ -353,6 +352,8 @@ export class ProformaConsultResultV2Service extends BaseService {
             .getRepository(ModifiedRevenueTracker)
             .save(newRevenueTracker);
           revenue = newRevenue;
+        } else {
+          revenue = data.data.value[0].deliveryRevenue;
         }
       } else {
         revenue = checkRevenueTracker.revenue;
@@ -369,10 +370,7 @@ export class ProformaConsultResultV2Service extends BaseService {
           },
         });
       if (!checkRevenueTracker) {
-        if (
-          data.data.value[0].restaurantRevenue < 1000000 ||
-          data.data.value[0].restaurantRevenue
-        ) {
+        if (data.data.value[0].restaurantRevenue < 1000000) {
           const newRevenue = parseInt(`${RandomRevenueGenerator()}0000`);
           const newRevenueTracker = new ModifiedRevenueTracker({
             restaurantType: RESTAURANT_TYPE.RESTAURANT,
@@ -384,6 +382,8 @@ export class ProformaConsultResultV2Service extends BaseService {
             .getRepository(ModifiedRevenueTracker)
             .save(newRevenueTracker);
           revenue = newRevenue;
+        } else {
+          revenue = data.data.value[0].deliveryRevenue;
         }
       } else {
         revenue = checkRevenueTracker.revenue;

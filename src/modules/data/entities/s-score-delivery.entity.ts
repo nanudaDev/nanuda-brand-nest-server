@@ -1,5 +1,6 @@
 import { BaseWqEntity } from 'src/core';
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import { PickcookSmallCategoryInfo } from './pickcook-small-code-info.entity';
 import { SScoreAttributeValuesDelivery } from './s-score-attribute-values-delivery.entity';
 
 @Entity({ name: 'pickcook_s_score_delivery' })
@@ -93,6 +94,8 @@ export class SScoreDelivery extends BaseWqEntity<SScoreDelivery> {
 
   // 중분류명
   mediumCategoryName?: string;
+
+  pickcookSmallCategoryInfo?: PickcookSmallCategoryInfo;
 
   @OneToOne(type => SScoreAttributeValuesDelivery)
   @JoinColumn({

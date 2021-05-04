@@ -2,6 +2,7 @@ import { BaseEntity } from 'src/core';
 import { BRAND_CONSULT, FNB_OWNER } from 'src/shared';
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { CommonCode } from '../common-code/common-code.entity';
+import { ProformaConsultResultV2 } from '../proforma-consult-result-v2/proforma-consult-result-v2.entity';
 
 @Entity({ name: 'consult_result_v2' })
 export class ConsultResultV2 extends BaseEntity<ConsultResultV2> {
@@ -58,6 +59,12 @@ export class ConsultResultV2 extends BaseEntity<ConsultResultV2> {
     type: 'varchar',
   })
   reservationCode: string;
+
+  @Column({
+    name: 'response_data',
+    type: 'json',
+  })
+  responseData?: ProformaConsultResultV2;
 
   @OneToOne(type => CommonCode)
   @JoinColumn({ name: 'fnb_owner_status', referencedColumnName: 'key' })

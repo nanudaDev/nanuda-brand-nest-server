@@ -317,6 +317,7 @@ export class ProformaConsultResultV2Service extends BaseService {
   private async __get_revenue_data(
     sScoreData: SScoreDelivery | SScoreRestaurant,
   ) {
+    let revenue;
     const data = await Axios.get(
       `${this.analysisUrl}location-small-category-revenue-by-quarter`,
       {
@@ -351,10 +352,10 @@ export class ProformaConsultResultV2Service extends BaseService {
           this.entityManager
             .getRepository(ModifiedRevenueTracker)
             .save(newRevenueTracker);
-          return newRevenue;
+          revenue = newRevenue;
         }
       } else {
-        return checkRevenueTracker.revenue;
+        revenue = checkRevenueTracker.revenue;
       }
     }
     if (sScoreData instanceof SScoreRestaurant) {
@@ -382,14 +383,14 @@ export class ProformaConsultResultV2Service extends BaseService {
           this.entityManager
             .getRepository(ModifiedRevenueTracker)
             .save(newRevenueTracker);
-          return newRevenue;
+          revenue = newRevenue;
         }
       } else {
-        return checkRevenueTracker.revenue;
+        revenue = checkRevenueTracker.revenue;
       }
     }
 
-    return null;
+    return revenue;
   }
 
   private async __trajectory_data(

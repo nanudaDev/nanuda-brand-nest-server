@@ -97,6 +97,18 @@ export class SScoreDelivery extends BaseWqEntity<SScoreDelivery> {
 
   pickcookSmallCategoryInfo?: PickcookSmallCategoryInfo;
 
+  // 빅데이터 상권 점수
+  bigDataLocationScore?: number;
+
+  // 조리 경험 점수
+  cookingExperienceScore?: number;
+
+  // 운영경험
+  operationExperienceScore?: number;
+
+  // 창업 자금 점수
+  initialCostScore?: number;
+
   @OneToOne(type => SScoreAttributeValuesDelivery)
   @JoinColumn({
     name: 'sSmallCategoryCode',

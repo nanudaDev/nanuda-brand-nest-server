@@ -96,9 +96,13 @@ export class ProformaConsultResultV2Service extends BaseService {
       // }
       averageRatioArray.push(deliveryRatioData[key].deliveryRatio);
     });
-    const average = Math.ceil(
+    let average = Math.ceil(
       averageRatioArray.reduce((a, b) => a + b) / averageRatioArray.length,
     );
+    // needs to randomize later
+    if (average === 0) {
+      average = 11;
+    }
     console.log(average, 'average');
     const hdong = await this.codeHdongService.findOneByCode(
       proformaConsultResultQueryDto.hdongCode,
@@ -279,6 +283,27 @@ export class ProformaConsultResultV2Service extends BaseService {
 
         data.appliedCScoreRanking = finalScore;
         data.appliedReductionScore = data.averageScore - finalScore;
+
+        //  조리 경험 점수
+        data.cookingExperienceScore = Math.floor(
+          100 -
+            Math.abs(
+              data.attributeValues.cookingScore - questionScore.menuscore,
+            ),
+        );
+        data.operationExperienceScore = Math.floor(
+          100 -
+            Math.abs(
+              data.attributeValues.managingScore - questionScore.operationScore,
+            ),
+        );
+        data.initialCostScore = Math.floor(
+          100 -
+            Math.abs(
+              data.attributeValues.initialCostScore -
+                questionScore.initialCostScore,
+            ),
+        );
         // 예상 매출
         if (userType === FNB_OWNER.CUR_FNB_OWNER) {
           data.estimatedHighestRevenue = await this.__get_revenue_data(data);
@@ -300,10 +325,14 @@ export class ProformaConsultResultV2Service extends BaseService {
       score.mediumCategoryName = KB_FOOD_CATEGORY[score.mediumCategoryCode];
       if (sScoreData.indexOf(score) === 0) {
         score.appliedFitnessScore = 96 - 100 / score.appliedCScoreRanking;
+        // 빅데이터 상권 점수
+        score.bigDataLocationScore = Math.floor(95 - 100 / score.averageScore);
       } else if (sScoreData.indexOf(score) === 1) {
         score.appliedFitnessScore = 85 - 100 / score.appliedCScoreRanking;
+        score.bigDataLocationScore = Math.floor(85 - 100 / score.averageScore);
       } else if (sScoreData.indexOf(score) === 2) {
         score.appliedFitnessScore = 75 - 100 / score.appliedCScoreRanking;
+        score.bigDataLocationScore = Math.floor(75 - 100 / score.averageScore);
       }
     });
     return sScoreData;
@@ -327,6 +356,7 @@ export class ProformaConsultResultV2Service extends BaseService {
         },
       },
     );
+    console.log(data.data);
     if (sScoreData instanceof SScoreDelivery) {
       const checkRevenueTracker = await this.entityManager
         .getRepository(ModifiedRevenueTracker)
@@ -338,11 +368,9 @@ export class ProformaConsultResultV2Service extends BaseService {
           },
         });
       if (!checkRevenueTracker) {
-        if (
-          data.data.value[0].deliveryRevenue < 1000000 ||
-          !data.data.value[0].deliveryRevenue
-        ) {
+        if (data.data.value[0].deliveryRevenue < 1000000) {
           const newRevenue = parseInt(`${RandomRevenueGenerator()}0000`);
+
           const newRevenueTracker = new ModifiedRevenueTracker({
             restaurantType: RESTAURANT_TYPE.DELIVERY,
             revenue: newRevenue,
@@ -353,6 +381,8 @@ export class ProformaConsultResultV2Service extends BaseService {
             .getRepository(ModifiedRevenueTracker)
             .save(newRevenueTracker);
           revenue = newRevenue;
+        } else {
+          revenue = data.data.value[0].deliveryRevenue;
         }
       } else {
         revenue = checkRevenueTracker.revenue;
@@ -369,10 +399,7 @@ export class ProformaConsultResultV2Service extends BaseService {
           },
         });
       if (!checkRevenueTracker) {
-        if (
-          data.data.value[0].restaurantRevenue < 1000000 ||
-          data.data.value[0].restaurantRevenue
-        ) {
+        if (data.data.value[0].restaurantRevenue < 1000000) {
           const newRevenue = parseInt(`${RandomRevenueGenerator()}0000`);
           const newRevenueTracker = new ModifiedRevenueTracker({
             restaurantType: RESTAURANT_TYPE.RESTAURANT,
@@ -384,6 +411,8 @@ export class ProformaConsultResultV2Service extends BaseService {
             .getRepository(ModifiedRevenueTracker)
             .save(newRevenueTracker);
           revenue = newRevenue;
+        } else {
+          revenue = data.data.value[0].deliveryRevenue;
         }
       } else {
         revenue = checkRevenueTracker.revenue;

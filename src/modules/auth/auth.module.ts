@@ -20,7 +20,7 @@ import { PickcookUserPasswordService } from './pickcook-user-password.service';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({ useClass: JwtConfigService }),
   ],
-  controllers: [AdminAuthController, PickcookAuthController],
+  controllers: [PickcookAuthController],
   providers: [
     AuthService,
     PasswordService,

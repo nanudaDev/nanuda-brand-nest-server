@@ -8,7 +8,7 @@ export class HdongCodeNoData extends BaseEntity<HdongCodeNoData> {
     name: 'hdong_code',
     type: 'varchar',
   })
-  hdongCode: string;
+  hdongCode: string | number;
 
   @Column({
     type: 'varchar',

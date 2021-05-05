@@ -19,7 +19,7 @@ export class BaseMapperEntity<Entity> extends BaseEntity {
       });
   }
 
-  set(partial: Object, deep: boolean = false): this {
+  set(partial: Record<string, any>, deep = false): this {
     partial &&
       Object.keys(partial).map(key => {
         // if (key !== 'id' && this.hasOwnProperty(key)) {

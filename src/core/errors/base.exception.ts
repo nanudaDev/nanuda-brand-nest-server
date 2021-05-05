@@ -14,6 +14,7 @@ export class BaseException extends HttpException {
     value?: object,
   ) {
     super(code, status);
+
     if (message) {
       if (typeof message === 'object') {
         this.error = {

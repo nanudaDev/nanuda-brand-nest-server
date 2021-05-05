@@ -2,6 +2,7 @@
 import { PaginatedRequest } from '../../common';
 // import { classToClass } from 'class-transformer';
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder';
+import { Entity } from 'typeorm';
 
 /**
  * 참고)
@@ -206,6 +207,18 @@ declare module 'typeorm/query-builder/SelectQueryBuilder' {
       START_DATE: Date | string,
       END_DATE: Date | string,
     ): SelectQueryBuilder<Entity>;
+
+    /**
+     * hard delete
+     * @param this
+     * @param id
+     */
+    AndWhereHardDelete(
+      this: SelectQueryBuilder<Entity>,
+      alias: string,
+      property: string,
+      value: any,
+    ): any;
 
     /**
      * Where or Like
@@ -511,6 +524,9 @@ SelectQueryBuilder.prototype.AndWhereWithinMonth = function<Entity>(
   return this;
 };
 
+/**
+ * where in
+ */
 SelectQueryBuilder.prototype.IN = function<Entity>(
   this: SelectQueryBuilder<Entity>,
   columnName: string,
@@ -634,6 +650,24 @@ SelectQueryBuilder.prototype.AndWhereMatchInIds = function<Entity>(
         // },
       );
     });
+  }
+  return this;
+};
+
+SelectQueryBuilder.prototype.AndWhereHardDelete = function<Entity>(
+  this: SelectQueryBuilder<Entity>,
+  alias: string,
+  property: string,
+  value: any,
+) {
+  console.log(this);
+  if (property) {
+    this.delete()
+      .from(`${alias}`)
+      .where(`${property} = :property`, {
+        property: value,
+      })
+      .execute();
   }
   return this;
 };

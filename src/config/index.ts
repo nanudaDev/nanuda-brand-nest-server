@@ -3,3 +3,6 @@ export * from './typeorm.config.service';
 export * from './http.config.service';
 export * from './jwt.config.service';
 export * from './env.config.service';
+export * from './pickcook-mailer.config';
+export * from './pickcook-upload.config.service';
+export * from './pickcook-upload.config.module';

@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
+import { BaseExceptionFilter } from '@nestjs/core';
 import { Request, Response } from 'express';
 import { ERROR_TYPE, ErrorResponse } from '..';
 // import { GqlArgumentsHost } from '@nestjs/graphql';
@@ -12,8 +13,7 @@ import { ERROR_TYPE, ErrorResponse } from '..';
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
   catch(exception: Error, host: ArgumentsHost) {
-    // // TODO: rest 와 graphql 요청을 구분하는 로직 구현
-
+    console.log(exception);
     const ctx = host.switchToHttp();
     const res = ctx.getResponse<Response>();
     const req = ctx.getRequest<Request>();

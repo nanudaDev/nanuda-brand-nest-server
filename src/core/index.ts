@@ -10,3 +10,4 @@ export * from './interceptors';
 export * from './base-user.entity';
 export * from './guards';
 export * from './base-platform.entity';
+export * from './base-wq.entity';

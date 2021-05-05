@@ -35,16 +35,16 @@ async function bootstrap() {
   // only if npm run start:
   // await generate.generate;
   // await generate.generateKbCategory;
-  if (env === ENVIRONMENT.DEVELOPMENT) {
-    console.log('Running in development mode. 개발 모드로 진행중');
-    app = await NestFactory.create<NestExpressApplication>(AppModule, {
-      // logger: true
-    });
-  } else {
-    app = await NestFactory.create<NestExpressApplication>(AppModule, {
-      logger: true,
-    });
-  }
+  // if (env !== ENVIRONMENT.PRODUCTION) {
+  //   console.log('Running in development mode. 개발 모드로 진행중');
+  //   app = await NestFactory.create<NestExpressApplication>(AppModule, {});
+  // } else {
+  //   app = await NestFactory.create<NestExpressApplication>(AppModule, {
+  //     logger: true,
+  //   });
+  // }
+
+  app = await NestFactory.create<NestExpressApplication>(AppModule, {});
 
   app.use(urlencoded({ extended: true }));
   app.use(json({ limit: '50mb' }));
@@ -97,19 +97,11 @@ async function bootstrap() {
     const document = SwaggerModule.createDocument(app, options);
     SwaggerModule.setup('swagger', app, document);
   }
-  // const options = new DocumentBuilder()
-  //   .setTitle(packageInfo.name.toUpperCase())
-  //   .setDescription(packageInfo.description)
-  //   .setVersion(packageInfo.version)
-  //   .addBearerAuth()
-  //   .build();
-  // const document = SwaggerModule.createDocument(app, options);
 
-  // SwaggerModule.setup('swagger', app, document);
-  await app.listen(4700);
+  await app.listen(process.env.SERVER_PORT);
 
   const url = await app.getUrl();
-  if (process.env.NODE_ENV === ENVIRONMENT.DEVELOPMENT) {
+  if (process.env.NODE_ENV !== ENVIRONMENT.PRODUCTION) {
     Logger.log(`${url}`, 'NestApplication');
     Logger.log(`${url}/swagger`, 'NestApplication');
   }
@@ -144,7 +136,7 @@ async function shutdown() {
 }
 
 // catch app is closing
-process.on('exit', code => {
+process.on('exit', async code => {
   console.log(`About to exit with code: ${code}`);
 });
 
@@ -167,13 +159,7 @@ process.on('SIGUSR1', () => {
 });
 process.on('SIGUSR2', () => {
   console.log('Got SIGUSR2 signal.');
+
   shutdown();
 });
-
-// catch uncaught exceptions
-// process.on('uncaughtException', err => {
-//   console.error('uncaughtException', err);
-//   shutdown();
-// });
-
 bootstrap();

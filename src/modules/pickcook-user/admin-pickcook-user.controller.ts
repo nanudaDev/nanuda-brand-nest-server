@@ -1,0 +1,114 @@
+import {
+  Body,
+  Controller,
+  Delete,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Get,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { PaginatedRequest, PaginatedResponse, UserInfo } from 'src/common';
+import { BaseController, PlatformAuthRolesGuard } from 'src/core';
+import { CONST_ADMIN_USER } from 'src/shared';
+import { PlatformAdmin } from '../admin/platform-admin.entity';
+import { PickCookUserHistory } from '../pickcook-user-history/pickcook-user-history.entity';
+import {
+  AdminPickcookUserCreateDto,
+  AdminPickcookUserListDto,
+  AdminPickcookUserUpdateDto,
+} from './dto';
+import { PickcookUser } from './pickcook-user.entity';
+import { PickcookUserService } from './pickcook-user.service';
+
+@Controller()
+@ApiTags('ADMIN PICKCOOK USER')
+@ApiBearerAuth()
+@UseGuards(new PlatformAuthRolesGuard(...CONST_ADMIN_USER))
+export class AdminPickcookUserController extends BaseController {
+  constructor(private readonly pickcookUserService: PickcookUserService) {
+    super();
+  }
+
+  /**
+   * create pickcook user for admin
+   * @param adminPickcookUserCreateDto
+   * @param admin
+   */
+  @Post('/admin/pickcook-user')
+  async create(
+    @Body() adminPickcookUserCreateDto: AdminPickcookUserCreateDto,
+    @UserInfo() admin: PlatformAdmin,
+  ): Promise<PickcookUser> {
+    return await this.pickcookUserService.createPickcookUser(
+      adminPickcookUserCreateDto,
+      admin.no,
+    );
+  }
+
+  @Get('/admin/pickcook-user')
+  async findAll(
+    @Query() adminPickcookUserListDto: AdminPickcookUserListDto,
+    @Query() pagination: PaginatedRequest,
+  ): Promise<PaginatedResponse<PickcookUser>> {
+    return await this.pickcookUserService.findAllForAdmin(
+      adminPickcookUserListDto,
+      pagination,
+    );
+  }
+
+  /**
+   * find one for admin
+   * @param id
+   * @returns
+   */
+  @Get('/admin/pickcook-user/:id([0-9]+)')
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<PickcookUser> {
+    return await this.pickcookUserService.findOne(id);
+  }
+
+  /**
+   * find one for admin
+   * @param id
+   * @returns
+   */
+  @Get('/admin/pickcook-user/:id([0-9]+)/histories')
+  async findUserHistory(
+    @Param('id', ParseIntPipe) id: number,
+    @Query() pagination: PaginatedRequest,
+  ): Promise<PaginatedResponse<PickCookUserHistory>> {
+    return await this.pickcookUserService.findAllHistories(id, pagination);
+  }
+
+  /**
+   * update for admin
+   * @param id
+   * @param adminPickcookUserUpdateDto
+   * @param admin
+   * @returns
+   */
+  @Patch('/admin/pickcook-user/:id([0-9]+)')
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() adminPickcookUserUpdateDto: AdminPickcookUserUpdateDto,
+    @UserInfo() admin: PlatformAdmin,
+  ) {
+    return await this.pickcookUserService.updatePickcookUser(
+      id,
+      adminPickcookUserUpdateDto,
+      admin.no,
+    );
+  }
+
+  /**
+   * hard delete user
+   * @param id
+   */
+  @Delete('/admin/pickcook-user/:id([0-9]+)')
+  async hardDelete(@Param('id', ParseIntPipe) id: number) {
+    return { isDeleted: await this.pickcookUserService.hardDeleteUser(id) };
+  }
+}

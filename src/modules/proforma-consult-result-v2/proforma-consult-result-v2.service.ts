@@ -96,9 +96,13 @@ export class ProformaConsultResultV2Service extends BaseService {
       // }
       averageRatioArray.push(deliveryRatioData[key].deliveryRatio);
     });
-    const average = Math.ceil(
+    let average = Math.ceil(
       averageRatioArray.reduce((a, b) => a + b) / averageRatioArray.length,
     );
+    // needs to randomize later
+    if (average === 0) {
+      average = 11;
+    }
     console.log(average, 'average');
     const hdong = await this.codeHdongService.findOneByCode(
       proformaConsultResultQueryDto.hdongCode,

@@ -283,6 +283,27 @@ export class ProformaConsultResultV2Service extends BaseService {
 
         data.appliedCScoreRanking = finalScore;
         data.appliedReductionScore = data.averageScore - finalScore;
+
+        //  조리 경험 점수
+        data.cookingExperienceScore = Math.floor(
+          100 -
+            Math.abs(
+              data.attributeValues.cookingScore - questionScore.menuscore,
+            ),
+        );
+        data.operationExperienceScore = Math.floor(
+          100 -
+            Math.abs(
+              data.attributeValues.managingScore - questionScore.operationScore,
+            ),
+        );
+        data.initialCostScore = Math.floor(
+          100 -
+            Math.abs(
+              data.attributeValues.initialCostScore -
+                questionScore.initialCostScore,
+            ),
+        );
         // 예상 매출
         if (userType === FNB_OWNER.CUR_FNB_OWNER) {
           data.estimatedHighestRevenue = await this.__get_revenue_data(data);
@@ -304,10 +325,14 @@ export class ProformaConsultResultV2Service extends BaseService {
       score.mediumCategoryName = KB_FOOD_CATEGORY[score.mediumCategoryCode];
       if (sScoreData.indexOf(score) === 0) {
         score.appliedFitnessScore = 96 - 100 / score.appliedCScoreRanking;
+        // 빅데이터 상권 점수
+        score.bigDataLocationScore = Math.floor(95 - 100 / score.averageScore);
       } else if (sScoreData.indexOf(score) === 1) {
         score.appliedFitnessScore = 85 - 100 / score.appliedCScoreRanking;
+        score.bigDataLocationScore = Math.floor(85 - 100 / score.averageScore);
       } else if (sScoreData.indexOf(score) === 2) {
         score.appliedFitnessScore = 75 - 100 / score.appliedCScoreRanking;
+        score.bigDataLocationScore = Math.floor(75 - 100 / score.averageScore);
       }
     });
     return sScoreData;

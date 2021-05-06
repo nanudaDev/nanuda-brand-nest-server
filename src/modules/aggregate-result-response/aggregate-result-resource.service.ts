@@ -148,8 +148,7 @@ export class AggregateResultResponseService extends BaseService {
       averageRatioArray.push(deliveryRatioData[key].deliveryRatio);
     });
     const average =
-      averageRatioArray.reduce((prev, curr) => prev + curr) /
-      averageRatioArray.length;
+      averageRatioArray.reduce((a, b) => a + b) / averageRatioArray.length;
     // const deliveryRatioGradeFilteredByCategory = new DeliveryRestaurantRatioClass(
     //   deliveryRatioData[aggregateQuestionQuery.kbFoodCategory],
     // );
@@ -326,7 +325,7 @@ export class AggregateResultResponseService extends BaseService {
         returnResponse.completeTimeData = forEachTimeSlot;
         returnResponse.hdong = hdong;
         const graphDto = new AggregateResultResponseTimeGraphDto({
-          hdongCode: parseInt(aggregateQuestionQuery.hdongCode),
+          hdongCode: aggregateQuestionQuery.hdongCode,
           mediumCategoryCd: aggregateQuestionQuery.kbFoodCategory,
         });
         returnResponse.timeGraphChoseByCategory = await this.getTimeGraphForKbCategory(
@@ -617,7 +616,7 @@ export class AggregateResultResponseService extends BaseService {
    * @param selectedRevenue
    */
   private async __get_line_chart_data(
-    hdongCode: string,
+    hdongCode: string | number,
     selectedRevenue: REVENUE_RANGE,
   ) {
     let averageMyRevenue: any;

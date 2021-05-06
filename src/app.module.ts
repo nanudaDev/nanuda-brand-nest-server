@@ -1,15 +1,17 @@
 require('dotenv').config();
+import { MailerModule } from '@nest-modules/mailer';
 import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule/dist/schedule.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { getMetadataArgsStorage } from 'typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { TypeOrmConfigService } from './config';
-import { HttpExceptionFilter, ErrorsInterceptor } from './core';
+import { PickcookMailerConfigService, TypeOrmConfigService } from './config';
 import {
-  AdminModule,
+  HttpExceptionFilter,
+  ErrorsInterceptor,
+  LoggingInterceptor,
+} from './core';
+import {
   AuthModule,
   CommonCodeModule,
   QuestionModule,
@@ -24,10 +26,17 @@ import {
   ReservationModule,
   BatchReservationModule,
   PickcookUserModule,
+  FileUploadModule,
+  GlobalModule,
+  SScoreModule,
+  QuestionV2Module,
+  ProformaConsultResultV2Module,
+  ConsultResultV2Module,
 } from './modules';
 const env = process.env;
 @Module({
   imports: [
+    MailerModule.forRootAsync({ useClass: PickcookMailerConfigService }),
     ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync({
       useClass: TypeOrmConfigService,
@@ -50,9 +59,10 @@ const env = process.env;
       // migrations: [],
       // cli: {},
       // subscribers: [],
-      //   Do not turn to true!!!! 나누다 키친 데이터 다 날라가요 ~ ㅠㅠ
+      //   Do not turn to true!!!!
       synchronize: false,
     }),
+    // platform db
     TypeOrmModule.forRoot({
       name: 'platform',
       type: 'mysql' as 'mysql',
@@ -70,16 +80,18 @@ const env = process.env;
       // migrations: [],
       // cli: {},
       // subscribers: [],
-      //   Do not turn to true!!!! 나누다 키친 데이터 다 날라가요 ~ ㅠㅠ
+      //   Do not turn to true!!!!
       synchronize: false,
     }),
-    AuthModule,
-    FaqModule,
-    AdminModule,
+    // AuthModule,
+    // FaqModule,
     AggregateResultResponseModule,
     CommonCodeModule,
     CodeHdongModule,
+    ConsultResultV2Module,
     ConsultResultModule,
+    // FileUploadModule,
+    // GlobalModule,
     QuestionModule,
     LocationAnalysisModule,
     MenuAnalysisModule,
@@ -88,12 +100,17 @@ const env = process.env;
     ResultResponseModule,
     ReservationModule,
     BatchReservationModule,
+    // Version 2 Modules
+    QuestionV2Module,
+    ProformaConsultResultV2Module,
+    // S-Score Module
+    SScoreModule,
   ],
   controllers: [],
   providers: [
-    AppService,
     { provide: APP_FILTER, useClass: HttpExceptionFilter },
     { provide: APP_INTERCEPTOR, useClass: ErrorsInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: LoggingInterceptor },
   ],
 })
 export class AppModule {}

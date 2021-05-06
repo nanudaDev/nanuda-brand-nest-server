@@ -1,4 +1,5 @@
 // import { BadFieldsException } from '../errors/bad-fields.exception';
+require('dotenv').config();
 import {
   ArgumentsHost,
   Catch,
@@ -6,6 +7,7 @@ import {
   HttpException,
   BadRequestException,
   HttpStatus,
+  Injectable,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { ValidationError } from 'class-validator';
@@ -17,9 +19,9 @@ import {
 } from '../errors';
 //   import { I18nService } from 'nestjs-i18n';
 import * as error from '../../locales/kr/errors.json';
-// import { GqlArgumentsHost } from '@nestjs/graphql';
 
 @Catch(HttpException)
+@Injectable()
 export class HttpExceptionFilter implements ExceptionFilter {
   //   async trans(code: string, args?: object, defaultMessage?: string) {
   //     try {
@@ -50,7 +52,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
         const k = Object.keys(cur.constraints)[0];
         const message = `validator.${key}.${k}`;
         acc[key] = { validator: k, message };
-        console.log(acc);
       }
       return acc;
     }, errors);
@@ -75,8 +76,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
       const validationErrors = response.message as ValidationError[];
       const errors = this.makeValidationError({}, validationErrors);
 
-      console.log(errors);
-
       errorResponse = {
         code: 'validator',
         type: ERROR_TYPE.VALIDATOR,
@@ -90,9 +89,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
         type: ERROR_TYPE.SERVER,
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: exception.message.error,
+        errorLocale: exception.message.error
+          ? '권한 없음'
+          : 'Something went wrong',
       };
     }
-
     res.status(exception.getStatus()).json({
       ...errorResponse,
       timestamp: new Date().toISOString(),

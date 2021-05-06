@@ -6,3 +6,4 @@ export * from './remove-duplicate-object-by-key.util';
 export * from './cryptr.utils';
 export * from './reservation-hour-format.util';
 export * from './date-formatter.util';
+export * from './random-revenue-trajectory-generator.util';

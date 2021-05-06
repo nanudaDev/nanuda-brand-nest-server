@@ -120,7 +120,7 @@ export class CodeHdongService extends BaseService {
    * find one
    * @param hdongCode
    */
-  async findOneByCode(hdongCode: string) {
+  async findOneByCode(hdongCode: number | string) {
     const hdong = await this.codeHdongRepo
       .createQueryBuilder('hdong')
       .where('hdong.hdongCode = :hdongCode', { hdongCode: hdongCode })

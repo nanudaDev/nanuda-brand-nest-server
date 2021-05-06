@@ -304,6 +304,7 @@ export class ConsultResultService extends BaseService {
         await this.pickcookSlackNotificationService.sendAdminConsultNotication(
           newConsult,
         );
+        // create new report
         return newConsult;
       },
     );

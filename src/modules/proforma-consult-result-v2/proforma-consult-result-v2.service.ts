@@ -100,7 +100,7 @@ export class ProformaConsultResultV2Service extends BaseService {
       averageRatioArray.reduce((a, b) => a + b) / averageRatioArray.length,
     );
     // needs to randomize later
-    if (average === 0) {
+    if (average < 10) {
       average = 11;
     }
     console.log(average, 'average');

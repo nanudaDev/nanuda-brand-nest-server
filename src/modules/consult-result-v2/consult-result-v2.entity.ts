@@ -1,6 +1,7 @@
 import { BaseEntity } from 'src/core';
 import { BRAND_CONSULT, FNB_OWNER } from 'src/shared';
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import { PlatformAdmin } from '../admin/platform-admin.entity';
 import { CommonCode } from '../common-code/common-code.entity';
 import { ProformaConsultResultV2 } from '../proforma-consult-result-v2/proforma-consult-result-v2.entity';
 
@@ -46,7 +47,7 @@ export class ConsultResultV2 extends BaseEntity<ConsultResultV2> {
     name: 'consult_drop_date',
     type: 'datetime',
   })
-  consultDtopDate: Date;
+  consultDropDate: Date;
 
   @Column({
     name: 'fnb_owner_status',
@@ -66,7 +67,19 @@ export class ConsultResultV2 extends BaseEntity<ConsultResultV2> {
   })
   responseData?: ProformaConsultResultV2;
 
+  @Column({
+    name: 'admin_id',
+    type: 'int',
+  })
+  adminId?: number;
+
   @OneToOne(type => CommonCode)
   @JoinColumn({ name: 'fnb_owner_status', referencedColumnName: 'key' })
   fnbOwnerCodeStatus?: CommonCode;
+
+  @OneToOne(type => ProformaConsultResultV2)
+  @JoinColumn({ name: 'proforma_consult_result_id' })
+  proformaConsultResult?: ProformaConsultResultV2;
+
+  admin?: PlatformAdmin;
 }

@@ -7,11 +7,16 @@ import {
   PickcookSlackNotificationService,
 } from 'src/common/utils';
 import { BaseService, BrandAiException } from 'src/core';
+import { BRAND_CONSULT } from 'src/shared';
 import { EntityManager, Repository } from 'typeorm';
 import { ProformaConsultResultV2 } from '../proforma-consult-result-v2/proforma-consult-result-v2.entity';
 import { SmsNotificationService } from '../sms-notification/sms-notification.service';
 import { ConsultResultV2 } from './consult-result-v2.entity';
-import { AdminConsultResultV2ListDto, ConsultResultV2CreateDto } from './dto';
+import {
+  AdminConsultResultV2ListDto,
+  AdminConsultResultV2UpdateDto,
+  ConsultResultV2CreateDto,
+} from './dto';
 
 @Injectable()
 export class ConsultResultV2Service extends BaseService {
@@ -25,15 +30,104 @@ export class ConsultResultV2Service extends BaseService {
     super();
   }
 
-  //   async findAllForAdmin(
-  //     adminConsultResultV2ListDto: AdminConsultResultV2ListDto,
-  //     pagination: PaginatedRequest,
-  //   ): Promise<PaginatedResponse<ConsultResultV2>> {
-  //     const qb = this.consultResultV2Repo
-  //       .createQueryBuilder('consult')
-  //       .CustomInnerJoinAndSelect(['fnbOwnerCodeStatus'])
-  //       .AndWhereLike('consult', 'name', adminConsultResultV2ListDto.name, adminConsultResultV2ListDto.exclude('name'))
-  //   }
+  /**
+   * find all for admin
+   * @param adminConsultResultV2ListDto
+   * @param pagination
+   * @returns
+   */
+  async findAllForAdmin(
+    adminConsultResultV2ListDto: AdminConsultResultV2ListDto,
+    pagination: PaginatedRequest,
+  ): Promise<PaginatedResponse<ConsultResultV2>> {
+    const qb = this.consultResultV2Repo
+      .createQueryBuilder('consult')
+      .CustomLeftJoinAndSelect(['fnbOwnerCodeStatus', 'proformaConsultResult'])
+      .AndWhereLike(
+        'consult',
+        'name',
+        adminConsultResultV2ListDto.name,
+        adminConsultResultV2ListDto.exclude('name'),
+      )
+      .AndWhereLike(
+        'consult',
+        'phone',
+        adminConsultResultV2ListDto.phone,
+        adminConsultResultV2ListDto.exclude('phone'),
+      )
+      .Paginate(pagination)
+      .WhereAndOrder(adminConsultResultV2ListDto)
+      .getManyAndCount();
+
+    const [items, totalCount] = await qb;
+
+    return { items, totalCount };
+  }
+
+  /**
+   * find one for admin
+   * @param id
+   * @returns
+   */
+  async findOneForAdmin(id: number): Promise<ConsultResultV2> {
+    const qb = await this.consultResultV2Repo
+      .createQueryBuilder('consult')
+      .CustomLeftJoinAndSelect(['fnbOwnerCodeStatus', 'proformaConsultResult'])
+      .where('consult.id = :id', { id: id })
+      .getOne();
+
+    if (!qb) throw new BrandAiException('consultResult.notFound');
+
+    return qb;
+  }
+
+  /**
+   * update for admi
+   * @param id
+   * @param adminConsultResultV2UpdateDto
+   * @returns
+   */
+  async updateForAdmin(
+    id: number,
+    adminConsultResultV2UpdateDto: AdminConsultResultV2UpdateDto,
+  ): Promise<ConsultResultV2> {
+    let result = await this.consultResultV2Repo.findOne(id);
+    result = result.set(adminConsultResultV2UpdateDto);
+    // complete date
+    if (
+      adminConsultResultV2UpdateDto.consultStatus ===
+      BRAND_CONSULT.CONSULT_COMPLETE
+    ) {
+      result.consultCompleteDate = new Date();
+    }
+    // consult drop date
+    if (
+      adminConsultResultV2UpdateDto.consultStatus ===
+      BRAND_CONSULT.CONSULT_DROPPED
+    ) {
+      result.consultDropDate = new Date();
+    }
+    result = await this.consultResultV2Repo.save(result);
+    return result;
+  }
+
+  /**
+   * assign admin
+   * @param adminId
+   * @param consultId
+   */
+  async assignAdmin(
+    adminId: number,
+    consultId: number,
+  ): Promise<ConsultResultV2> {
+    let consult = await this.consultResultV2Repo.findOne(consultId);
+    if (!consult) {
+      throw new BrandAiException('consultResult.notFound');
+    }
+    consult.adminId = adminId;
+    consult = await this.consultResultV2Repo.save(consult);
+    return consult;
+  }
 
   /**
    * create for pickcook user

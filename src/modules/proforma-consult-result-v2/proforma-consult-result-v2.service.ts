@@ -324,15 +324,15 @@ export class ProformaConsultResultV2Service extends BaseService {
       score.appliedNewRanking = sScoreData.indexOf(score) + 1;
       score.mediumCategoryName = KB_FOOD_CATEGORY[score.mediumCategoryCode];
       if (sScoreData.indexOf(score) === 0) {
-        score.appliedFitnessScore = 95 - 100 / score.appliedCScoreRanking;
+        score.appliedFitnessScore = 96 - 100 / score.appliedCScoreRanking;
         // 빅데이터 상권 점수
-        score.bigDataLocationScore = Math.floor(98 - 100 / score.averageScore);
+        score.bigDataLocationScore = Math.floor(97 - 100 / score.averageScore);
       } else if (sScoreData.indexOf(score) === 1) {
-        score.appliedFitnessScore = 85 - 100 / score.appliedCScoreRanking;
-        score.bigDataLocationScore = Math.floor(88 - 100 / score.averageScore);
+        score.appliedFitnessScore = 82 - 100 / score.appliedCScoreRanking;
+        score.bigDataLocationScore = Math.floor(86 - 100 / score.averageScore);
       } else if (sScoreData.indexOf(score) === 2) {
-        score.appliedFitnessScore = 75 - 100 / score.appliedCScoreRanking;
-        score.bigDataLocationScore = Math.floor(78 - 100 / score.averageScore);
+        score.appliedFitnessScore = 71 - 100 / score.appliedCScoreRanking;
+        score.bigDataLocationScore = Math.floor(71 - 100 / score.averageScore);
       }
     });
     return sScoreData;
@@ -368,7 +368,11 @@ export class ProformaConsultResultV2Service extends BaseService {
           },
         });
       if (!checkRevenueTracker) {
-        if (data.data.value[0].deliveryRevenue < 1000000) {
+        if (
+          data.data.value[0].deliveryRevenue < 1000000 ||
+          !data.data.value[0].deliveryRevenue ||
+          data.data.value.length < 1
+        ) {
           const newRevenue = parseInt(`${RandomRevenueGenerator()}0000`);
 
           const newRevenueTracker = new ModifiedRevenueTracker({
@@ -399,7 +403,11 @@ export class ProformaConsultResultV2Service extends BaseService {
           },
         });
       if (!checkRevenueTracker) {
-        if (data.data.value[0].restaurantRevenue < 1000000) {
+        if (
+          data.data.value[0].restaurantRevenue < 1000000 ||
+          !data.data.value[0].deliveryRevenue ||
+          data.data.value.length < 1
+        ) {
           const newRevenue = parseInt(`${RandomRevenueGenerator()}0000`);
           const newRevenueTracker = new ModifiedRevenueTracker({
             restaurantType: RESTAURANT_TYPE.RESTAURANT,
@@ -455,11 +463,10 @@ export class ProformaConsultResultV2Service extends BaseService {
             },
           },
         );
-        percentage =
-          (revenue.data.value[0].deliveryRevenue -
-            lastQuarterRevenue.data.value[0].lastQuarterDeliveryRevenue) /
-          lastQuarterRevenue.data.value[0].lastQuarterDeliveryRevenue;
-        if (percentage < 10 || !percentage) {
+        if (
+          revenue.data.value.length < 1 ||
+          lastQuarterRevenue.data.value.length < 1
+        ) {
           const newPercentage = RandomTrajectoryGenerator();
           percentage = new ModifiedTrajectoryTracker({
             percentage: newPercentage,
@@ -470,12 +477,76 @@ export class ProformaConsultResultV2Service extends BaseService {
           percentage = this.entityManager.save(percentage);
           percentage = newPercentage;
           return percentage;
+        } else {
+          percentage =
+            (revenue.data.value[0].deliveryRevenue -
+              lastQuarterRevenue.data.value[0].lastQuarterDeliveryRevenue) /
+            lastQuarterRevenue.data.value[0].lastQuarterDeliveryRevenue;
+          if (percentage < 10 || !percentage) {
+            const newPercentage = RandomTrajectoryGenerator();
+            percentage = new ModifiedTrajectoryTracker({
+              percentage: newPercentage,
+              hdongCode: sScoreData.hdongCode,
+              sSmallCategoryCode: sScoreData.sSmallCategoryCode,
+              restaurantType: RESTAURANT_TYPE.DELIVERY,
+            });
+            percentage = this.entityManager.save(percentage);
+            percentage = newPercentage;
+            return percentage;
+          }
         }
       } else {
         percentage = checkTracker.percentage;
       }
     }
     if (sScoreData instanceof SScoreRestaurant) {
+      // const checkTracker = await this.entityManager
+      //   .getRepository(ModifiedTrajectoryTracker)
+      //   .findOne({
+      //     where: {
+      //       hdongCode: sScoreData.hdongCode,
+      //       sSmallCategoryCode: sScoreData.sSmallCategoryCode,
+      //       restaurantType: RESTAURANT_TYPE.RESTAURANT,
+      //     },
+      //   });
+      // if (!checkTracker) {
+      //   const revenue = await Axios.get(
+      //     `${this.analysisUrl}location-small-category-revenue-by-quarter`,
+      //     {
+      //       params: {
+      //         hdongCode: sScoreData.hdongCode,
+      //         sSmallCategoryCode: sScoreData.sSmallCategoryCode,
+      //       },
+      //     },
+      //   );
+      //   const lastQuarterRevenue = await Axios.get(
+      //     `${this.analysisUrl}location-small-category-revenue-by-last-quarter`,
+      //     {
+      //       params: {
+      //         hdongCode: sScoreData.hdongCode,
+      //         sSmallCategoryCode: sScoreData.sSmallCategoryCode,
+      //       },
+      //     },
+      //   );
+      //   percentage =
+      //     (revenue.data.value[0].restaurantRevenue -
+      //       lastQuarterRevenue.data.value[0].lastQuarterRestaurantRevenue) /
+      //     lastQuarterRevenue.data.value[0].lastQuarterRestaurantRevenue;
+      //   if (percentage < 10 || !percentage) {
+      //     const newPercentage = RandomTrajectoryGenerator();
+      //     percentage = new ModifiedTrajectoryTracker({
+      //       percentage: newPercentage,
+      //       hdongCode: sScoreData.hdongCode,
+      //       sSmallCategoryCode: sScoreData.sSmallCategoryCode,
+      //       restaurantType: RESTAURANT_TYPE.RESTAURANT,
+      //     });
+      //     percentage = this.entityManager.save(percentage);
+      //     percentage = newPercentage;
+      //     return percentage;
+      //   }
+      // } else {
+      //   percentage = checkTracker.percentage;
+      // }
       const checkTracker = await this.entityManager
         .getRepository(ModifiedTrajectoryTracker)
         .findOne({
@@ -504,11 +575,10 @@ export class ProformaConsultResultV2Service extends BaseService {
             },
           },
         );
-        percentage =
-          (revenue.data.value[0].restaurantRevenue -
-            lastQuarterRevenue.data.value[0].lastQuarterRestaurantRevenue) /
-          lastQuarterRevenue.data.value[0].lastQuarterRestaurantRevenue;
-        if (percentage < 10 || !percentage) {
+        if (
+          revenue.data.value.length < 1 ||
+          lastQuarterRevenue.data.value.length < 1
+        ) {
           const newPercentage = RandomTrajectoryGenerator();
           percentage = new ModifiedTrajectoryTracker({
             percentage: newPercentage,
@@ -519,6 +589,23 @@ export class ProformaConsultResultV2Service extends BaseService {
           percentage = this.entityManager.save(percentage);
           percentage = newPercentage;
           return percentage;
+        } else {
+          percentage =
+            (revenue.data.value[0].restaurantRevenue -
+              lastQuarterRevenue.data.value[0].lastQuarterRestaurantRevenue) /
+            lastQuarterRevenue.data.value[0].lastQuarterRestaurantRevenue;
+          if (percentage < 10 || !percentage) {
+            const newPercentage = RandomTrajectoryGenerator();
+            percentage = new ModifiedTrajectoryTracker({
+              percentage: newPercentage,
+              hdongCode: sScoreData.hdongCode,
+              sSmallCategoryCode: sScoreData.sSmallCategoryCode,
+              restaurantType: RESTAURANT_TYPE.RESTAURANT,
+            });
+            percentage = this.entityManager.save(percentage);
+            percentage = newPercentage;
+            return percentage;
+          }
         }
       } else {
         percentage = checkTracker.percentage;

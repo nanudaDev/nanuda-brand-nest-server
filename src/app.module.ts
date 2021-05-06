@@ -83,8 +83,8 @@ const env = process.env;
       //   Do not turn to true!!!!
       synchronize: false,
     }),
-    // AuthModule,
-    // FaqModule,
+    AuthModule,
+    FaqModule,
     AggregateResultResponseModule,
     CommonCodeModule,
     CodeHdongModule,

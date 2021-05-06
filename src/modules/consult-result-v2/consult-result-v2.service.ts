@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { Request } from 'express';
-import { YN } from 'src/common';
+import { PaginatedRequest, PaginatedResponse, YN } from 'src/common';
 import {
   encryptString,
   PickcookSlackNotificationService,
@@ -11,7 +11,7 @@ import { EntityManager, Repository } from 'typeorm';
 import { ProformaConsultResultV2 } from '../proforma-consult-result-v2/proforma-consult-result-v2.entity';
 import { SmsNotificationService } from '../sms-notification/sms-notification.service';
 import { ConsultResultV2 } from './consult-result-v2.entity';
-import { ConsultResultV2CreateDto } from './dto';
+import { AdminConsultResultV2ListDto, ConsultResultV2CreateDto } from './dto';
 
 @Injectable()
 export class ConsultResultV2Service extends BaseService {
@@ -25,6 +25,22 @@ export class ConsultResultV2Service extends BaseService {
     super();
   }
 
+  //   async findAllForAdmin(
+  //     adminConsultResultV2ListDto: AdminConsultResultV2ListDto,
+  //     pagination: PaginatedRequest,
+  //   ): Promise<PaginatedResponse<ConsultResultV2>> {
+  //     const qb = this.consultResultV2Repo
+  //       .createQueryBuilder('consult')
+  //       .CustomInnerJoinAndSelect(['fnbOwnerCodeStatus'])
+  //       .AndWhereLike('consult', 'name', adminConsultResultV2ListDto.name, adminConsultResultV2ListDto.exclude('name'))
+  //   }
+
+  /**
+   * create for pickcook user
+   * @param consultResultV2CreateDto
+   * @param req
+   * @returns
+   */
   async createForUser(
     consultResultV2CreateDto: ConsultResultV2CreateDto,
     req?: Request,

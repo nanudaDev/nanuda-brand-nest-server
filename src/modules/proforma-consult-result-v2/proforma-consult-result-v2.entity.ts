@@ -23,6 +23,7 @@ import { Question } from '../question/question.entity';
 import { CScoreAttribute } from '../data';
 import { Json } from 'aws-sdk/clients/robomaker';
 import { YN } from 'src/common';
+import { QuestionV2 } from '../question-v2/question-v2.entity';
 
 @Entity({ name: 'proforma_consult_result_v2' })
 export class ProformaConsultResultV2 extends BaseEntity<
@@ -108,14 +109,14 @@ export class ProformaConsultResultV2 extends BaseEntity<
   // @JoinColumn({ name: 'age_group_code', referencedColumnName: 'key' })
   // ageGroupCodeStatus?: CommonCode;
 
-  // @ManyToMany(
-  //   type => Question,
-  //   question => question.proformas,
-  // )
-  // @JoinTable({
-  //   name: 'question_proforma_mapper',
-  //   joinColumn: { name: 'proforma_consult_result_id' },
-  //   inverseJoinColumn: { name: 'question_id' },
-  // })
-  // questions?: Question[];
+  @ManyToMany(
+    type => QuestionV2,
+    question => question.proformas,
+  )
+  @JoinTable({
+    name: 'question_proforma_mapper_v2',
+    joinColumn: { name: 'proforma_consult_result_id' },
+    inverseJoinColumn: { name: 'question_id' },
+  })
+  questions?: QuestionV2[];
 }

@@ -53,18 +53,6 @@ export class CodeHdongService extends BaseService {
         codeHdongListDto.exclude('sidoName'),
       )
       .groupBy('codeHdong.guName')
-      //   .AndWhereLike(
-      //     'codeHdong',
-      //     'hdongName',
-      //     codeHdongListDto.hdongName,
-      //     codeHdongListDto.exclude('hdongName'),
-      //   )
-      //   .AndWhereEqual(
-      //     'codeHdong',
-      //     'hdongCode',
-      //     codeHdongListDto.hdongCode,
-      //     codeHdongListDto.exclude('hdongCode'),
-      //   )
       .orderBy('codeHdong.guName', ORDER_BY_VALUE.ASC)
       .getMany();
 
@@ -79,18 +67,15 @@ export class CodeHdongService extends BaseService {
   async findAllDongs(codeHdongListDto: CodeHdongListDto): Promise<CodeHdong[]> {
     const qb = this.codeHdongRepo
       .createQueryBuilder('codeHdong')
-      //   .AndWhereLike(
-      //     'codeHdong',
-      //     'guName',
-      //     codeHdongListDto.guName,
-      //     codeHdongListDto.exclude('guName'),
-      //   )
       .where('codeHdong.guName IS NOT NULL')
       .andWhere('codeHdong.hdongName IS NOT NULL')
       .andWhere('codeHdong.sidoName = :sidoName', {
         sidoName: codeHdongListDto.sidoName,
       })
+      // TODO: 테이블 생성
+      // create table
       .andWhere('codeHdong.hdongCode != 1168066000')
+      .andWhere('codeHdong.hdongCode != 1174069000')
       .AndWhereLike(
         'codeHdong',
         'guName',
@@ -98,18 +83,6 @@ export class CodeHdongService extends BaseService {
         codeHdongListDto.exclude('guName'),
       )
       .groupBy('codeHdong.hdongName')
-      //   .AndWhereLike(
-      //     'codeHdong',
-      //     'hdongName',
-      //     codeHdongListDto.hdongName,
-      //     codeHdongListDto.exclude('hdongName'),
-      //   )
-      //   .AndWhereEqual(
-      //     'codeHdong',
-      //     'hdongCode',
-      //     codeHdongListDto.hdongCode,
-      //     codeHdongListDto.exclude('hdongCode'),
-      //   )
       .orderBy('codeHdong.hdongName', ORDER_BY_VALUE.ASC)
       .getMany();
 

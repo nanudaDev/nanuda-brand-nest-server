@@ -11,6 +11,7 @@ import {
   JoinTable,
 } from 'typeorm';
 import { CommonCode } from '../common-code/common-code.entity';
+import { ProformaConsultResultV2 } from '../proforma-consult-result-v2/proforma-consult-result-v2.entity';
 import { QuestionGivenV2 } from '../question-given-v2/question-given-v2.entity';
 
 @Entity({ name: 'question_v2' })
@@ -120,4 +121,15 @@ export class QuestionV2 extends BaseEntity<QuestionV2> {
     givens => givens.question,
   )
   givens?: QuestionGivenV2[];
+
+  @ManyToMany(
+    type => ProformaConsultResultV2,
+    proforma => proforma.questions,
+  )
+  @JoinTable({
+    name: 'question_proforma_mapper_v2',
+    joinColumn: { name: 'question_id' },
+    inverseJoinColumn: { name: 'proforma_consult_result_id' },
+  })
+  proformas?: ProformaConsultResultV2[];
 }

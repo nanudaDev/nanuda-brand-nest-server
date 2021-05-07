@@ -11,6 +11,9 @@ import { BRAND_CONSULT } from 'src/shared';
 import { EntityManager, Repository } from 'typeorm';
 import { PlatformAdmin } from '../admin/platform-admin.entity';
 import { ProformaConsultResultV2 } from '../proforma-consult-result-v2/proforma-consult-result-v2.entity';
+import { QuestionGivenV2 } from '../question-given-v2/question-given-v2.entity';
+import { QuestionProformaGivenMapperV2 } from '../question-proforma-given-mapper-v2/question-proforma-given-mapper-v2.entity';
+import { QuestionProformaMapperV2 } from '../question-proforma-mapper-v2/question-proforma-mapper-v2.entity';
 import { SmsNotificationService } from '../sms-notification/sms-notification.service';
 import { ConsultResultV2 } from './consult-result-v2.entity';
 import {
@@ -50,6 +53,7 @@ export class ConsultResultV2Service extends BaseService {
         'proformaConsultResult',
         'consultCodeStatus',
       ])
+      .innerJoinAndSelect('proformaConsultResult.questions', 'questions')
       .AndWhereLike(
         'consult',
         'name',
@@ -68,11 +72,13 @@ export class ConsultResultV2Service extends BaseService {
 
     const [items, totalCount] = await qb;
 
-    items.map(async item => {
-      if (item.adminId) {
-        item.admin = await this.platformAdminRepo.findOne(item.adminId);
-      }
-    });
+    await Promise.all(
+      items.map(async item => {
+        if (item.adminId) {
+          item.admin = await this.platformAdminRepo.findOne(item.adminId);
+        }
+      }),
+    );
 
     return { items, totalCount };
   }
@@ -90,10 +96,34 @@ export class ConsultResultV2Service extends BaseService {
         'proformaConsultResult',
         'consultCodeStatus',
       ])
+      .innerJoinAndSelect('proformaConsultResult.questions', 'questions')
       .where('consult.id = :id', { id: id })
       .getOne();
 
     if (!qb) throw new BrandAiException('consultResult.notFound');
+    await Promise.all(
+      qb.proformaConsultResult.questions.map(async question => {
+        const givenIds = [];
+        const answeredGivens = await this.entityManager
+          .getRepository(QuestionProformaMapperV2)
+          .find({
+            where: {
+              proformaConsultResultId: qb.proformaConsultResultId,
+              questionId: question.id,
+            },
+          });
+        answeredGivens.map(given => {
+          givenIds.push(...given.givenId);
+        });
+        const answers = await this.entityManager
+          .getRepository(QuestionGivenV2)
+          .createQueryBuilder('given')
+          // .CustomInnerJoinAndSelect(['givenDetails'])
+          .whereInIds(givenIds)
+          .getMany();
+        question.givens = answers;
+      }),
+    );
     if (qb.adminId) {
       qb.admin = await this.platformAdminRepo.findOne(qb.adminId);
     }

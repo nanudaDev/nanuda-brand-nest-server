@@ -97,8 +97,6 @@ export class SScoreRestaurant extends BaseWqEntity<SScoreRestaurant> {
   // 중분류명
   mediumCategoryName?: string;
 
-  pickcookSmallCategoryInfo?: PickcookSmallCategoryInfo;
-
   // 빅데이터 상권 점수
   bigDataLocationScore?: number;
 
@@ -118,4 +116,11 @@ export class SScoreRestaurant extends BaseWqEntity<SScoreRestaurant> {
     referencedColumnName: 'sSmallCategoryCode',
   })
   attributeValues?: SScoreAttributeValuesRestaurant;
+
+  @OneToOne(type => PickcookSmallCategoryInfo)
+  @JoinColumn({
+    name: 'sSmallCategoryCode',
+    referencedColumnName: 'sSmallCategoryCode',
+  })
+  pickcookSmallCategoryInfo?: PickcookSmallCategoryInfo;
 }

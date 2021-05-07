@@ -45,7 +45,11 @@ export class ConsultResultV2Service extends BaseService {
   ): Promise<PaginatedResponse<ConsultResultV2>> {
     const qb = this.consultResultV2Repo
       .createQueryBuilder('consult')
-      .CustomLeftJoinAndSelect(['fnbOwnerCodeStatus', 'proformaConsultResult'])
+      .CustomLeftJoinAndSelect([
+        'fnbOwnerCodeStatus',
+        'proformaConsultResult',
+        'consultCodeStatus',
+      ])
       .AndWhereLike(
         'consult',
         'name',
@@ -81,7 +85,11 @@ export class ConsultResultV2Service extends BaseService {
   async findOneForAdmin(id: number): Promise<ConsultResultV2> {
     const qb = await this.consultResultV2Repo
       .createQueryBuilder('consult')
-      .CustomLeftJoinAndSelect(['fnbOwnerCodeStatus', 'proformaConsultResult'])
+      .CustomLeftJoinAndSelect([
+        'fnbOwnerCodeStatus',
+        'proformaConsultResult',
+        'consultCodeStatus',
+      ])
       .where('consult.id = :id', { id: id })
       .getOne();
 

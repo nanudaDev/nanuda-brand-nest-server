@@ -81,5 +81,9 @@ export class ConsultResultV2 extends BaseEntity<ConsultResultV2> {
   @JoinColumn({ name: 'proforma_consult_result_id' })
   proformaConsultResult?: ProformaConsultResultV2;
 
+  @OneToOne(type => CommonCode)
+  @JoinColumn({ name: 'consult_status', referencedColumnName: 'key' })
+  consultCodeStatus?: CommonCode;
+
   admin?: PlatformAdmin;
 }

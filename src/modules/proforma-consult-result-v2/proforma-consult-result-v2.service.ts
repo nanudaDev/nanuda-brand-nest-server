@@ -121,6 +121,7 @@ export class ProformaConsultResultV2Service extends BaseService {
       proformaConsultResultQueryDto.hdongCode,
       RESTAURANT_TYPE.RESTAURANT,
     );
+
     const appliedCScore = await this.__apply_c_score(
       average < 30 ? sScoreRestaurant : sScoreDelivery,
       questionScores,
@@ -244,9 +245,6 @@ export class ProformaConsultResultV2Service extends BaseService {
       throw new BrandAiException('proforma.notEnoughData');
     await Promise.all(
       sScoreData.map(async data => {
-        data.pickcookSmallCategoryInfo = await this.pickcookSmallCategoryInfoService.findOne(
-          data.sSmallCategoryCode,
-        );
         const menuPercentageGrade = Math.ceil(
           (questionScore.menuscore /
             (userType === FNB_OWNER.CUR_FNB_OWNER

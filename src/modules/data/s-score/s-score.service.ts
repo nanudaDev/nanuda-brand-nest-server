@@ -33,6 +33,7 @@ export class SScoreService extends BaseService {
       qb = this.scoreRestaurantRepo
         .createQueryBuilder('restaurant')
         .CustomInnerJoinAndSelect(['attributeValues'])
+        .CustomLeftJoinAndSelect(['pickcookSmallCategoryInfo'])
         .andWhere('restaurant.hdongCode = :hdongCode', {
           hdongCode: hdongCode,
         })
@@ -41,9 +42,10 @@ export class SScoreService extends BaseService {
     }
     if (restaurantType === RESTAURANT_TYPE.DELIVERY) {
       qb = this.scoreDeliveryRepo
-        .createQueryBuilder('restaurant')
+        .createQueryBuilder('delivery')
         .CustomInnerJoinAndSelect(['attributeValues'])
-        .andWhere('restaurant.hdongCode = :hdongCode', {
+        .CustomLeftJoinAndSelect(['pickcookSmallCategoryInfo'])
+        .andWhere('delivery.hdongCode = :hdongCode', {
           hdongCode: hdongCode,
         })
         .limit(3)

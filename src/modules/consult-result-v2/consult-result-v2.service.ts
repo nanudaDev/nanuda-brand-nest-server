@@ -9,6 +9,7 @@ import {
 import { BaseService, BrandAiException } from 'src/core';
 import { BRAND_CONSULT } from 'src/shared';
 import { EntityManager, Repository } from 'typeorm';
+import { PlatformAdmin } from '../admin/platform-admin.entity';
 import { ProformaConsultResultV2 } from '../proforma-consult-result-v2/proforma-consult-result-v2.entity';
 import { SmsNotificationService } from '../sms-notification/sms-notification.service';
 import { ConsultResultV2 } from './consult-result-v2.entity';
@@ -24,6 +25,8 @@ export class ConsultResultV2Service extends BaseService {
     @InjectRepository(ConsultResultV2)
     private readonly consultResultV2Repo: Repository<ConsultResultV2>,
     @InjectEntityManager() private readonly entityManager: EntityManager,
+    @InjectRepository(PlatformAdmin, 'platform')
+    private readonly platformAdminRepo: Repository<PlatformAdmin>,
     private readonly smsNotificationService: SmsNotificationService,
     private readonly pickcookSlackNotificationService: PickcookSlackNotificationService,
   ) {
@@ -61,6 +64,12 @@ export class ConsultResultV2Service extends BaseService {
 
     const [items, totalCount] = await qb;
 
+    items.map(async item => {
+      if (item.adminId) {
+        item.admin = await this.platformAdminRepo.findOne(item.adminId);
+      }
+    });
+
     return { items, totalCount };
   }
 
@@ -77,7 +86,9 @@ export class ConsultResultV2Service extends BaseService {
       .getOne();
 
     if (!qb) throw new BrandAiException('consultResult.notFound');
-
+    if (qb.adminId) {
+      qb.admin = await this.platformAdminRepo.findOne(qb.adminId);
+    }
     return qb;
   }
 

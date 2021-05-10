@@ -20,4 +20,4 @@ import { ConsultResultV2Service } from './consult-result-v2.service';
   providers: [ConsultResultV2Service, PickcookSlackNotificationService],
   exports: [ConsultResultV2Service],
 })
-export class ConsultResultV2Module {}
+export class ConsultResultV2Module { }

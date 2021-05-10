@@ -26,7 +26,8 @@
     },
     "proforma": {
         "notFound":"Proforma not found",
-        "notEnoughData": "Not enough S-Score data"
+        "notEnoughData": "Not enough S-Score data",
+        "noIpAddress": "No ip address"
     },
     "response": {
         "notFound": "결과가 없습니다"

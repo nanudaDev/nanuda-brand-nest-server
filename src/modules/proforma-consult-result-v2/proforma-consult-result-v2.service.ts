@@ -133,7 +133,7 @@ export class ProformaConsultResultV2Service extends BaseService {
     let newProforma = new ProformaConsultResultV2(
       proformaConsultResultQueryDto,
     );
-    console.log(questionScores);
+
     newProforma.cScoreAttributeId = cScoreAttributeValue.id;
     newProforma.hdong = hdong;
     newProforma.totalQuestionInitialCostScore = questionScores.initialCostScore;

@@ -112,7 +112,6 @@ export class QuestionV2Service extends BaseService {
           throw new BrandAiException('question.noMoreQuestion');
         }
         const nextQuestion = await findNextQuestion.getMany();
-        console.log(nextQuestion);
         // filter sub question
         nextQuestion.map(question => {
           if (answeredQuestion.hasSubYn === YN.YES) {

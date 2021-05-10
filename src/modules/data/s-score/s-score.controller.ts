@@ -2,7 +2,7 @@ import { Controller, Get, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { RESTAURANT_TYPE } from 'src/common';
 import { BaseController } from 'src/core';
-import { SScoreRestaurant } from '../entities';
+import { SScoreDelivery, SScoreRestaurant } from '../entities';
 import { SScoreListDto } from './dto';
 import { SScoreService } from './s-score.service';
 
@@ -40,6 +40,36 @@ export class SScoreController extends BaseController {
     return await this.sScoreService.findAll(
       sScoreListDto.hdongCode,
       RESTAURANT_TYPE.DELIVERY,
+    );
+  }
+
+  /**
+   * delivery type
+   * @param sScoreListDto
+   * @returns
+   */
+  @Get('/s-score-delivery-menu-w-medium-code')
+  async findAllDeliveryWithMediumCode(
+    @Query() sScoreListDto: SScoreListDto,
+  ): Promise<SScoreDelivery[]> {
+    return await this.sScoreService.findAllWithMediumCategoryCode(
+      sScoreListDto,
+      RESTAURANT_TYPE.DELIVERY,
+    );
+  }
+
+  /**
+   * Restaurant type
+   * @param sScoreListDto
+   * @returns
+   */
+  @Get('/s-score-restaurant-menu-w-medium-code')
+  async findAllRestaurantithMediumCode(
+    @Query() sScoreListDto: SScoreListDto,
+  ): Promise<SScoreRestaurant[]> {
+    return await this.sScoreService.findAllWithMediumCategoryCode(
+      sScoreListDto,
+      RESTAURANT_TYPE.RESTAURANT,
     );
   }
 }

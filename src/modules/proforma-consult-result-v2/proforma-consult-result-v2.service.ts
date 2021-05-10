@@ -30,6 +30,7 @@ import {
   RandomTrajectoryGenerator,
 } from 'src/common/utils';
 import { ModifiedTrajectoryTracker } from '../modified-trajectory-tracker/modified-trajectory-tracker.entity';
+import { ProformaEventTrackerService } from '../proforma-event-tracker/proforma-event-tracker.service';
 
 class CScoreAggregateClass {
   menuscore: number;
@@ -54,6 +55,7 @@ export class ProformaConsultResultV2Service extends BaseService {
     private readonly codeHdongService: CodeHdongService,
     private readonly sScoreService: SScoreService,
     private readonly pickcookSmallCategoryInfoService: PickcookSmallCategoryService,
+    private readonly proformaEventTrackerService: ProformaEventTrackerService,
   ) {
     super();
   }
@@ -143,6 +145,8 @@ export class ProformaConsultResultV2Service extends BaseService {
       restaurantRatio: 100 - average,
     };
     newProforma = await this.proformaConsultRepo.save(newProforma);
+    // create event tracker through ip
+    this.proformaEventTrackerService.createRecord(newProforma);
     // create new proforma to question tracker
     // 동기
     this.createProformaToQuestionMapper(

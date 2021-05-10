@@ -36,19 +36,18 @@ export class ProformaEventTrackerService extends BaseService {
       })
       .orderBy('tracker.id', ORDER_BY_VALUE.DESC)
       .getOne();
-    const checkTime = this.__check_if_over_thirty_minutes(checkIpAddress);
     if (!checkIpAddress) {
       newRecord.proformaConsultId = proforma.id;
       newRecord.ipAddress = proforma.ipAddress;
       newRecord = await this.proformaEventTrackerRepo.save(newRecord);
     }
-    if (checkIpAddress && !checkTime) {
-      newRecord.proformaConsultId = proforma.id;
-      newRecord.ipAddress = proforma.ipAddress;
-      newRecord = await this.proformaEventTrackerRepo.save(newRecord);
-    } else if (checkIpAddress && checkTime) {
-      // return nothing or do nothing
-      return null;
+    if (checkIpAddress) {
+      const checkTime = this.__check_if_over_thirty_minutes(checkIpAddress);
+      if (checkTime) {
+        newRecord.proformaConsultId = proforma.id;
+        newRecord.ipAddress = proforma.ipAddress;
+        newRecord = await this.proformaEventTrackerRepo.save(newRecord);
+      }
     }
 
     return newRecord;
@@ -65,9 +64,9 @@ export class ProformaEventTrackerService extends BaseService {
     const trackerDate = tracker.created;
     const differenceInTime = date.getTime() - trackerDate.getTime();
     if (differenceInTime > halfAnHour) {
-      return false;
-    } else {
       return true;
+    } else {
+      return false;
     }
   }
 }

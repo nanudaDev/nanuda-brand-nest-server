@@ -8,7 +8,7 @@ import { ProformaEventTrackerService } from '../proforma-event-tracker/proforma-
 @Module({
   imports: [TypeOrmModule.forFeature([ProformaConsultResult])],
   controllers: [ProformaConsultResultController],
-  providers: [ProformaConsultResultService, ProformaEventTrackerService],
+  providers: [ProformaConsultResultService],
   exports: [ProformaConsultResultService],
 })
 export class ProformaConsultResultModule {}

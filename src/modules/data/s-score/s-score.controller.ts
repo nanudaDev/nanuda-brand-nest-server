@@ -42,4 +42,34 @@ export class SScoreController extends BaseController {
       RESTAURANT_TYPE.DELIVERY,
     );
   }
+
+  /**
+   * delivery type
+   * @param sScoreListDto
+   * @returns
+   */
+  @Get('/s-score-delivery-menu-w-medium-code')
+  async findAllDeliveryWithMediumCode(
+    @Query() sScoreListDto: SScoreListDto,
+  ): Promise<SScoreDelivery[]> {
+    return await this.sScoreService.findAllWithMediumCategoryCode(
+      sScoreListDto,
+      RESTAURANT_TYPE.DELIVERY,
+    );
+  }
+
+  /**
+   * Restaurant type
+   * @param sScoreListDto
+   * @returns
+   */
+  @Get('/s-score-restaurant-menu-w-medium-code')
+  async findAllRestaurantithMediumCode(
+    @Query() sScoreListDto: SScoreListDto,
+  ): Promise<SScoreRestaurant[]> {
+    return await this.sScoreService.findAllWithMediumCategoryCode(
+      sScoreListDto,
+      RESTAURANT_TYPE.RESTAURANT,
+    );
+  }
 }

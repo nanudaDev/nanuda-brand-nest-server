@@ -2,7 +2,7 @@ import { Controller, Get, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { RESTAURANT_TYPE } from 'src/common';
 import { BaseController } from 'src/core';
-import { SScoreRestaurant } from '../entities';
+import { SScoreDelivery, SScoreRestaurant } from '../entities';
 import { SScoreListDto } from './dto';
 import { SScoreService } from './s-score.service';
 

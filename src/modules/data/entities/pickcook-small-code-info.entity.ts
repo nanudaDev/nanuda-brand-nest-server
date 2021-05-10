@@ -24,4 +24,9 @@ export class PickcookSmallCategoryInfo extends BaseWqEntity<
     type: 'text',
   })
   pkMenuName: string;
+
+  @Column({
+    type: 'varchar',
+  })
+  pkMediumCategoryName: string;
 }

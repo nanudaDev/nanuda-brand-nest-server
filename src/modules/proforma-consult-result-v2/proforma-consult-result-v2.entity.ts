@@ -27,7 +27,7 @@ import { QuestionV2 } from '../question-v2/question-v2.entity';
 
 @Entity({ name: 'proforma_consult_result_v2' })
 export class ProformaConsultResultV2 extends BaseEntity<
-  ProformaConsultResultV2
+ProformaConsultResultV2
 > {
   @Column({
     name: 'c_score_attribute_id',
@@ -92,6 +92,12 @@ export class ProformaConsultResultV2 extends BaseEntity<
     default: () => YN.NO,
   })
   isConsultYn?: YN;
+
+  @Column({
+    name: 'ip_address',
+    type: 'varchar'
+  })
+  ipAddress?: string;
 
   @OneToOne(type => CommonCode)
   @JoinColumn({ name: 'fnb_owner_status', referencedColumnName: 'key' })

@@ -76,6 +76,7 @@ export class CodeHdongService extends BaseService {
       // create table
       .andWhere('codeHdong.hdongCode != 1168066000')
       .andWhere('codeHdong.hdongCode != 1174069000')
+      .andWhere('codeHdong.hdongCode != 2871042500')
       .AndWhereLike(
         'codeHdong',
         'guName',

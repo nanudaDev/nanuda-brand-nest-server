@@ -205,6 +205,7 @@ export class ConsultResultV2Service extends BaseService {
         if (!proforma) throw new BrandAiException('proforma.notFound');
         let newConsult = new ConsultResultV2(consultResultV2CreateDto);
         newConsult.proformaConsultResultId = proforma.id;
+        newConsult.fnbOwnerStatus = proforma.fnbOwnerStatus;
         newConsult = await entityManager.save(newConsult);
         const lastFourPhoneDigits = consultResultV2CreateDto.phone.substr(
           consultResultV2CreateDto.phone.length - 4,

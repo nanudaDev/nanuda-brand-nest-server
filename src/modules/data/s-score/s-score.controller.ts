@@ -72,4 +72,36 @@ export class SScoreController extends BaseController {
       RESTAURANT_TYPE.RESTAURANT,
     );
   }
+
+  /**
+   * delivery s-score other
+   * @param sScoreListDto
+   * @returns
+   */
+  @Get('/s-score-delivery-other')
+  async findAllSScoreDeliveryOther(
+    @Query() sScoreListDto: SScoreListDto,
+  ): Promise<SScoreDelivery[]> {
+    sScoreListDto.restaurantType = RESTAURANT_TYPE.DELIVERY;
+    return await this.sScoreService.findSecondarySScore(
+      sScoreListDto,
+      sScoreListDto.restaurantType,
+    );
+  }
+
+  /**
+   * restaurant s-score other
+   * @param sScoreListDto
+   * @returns
+   */
+  @Get('/s-score-restaurant-other')
+  async findAllSScoreRestaurantOther(
+    @Query() sScoreListDto: SScoreListDto,
+  ): Promise<SScoreRestaurant[]> {
+    sScoreListDto.restaurantType = RESTAURANT_TYPE.RESTAURANT;
+    return await this.sScoreService.findSecondarySScore(
+      sScoreListDto,
+      sScoreListDto.restaurantType,
+    );
+  }
 }

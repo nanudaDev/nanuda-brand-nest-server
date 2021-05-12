@@ -24,10 +24,11 @@ import { CScoreAttribute } from '../data';
 import { Json } from 'aws-sdk/clients/robomaker';
 import { YN } from 'src/common';
 import { QuestionV2 } from '../question-v2/question-v2.entity';
+import { ConsultResultV2 } from '../consult-result-v2/consult-result-v2.entity';
 
 @Entity({ name: 'proforma_consult_result_v2' })
 export class ProformaConsultResultV2 extends BaseEntity<
-ProformaConsultResultV2
+  ProformaConsultResultV2
 > {
   @Column({
     name: 'c_score_attribute_id',
@@ -55,6 +56,12 @@ ProformaConsultResultV2
 
   @Column({ type: 'json' })
   hdong: any;
+
+  @Column({
+    name: 'hdong_code',
+    type: 'varchar',
+  })
+  hdongCode: string | number;
 
   @Column({
     name: 'total_question_menu_score',
@@ -95,7 +102,7 @@ ProformaConsultResultV2
 
   @Column({
     name: 'ip_address',
-    type: 'varchar'
+    type: 'varchar',
   })
   ipAddress?: string;
 
@@ -125,4 +132,8 @@ ProformaConsultResultV2
     inverseJoinColumn: { name: 'question_id' },
   })
   questions?: QuestionV2[];
+
+  @OneToOne(type => ConsultResultV2)
+  @JoinColumn({ referencedColumnName: 'proformaConsultResultId' })
+  consult?: ConsultResultV2;
 }

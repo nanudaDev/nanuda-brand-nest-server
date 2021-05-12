@@ -31,6 +31,11 @@ import {
 } from 'src/common/utils';
 import { ModifiedTrajectoryTracker } from '../modified-trajectory-tracker/modified-trajectory-tracker.entity';
 import { ProformaEventTrackerService } from '../proforma-event-tracker/proforma-event-tracker.service';
+import { AdminProformaConsultResultV2ListDto } from './dto/admin-proforma-consult-result-v2-list.dto';
+import {
+  PaginatedRequest,
+  PaginatedResponse,
+} from '../../common/interfaces/pagination.type';
 
 class CScoreAggregateClass {
   menuscore: number;
@@ -60,6 +65,59 @@ export class ProformaConsultResultV2Service extends BaseService {
     super();
   }
 
+  /**
+   * find all for admin
+   * @param adminProformaConsultResultV2ListDto
+   * @param pagination
+   * @returns
+   */
+  async findAllForAdmin(
+    adminProformaConsultResultV2ListDto: AdminProformaConsultResultV2ListDto,
+    pagination: PaginatedRequest,
+  ): Promise<PaginatedResponse<ProformaConsultResultV2>> {
+    const qb = this.proformaConsultRepo
+      .createQueryBuilder('proforma')
+      .CustomInnerJoinAndSelect(['fnbOwnerCodeStatus', 'cScoreAttribute'])
+      .CustomLeftJoinAndSelect(['consult'])
+      .AndWhereLike(
+        'proforma',
+        'fnbOwnerStatus',
+        adminProformaConsultResultV2ListDto.fnbOwnerStatus,
+        adminProformaConsultResultV2ListDto.exclude('fnbOwnerStatus'),
+      )
+      .AndWhereLike(
+        'proforma',
+        'isConsultYn',
+        adminProformaConsultResultV2ListDto.isConsultYn,
+        adminProformaConsultResultV2ListDto.exclude('isConsultYn'),
+      )
+      .AndWhereLike(
+        'proforma',
+        'selectedKbMediumCategory',
+        adminProformaConsultResultV2ListDto.selectedKbMediumCategory,
+        adminProformaConsultResultV2ListDto.exclude('selectedKbMediumCategory'),
+      );
+    if (adminProformaConsultResultV2ListDto.hdongCode) {
+      qb.AndWhereEqual(
+        'proforma',
+        'hdongCode',
+        adminProformaConsultResultV2ListDto.hdongCode,
+        adminProformaConsultResultV2ListDto.exclude('hdongCode'),
+      );
+    }
+    qb.Paginate(pagination);
+    qb.WhereAndOrder(adminProformaConsultResultV2ListDto);
+
+    const [items, totalCount] = await qb.getManyAndCount();
+
+    return { items, totalCount };
+  }
+
+  /**
+   * create proforma for user
+   * @param proformaConsultResultQueryDto
+   * @returns
+   */
   async findResponseToQuestion(
     proformaConsultResultQueryDto: ProformaConsultResultV2QueryDto,
   ) {
@@ -133,7 +191,7 @@ export class ProformaConsultResultV2Service extends BaseService {
     let newProforma = new ProformaConsultResultV2(
       proformaConsultResultQueryDto,
     );
-    console.log(questionScores);
+
     newProforma.cScoreAttributeId = cScoreAttributeValue.id;
     newProforma.hdong = hdong;
     newProforma.totalQuestionInitialCostScore = questionScores.initialCostScore;

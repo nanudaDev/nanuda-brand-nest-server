@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ProformaEventTracker } from './proforma-event-tracker.entity';
 import { BaseService } from '../../core/base.service';
 import { InjectRepository, InjectEntityManager } from '@nestjs/typeorm';
@@ -6,6 +6,11 @@ import { Repository, EntityManager } from 'typeorm';
 import { ProformaConsultResultV2 } from '../proforma-consult-result-v2/proforma-consult-result-v2.entity';
 import { BrandAiException } from '../../core/errors/brand-ai.exception';
 import { ORDER_BY_VALUE } from '../../common/interfaces/order-by-value.type';
+import { AdminProformaEventTrackerListDto } from './dto/admin-proforma-event-tracker-list.dto';
+import {
+  PaginatedRequest,
+  PaginatedResponse,
+} from '../../common/interfaces/pagination.type';
 
 @Injectable()
 export class ProformaEventTrackerService extends BaseService {
@@ -15,6 +20,83 @@ export class ProformaEventTrackerService extends BaseService {
     @InjectEntityManager() private readonly entityManager: EntityManager,
   ) {
     super();
+  }
+
+  /**
+   * find all for admin
+   * @param adminProformaEventTrackerListDto
+   * @param pagination
+   * @returns
+   */
+  async findAllForAdmin(
+    adminProformaEventTrackerListDto: AdminProformaEventTrackerListDto,
+    pagination: PaginatedRequest,
+  ): Promise<PaginatedResponse<ProformaEventTracker>> {
+    const qb = this.proformaEventTrackerRepo
+      .createQueryBuilder('tracker')
+      .CustomInnerJoinAndSelect(['proformaConsult'])
+      .CustomLeftJoinAndSelect(['consult'])
+      .AndWhereLike(
+        'proforma',
+        'fnbOwnerStatus',
+        adminProformaEventTrackerListDto.proformaFnbOwnerStatus,
+        adminProformaEventTrackerListDto.exclude('proformaFnbOwnerStatus'),
+      )
+      .AndWhereLike(
+        'proforma',
+        'selectedKbMediumCategory',
+        adminProformaEventTrackerListDto.selectedKbMediumCategory,
+        adminProformaEventTrackerListDto.exclude('selectedKbMediumCategory'),
+      )
+      .AndWhereLike(
+        'consult',
+        'fnbOwnerStatus',
+        adminProformaEventTrackerListDto.consultFnbOwnerStatus,
+        adminProformaEventTrackerListDto.exclude('consultFnbOwnerStatus'),
+      )
+      .Paginate(pagination)
+      .WhereAndOrder(adminProformaEventTrackerListDto);
+
+    const [items, totalCount] = await qb.getManyAndCount();
+
+    return { items, totalCount };
+  }
+
+  /**
+   * find one for admin
+   * @param id
+   * @returns
+   */
+  async findOneForAdmin(id: number): Promise<ProformaEventTracker> {
+    const qb = await this.proformaEventTrackerRepo
+      .createQueryBuilder('tracker')
+      .CustomInnerJoinAndSelect(['proformaConsult'])
+      .CustomLeftJoinAndSelect(['consult'])
+      .where('tracker.id = :id', { id: id })
+      .getOne();
+    if (!qb) {
+      throw new NotFoundException();
+    }
+    return qb;
+  }
+
+  /**
+   * return all registered ips
+   * @param pagination
+   * @returns
+   */
+  async findIpAddresses(
+    pagination: PaginatedRequest,
+  ): Promise<PaginatedResponse<ProformaEventTracker>> {
+    const qb = this.proformaEventTrackerRepo
+      .createQueryBuilder('tracker')
+      .groupBy('tracker.ipAddress')
+      .Paginate(pagination)
+      .getManyAndCount();
+
+    const [items, totalCount] = await qb;
+
+    return { items, totalCount };
   }
 
   /**

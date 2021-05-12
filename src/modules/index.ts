@@ -23,3 +23,6 @@ export * from './consult-result-v2/consult-result-v2.module';
 
 // batch modules
 export * from '../batch-process';
+
+// tracker modules
+export * from './proforma-event-tracker/proforma-event-tracker.module';

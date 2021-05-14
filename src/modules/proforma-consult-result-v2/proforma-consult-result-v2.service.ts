@@ -114,6 +114,21 @@ export class ProformaConsultResultV2Service extends BaseService {
   }
 
   /**
+   * proforma find one
+   * @param id
+   */
+  async findOneForAdmin(id: number): Promise<ProformaConsultResultV2> {
+    const qb = await this.proformaConsultRepo
+      .createQueryBuilder('proforma')
+      .CustomLeftJoinAndSelect(['consult'])
+      .CustomInnerJoinAndSelect(['fnbOwnerCodeStatus', 'cScoreAttribute'])
+      .where('proforma.id = :id', { id: id })
+      .getOne();
+
+    return qb;
+  }
+
+  /**
    * create proforma for user
    * @param proformaConsultResultQueryDto
    * @returns

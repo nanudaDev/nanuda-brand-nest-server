@@ -133,7 +133,5 @@ export class ProformaConsultResultV2 extends BaseEntity<
   })
   questions?: QuestionV2[];
 
-  @OneToOne(type => ConsultResultV2)
-  @JoinColumn({ referencedColumnName: 'proformaConsultResultId' })
   consult?: ConsultResultV2;
 }

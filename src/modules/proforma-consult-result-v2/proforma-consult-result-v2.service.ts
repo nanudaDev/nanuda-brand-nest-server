@@ -32,6 +32,7 @@ import {
 import { ModifiedTrajectoryTracker } from '../modified-trajectory-tracker/modified-trajectory-tracker.entity';
 import { ProformaEventTrackerService } from '../proforma-event-tracker/proforma-event-tracker.service';
 import { AdminProformaConsultResultV2ListDto } from './dto/admin-proforma-consult-result-v2-list.dto';
+import { ConsultResultV2 } from '../consult-result-v2/consult-result-v2.entity';
 import {
   PaginatedRequest,
   PaginatedResponse,
@@ -78,7 +79,6 @@ export class ProformaConsultResultV2Service extends BaseService {
     const qb = this.proformaConsultRepo
       .createQueryBuilder('proforma')
       .CustomInnerJoinAndSelect(['fnbOwnerCodeStatus', 'cScoreAttribute'])
-      .CustomLeftJoinAndSelect(['consult'])
       .AndWhereLike(
         'proforma',
         'fnbOwnerStatus',
@@ -120,11 +120,19 @@ export class ProformaConsultResultV2Service extends BaseService {
   async findOneForAdmin(id: number): Promise<ProformaConsultResultV2> {
     const qb = await this.proformaConsultRepo
       .createQueryBuilder('proforma')
-      .CustomLeftJoinAndSelect(['consult'])
+      // .CustomLeftJoinAndSelect(['consult'])
       .CustomInnerJoinAndSelect(['fnbOwnerCodeStatus', 'cScoreAttribute'])
       .where('proforma.id = :id', { id: id })
       .getOne();
 
+    /**
+     * if has consult
+     */
+    if (qb.isConsultYn === YN.YES) {
+      qb.consult = await this.entityManager
+        .getRepository(ConsultResultV2)
+        .findOne({ proformaConsultResultId: qb.id });
+    }
     return qb;
   }
 

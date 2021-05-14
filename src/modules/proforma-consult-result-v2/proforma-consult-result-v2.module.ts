@@ -11,6 +11,7 @@ import { ProformaConsultResultV2Controller } from './proforma-consult-result-v2.
 import { ProformaConsultResultV2 } from './proforma-consult-result-v2.entity';
 import { ProformaConsultResultV2Service } from './proforma-consult-result-v2.service';
 import { ProformaEventTrackerModule } from '../proforma-event-tracker/proforma-event-tracker.module';
+import { AdminProformaConsultResultV2Controller } from './admin-proforma-consult-result-v2.controller';
 
 @Module({
   imports: [
@@ -22,7 +23,10 @@ import { ProformaEventTrackerModule } from '../proforma-event-tracker/proforma-e
     PickcookSmallCategoryInfoModule,
     ProformaEventTrackerModule,
   ],
-  controllers: [ProformaConsultResultV2Controller],
+  controllers: [
+    AdminProformaConsultResultV2Controller,
+    ProformaConsultResultV2Controller,
+  ],
   providers: [ProformaConsultResultV2Service],
   exports: [ProformaConsultResultV2Service],
 })

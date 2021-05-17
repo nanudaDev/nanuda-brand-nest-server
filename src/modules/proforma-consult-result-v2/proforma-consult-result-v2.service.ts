@@ -33,6 +33,7 @@ import { ModifiedTrajectoryTracker } from '../modified-trajectory-tracker/modifi
 import { ProformaEventTrackerService } from '../proforma-event-tracker/proforma-event-tracker.service';
 import { AdminProformaConsultResultV2ListDto } from './dto/admin-proforma-consult-result-v2-list.dto';
 import { ConsultResultV2 } from '../consult-result-v2/consult-result-v2.entity';
+import { SScoreListDto } from '../data/s-score/dto/s-score-list.dto';
 import {
   PaginatedRequest,
   PaginatedResponse,
@@ -44,10 +45,22 @@ class CScoreAggregateClass {
   initialCostScore: number;
 }
 
+// for new fnb owner
+// May 17 2021
 class ProformaConsultV2ResponseClass {
   menuRecommedations: any;
   deliveryRatio?: any;
   // revenueData?: any;
+  otherMenuRecommendations?: any;
+}
+
+// for cur fnb owner
+// May 17 2021
+class ProformaConsultResultV2ResponseClassForCurFnbOwer {
+  selectedMenuRecommendation?: SScoreRestaurant | SScoreDelivery;
+  deliveryRatio?: any;
+  otherMenuRecommendations?: SScoreRestaurant[] | SScoreDelivery[];
+  estimatedRevenue?: number;
 }
 
 @Injectable()
@@ -217,6 +230,7 @@ export class ProformaConsultResultV2Service extends BaseService {
 
     newProforma.cScoreAttributeId = cScoreAttributeValue.id;
     newProforma.hdong = hdong;
+    newProforma.hdongCode = proformaConsultResultQueryDto.hdongCode;
     newProforma.totalQuestionInitialCostScore = questionScores.initialCostScore;
     newProforma.totalQuestionManagingScore = questionScores.operationScore;
     newProforma.totalQuestionMenuScore = questionScores.menuscore;
@@ -239,6 +253,118 @@ export class ProformaConsultResultV2Service extends BaseService {
     response.menuRecommedations = appliedCScore;
     response.deliveryRatio = average;
     return newProforma;
+  }
+
+  async findResponseToQuestionsForFnbOwner(
+    proformaConsultResultQueryDto: ProformaConsultResultV2QueryDto,
+  ): Promise<ProformaConsultResultV2ResponseClassForCurFnbOwer> {
+    const lastQuestion = proformaConsultResultQueryDto.questionGivenArray.slice(
+      -1,
+    )[0];
+    const lastTracker = new QuestionV2Tracker();
+    lastTracker.ipAddress = proformaConsultResultQueryDto.ipAddress;
+    lastTracker.questionId = lastQuestion.questionId;
+    lastTracker.isLastQuestion = YN.YES;
+    lastTracker.userType = proformaConsultResultQueryDto.fnbOwnerStatus;
+    lastTracker.uniqueSessionId = proformaConsultResultQueryDto.uniqueSessionId;
+    lastTracker.givenId = lastQuestion.givenId;
+    await this.entityManager.getRepository(QuestionV2Tracker).save(lastTracker);
+
+    //   latest c-score attribute value
+    const cScoreAttributeValue = await this.cScoreService.findValid();
+    const deliveryRatioData = await this.locationAnalysisService.locationInfoDetail(
+      proformaConsultResultQueryDto.hdongCode,
+    );
+    // 평균 배달 및 홀 비중
+    const averageRatioArray: number[] = [];
+    Object.keys(deliveryRatioData).forEach(function(key) {
+      if (deliveryRatioData[key].deliveryRatio === null) {
+        deliveryRatioData[key].deliveryRatio = 0;
+      }
+      // if (
+      //   deliveryRatioData[key] === 'F05' ||
+      //   deliveryRatioData[key] === 'F08' ||
+      //   deliveryRatioData[key] === 'F09' ||
+      //   deliveryRatioData[key] === 'F13' ||
+      //   deliveryRatioData[key] === 'F03'
+      // ) {
+      //   delete deliveryRatioData[key];
+      // }
+      averageRatioArray.push(deliveryRatioData[key].deliveryRatio);
+    });
+    let average = Math.ceil(
+      averageRatioArray.reduce((a, b) => a + b) / averageRatioArray.length,
+    );
+    // needs to randomize later
+    if (average < 10) {
+      average = 11;
+    }
+    const hdong = await this.codeHdongService.findOneByCode(
+      proformaConsultResultQueryDto.hdongCode,
+    );
+
+    // 질문 관련 값
+    const questionScores = await this.__question_c_score_add(
+      proformaConsultResultQueryDto.questionGivenArray,
+    );
+    const newSscoreDto = new SScoreListDto();
+    newSscoreDto.hdongCode = proformaConsultResultQueryDto.hdongCode;
+    newSscoreDto.mediumCategoryCode =
+      proformaConsultResultQueryDto.selectedKbMediumCategory;
+
+    // get both restaurant and delivery data first
+    const sScoreDelivery = await this.sScoreService.findAllWithMediumCategoryCode(
+      newSscoreDto,
+      RESTAURANT_TYPE.DELIVERY,
+    );
+    const sScoreRestaurant = await this.sScoreService.findAllWithMediumCategoryCode(
+      newSscoreDto,
+      RESTAURANT_TYPE.RESTAURANT,
+    );
+
+    const appliedCScore = await this.__apply_c_score(
+      average < 30 ? sScoreRestaurant : sScoreDelivery,
+      questionScores,
+      cScoreAttributeValue,
+      proformaConsultResultQueryDto.fnbOwnerStatus,
+    );
+    // create proforma first
+    let newProforma = new ProformaConsultResultV2(
+      proformaConsultResultQueryDto,
+    );
+
+    newProforma.cScoreAttributeId = cScoreAttributeValue.id;
+    newProforma.hdong = hdong;
+    newProforma.hdongCode = proformaConsultResultQueryDto.hdongCode;
+    newProforma.totalQuestionInitialCostScore = questionScores.initialCostScore;
+    newProforma.totalQuestionManagingScore = questionScores.operationScore;
+    newProforma.totalQuestionMenuScore = questionScores.menuscore;
+    newProforma.rankDataWCScore = appliedCScore;
+    newProforma.deliveryRatioData = {
+      deliveryRatio: average,
+      restaurantRatio: 100 - average,
+    };
+    newProforma = await this.proformaConsultRepo.save(newProforma);
+    // create event tracker through ip
+    this.proformaEventTrackerService.createRecord(newProforma);
+    // create new proforma to question tracker
+    // 동기
+    this.createProformaToQuestionMapper(
+      newProforma.id,
+      proformaConsultResultQueryDto.ipAddress,
+      proformaConsultResultQueryDto.questionGivenArray,
+    );
+    // other menu recommendations
+    const otherMenuRecommendations = await this.sScoreService.findSecondarySScore(
+      newSscoreDto,
+      average < 30 ? RESTAURANT_TYPE.RESTAURANT : RESTAURANT_TYPE.DELIVERY,
+    );
+    const response = new ProformaConsultResultV2ResponseClassForCurFnbOwer();
+    response.selectedMenuRecommendation = appliedCScore[0];
+    response.deliveryRatio = average;
+    response.estimatedRevenue = appliedCScore[0].estimatedHighestRevenue;
+    response.otherMenuRecommendations = otherMenuRecommendations;
+    return response;
   }
 
   /**

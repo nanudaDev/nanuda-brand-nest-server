@@ -27,6 +27,7 @@ import { ProformaEventTrackerService } from '../proforma-event-tracker/proforma-
 import { AdminProformaConsultResultV2ListDto } from './dto/admin-proforma-consult-result-v2-list.dto';
 import { ConsultResultV2 } from '../consult-result-v2/consult-result-v2.entity';
 import { SScoreListDto } from '../data/s-score/dto/s-score-list.dto';
+import { CodeHdong } from '../code-hdong/code-hdong.entity';
 import {
   PaginatedRequest,
   PaginatedResponse,
@@ -54,6 +55,7 @@ class ProformaConsultResultV2ResponseClassForCurFnbOwer {
   deliveryRatio?: any;
   otherMenuRecommendations?: SScoreRestaurant[] | SScoreDelivery[];
   estimatedRevenue?: number;
+  hdong?: CodeHdong;
 }
 
 @Injectable()
@@ -365,7 +367,13 @@ export class ProformaConsultResultV2Service extends BaseService {
     response.deliveryRatio = average;
     response.estimatedRevenue =
       sortedDataByEstimatedHighestRevenue[0].estimatedHighestRevenue;
-    response.otherMenuRecommendations = otherMenuRecommendations;
+    response.otherMenuRecommendations = await this.__apply_c_score(
+      otherMenuRecommendations,
+      questionScores,
+      cScoreAttributeValue,
+      proformaConsultResultQueryDto.fnbOwnerStatus,
+    );
+    response.hdong = hdong;
     return response;
   }
 

@@ -2,13 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { RESTAURANT_TYPE, YN } from 'src/common';
 import { BaseService, BrandAiException } from 'src/core';
-import {
-  CONST_KB_FOOD_CATEGORY,
-  FNB_OWNER,
-  KB_FOOD_CATEGORY,
-  KB_MEDIUM_CATEGORY,
-  QUESTION_TYPE,
-} from 'src/shared';
+import { FNB_OWNER, KB_FOOD_CATEGORY, QUESTION_TYPE } from 'src/shared';
 import { EntityManager, Repository } from 'typeorm';
 import { QuestionGivenArrayClass } from '../aggregate-result-response/dto';
 import { CodeHdongService } from '../code-hdong/code-hdong.service';
@@ -23,7 +17,6 @@ import { QuestionV2 } from '../question-v2/question-v2.entity';
 import { ProformaConsultResultV2QueryDto } from './dto';
 import { ProformaConsultResultV2 } from './proforma-consult-result-v2.entity';
 import Axios from 'axios';
-import { PickcookSmallCategoryService } from '../data/pickcook-small-category-info/pickcook-small-category-info.service';
 import { ModifiedRevenueTracker } from '../modified-revenue-tracker/modified-revenue-tracker.entity';
 import {
   RandomRevenueGenerator,
@@ -73,7 +66,6 @@ export class ProformaConsultResultV2Service extends BaseService {
     private readonly cScoreService: CScoreService,
     private readonly codeHdongService: CodeHdongService,
     private readonly sScoreService: SScoreService,
-    private readonly pickcookSmallCategoryInfoService: PickcookSmallCategoryService,
     private readonly proformaEventTrackerService: ProformaEventTrackerService,
   ) {
     super();
@@ -255,6 +247,11 @@ export class ProformaConsultResultV2Service extends BaseService {
     return newProforma;
   }
 
+  /**
+   * fnb owner status
+   * @param proformaConsultResultQueryDto
+   * @returns
+   */
   async findResponseToQuestionsForFnbOwner(
     proformaConsultResultQueryDto: ProformaConsultResultV2QueryDto,
   ): Promise<ProformaConsultResultV2ResponseClassForCurFnbOwer> {
@@ -360,9 +357,14 @@ export class ProformaConsultResultV2Service extends BaseService {
       average < 30 ? RESTAURANT_TYPE.RESTAURANT : RESTAURANT_TYPE.DELIVERY,
     );
     const response = new ProformaConsultResultV2ResponseClassForCurFnbOwer();
+    // throw highest revenue among the s score data
+    const sortedDataByEstimatedHighestRevenue = appliedCScore.sort((a, b) =>
+      a.estimatedHighestRevenue > b.estimatedHighestRevenue ? -1 : 1,
+    );
     response.selectedMenuRecommendation = appliedCScore[0];
     response.deliveryRatio = average;
-    response.estimatedRevenue = appliedCScore[0].estimatedHighestRevenue;
+    response.estimatedRevenue =
+      sortedDataByEstimatedHighestRevenue[0].estimatedHighestRevenue;
     response.otherMenuRecommendations = otherMenuRecommendations;
     return response;
   }
@@ -615,7 +617,8 @@ export class ProformaConsultResultV2Service extends BaseService {
           !data.data.value[0].deliveryRevenue ||
           data.data.value.length < 1
         ) {
-          const newRevenue = parseInt(`${RandomRevenueGenerator()}0000`);
+          let newRevenue = parseInt(`${RandomRevenueGenerator()}0000`);
+
           const newRevenueTracker = new ModifiedRevenueTracker({
             restaurantType: RESTAURANT_TYPE.RESTAURANT,
             revenue: newRevenue,
@@ -633,7 +636,10 @@ export class ProformaConsultResultV2Service extends BaseService {
         revenue = checkRevenueTracker.revenue;
       }
     }
-
+    //  control large numbers
+    if (revenue > 3300000) {
+      revenue = revenue / 2.8;
+    }
     return revenue;
   }
 

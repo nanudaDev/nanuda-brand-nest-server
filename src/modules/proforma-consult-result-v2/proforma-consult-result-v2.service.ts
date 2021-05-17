@@ -322,7 +322,7 @@ export class ProformaConsultResultV2Service extends BaseService {
     );
 
     const appliedCScore = await this.__apply_c_score(
-      average < 30 ? sScoreRestaurant : sScoreDelivery,
+      average < 30 ? [sScoreRestaurant[0]] : [sScoreDelivery[0]],
       questionScores,
       cScoreAttributeValue,
       proformaConsultResultQueryDto.fnbOwnerStatus,

@@ -52,10 +52,11 @@ class ProformaConsultV2ResponseClass {
 // May 17 2021
 class ProformaConsultResultV2ResponseClassForCurFnbOwer {
   selectedMenuRecommendation?: SScoreRestaurant | SScoreDelivery;
-  deliveryRatio?: any;
+  deliveryRatio?: number;
   otherMenuRecommendations?: SScoreRestaurant[] | SScoreDelivery[];
   estimatedRevenue?: number;
   hdong?: CodeHdong;
+  id?: number;
 }
 
 @Injectable()
@@ -373,6 +374,7 @@ export class ProformaConsultResultV2Service extends BaseService {
       cScoreAttributeValue,
       proformaConsultResultQueryDto.fnbOwnerStatus,
     );
+    response.id = newProforma.id;
     response.hdong = hdong;
     return response;
   }

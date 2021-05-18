@@ -27,6 +27,11 @@ export class ProformaConsultResultV2Controller extends BaseController {
     );
   }
 
+  /**
+   * find response to question
+   * @param proformaConsultQueryDto
+   * @returns
+   */
   @Post('/proforma-consult-response-w-other')
   async findAggregateResponseForCurFnbOwner(
     @Body() proformaConsultQueryDto: ProformaConsultResultV2QueryDto,

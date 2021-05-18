@@ -4,7 +4,6 @@ import { YN } from 'src/common';
 import { BaseService, BrandAiException } from 'src/core';
 import { EntityManager, Repository } from 'typeorm';
 import { QuestionV2Tracker } from '../question-tracker-v2/question-tracker-v2.entity';
-import { Question } from '../question/question.entity';
 import { QuestionV2AnsweredDto, QuestionV2QueryDto } from './dto';
 import { QuestionV2 } from './question-v2.entity';
 

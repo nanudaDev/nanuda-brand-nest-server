@@ -368,11 +368,13 @@ export class ProformaConsultResultV2Service extends BaseService {
     response.deliveryRatio = average;
     response.estimatedRevenue =
       sortedDataByEstimatedHighestRevenue[0].estimatedHighestRevenue;
+    // 다른 메뉴 추천
     response.otherMenuRecommendations = await this.__apply_c_score(
       otherMenuRecommendations,
       questionScores,
       cScoreAttributeValue,
       proformaConsultResultQueryDto.fnbOwnerStatus,
+      YN.YES,
     );
     response.id = newProforma.id;
     response.hdong = hdong;
@@ -463,6 +465,7 @@ export class ProformaConsultResultV2Service extends BaseService {
     questionScore: CScoreAggregateClass,
     cScoreAttributeValid: CScoreAttribute,
     userType: FNB_OWNER,
+    isOtherMenu?: YN,
   ): Promise<SScoreDelivery[] | SScoreRestaurant[]> {
     if (sScoreData && sScoreData.length < 1)
       throw new BrandAiException('proforma.notEnoughData');
@@ -545,15 +548,36 @@ export class ProformaConsultResultV2Service extends BaseService {
       score.appliedNewRanking = sScoreData.indexOf(score) + 1;
       score.mediumCategoryName = KB_FOOD_CATEGORY[score.mediumCategoryCode];
       if (sScoreData.indexOf(score) === 0) {
-        score.appliedFitnessScore = 96 - 100 / score.appliedCScoreRanking;
+        score.appliedFitnessScore =
+          isOtherMenu === YN.YES
+            ? 93 - 100 / score.appliedCScoreRanking
+            : 96 - 100 / score.appliedCScoreRanking;
         // 빅데이터 상권 점수
-        score.bigDataLocationScore = Math.floor(97 - 100 / score.averageScore);
+        score.bigDataLocationScore = Math.floor(
+          isOtherMenu === YN.YES
+            ? 91 - 100 / score.averageScore
+            : 97 - 100 / score.averageScore,
+        );
       } else if (sScoreData.indexOf(score) === 1) {
-        score.appliedFitnessScore = 82 - 100 / score.appliedCScoreRanking;
-        score.bigDataLocationScore = Math.floor(86 - 100 / score.averageScore);
+        score.appliedFitnessScore =
+          isOtherMenu === YN.YES
+            ? 80 - 100 / score.appliedCScoreRanking
+            : 82 - 100 / score.appliedCScoreRanking;
+        score.bigDataLocationScore = Math.floor(
+          isOtherMenu === YN.YES
+            ? 83 - 100 / score.averageScore
+            : 86 - 100 / score.averageScore,
+        );
       } else if (sScoreData.indexOf(score) === 2) {
-        score.appliedFitnessScore = 71 - 100 / score.appliedCScoreRanking;
-        score.bigDataLocationScore = Math.floor(71 - 100 / score.averageScore);
+        score.appliedFitnessScore =
+          isOtherMenu === YN.YES
+            ? 70 - 100 / score.appliedCScoreRanking
+            : 72 - 100 / score.appliedCScoreRanking;
+        score.bigDataLocationScore = Math.floor(
+          isOtherMenu === YN.YES
+            ? 69 - 100 / score.averageScore
+            : 71 - 100 / score.averageScore,
+        );
       }
     });
     return sScoreData;

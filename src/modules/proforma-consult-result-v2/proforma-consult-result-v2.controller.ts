@@ -22,6 +22,15 @@ export class ProformaConsultResultV2Controller extends BaseController {
   async findAggregateResponse(
     @Body() proformaConsultQueryDto: ProformaConsultResultV2QueryDto,
   ) {
+    return await this.proformaConsultV2Service.findResponseToQuestion(
+      proformaConsultQueryDto,
+    );
+  }
+
+  @Post('/proforma-consult-response-w-other')
+  async findAggregateResponseForCurFnbOwner(
+    @Body() proformaConsultQueryDto: ProformaConsultResultV2QueryDto,
+  ) {
     if (proformaConsultQueryDto.fnbOwnerStatus === FNB_OWNER.NEW_FNB_OWNER) {
       return await this.proformaConsultV2Service.findResponseToQuestion(
         proformaConsultQueryDto,

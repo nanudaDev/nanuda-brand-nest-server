@@ -1,14 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
-import { RESTAURANT_TYPE, YN } from 'src/common';
+import { DELIVERY_GRADE_TYPE, RESTAURANT_TYPE, YN } from 'src/common';
 import { BaseService, BrandAiException } from 'src/core';
-import {
-  CONST_KB_FOOD_CATEGORY,
-  FNB_OWNER,
-  KB_FOOD_CATEGORY,
-  KB_MEDIUM_CATEGORY,
-  QUESTION_TYPE,
-} from 'src/shared';
+import { FNB_OWNER, KB_FOOD_CATEGORY, QUESTION_TYPE } from 'src/shared';
 import { EntityManager, Repository } from 'typeorm';
 import { QuestionGivenArrayClass } from '../aggregate-result-response/dto';
 import { CodeHdongService } from '../code-hdong/code-hdong.service';
@@ -23,7 +17,6 @@ import { QuestionV2 } from '../question-v2/question-v2.entity';
 import { ProformaConsultResultV2QueryDto } from './dto';
 import { ProformaConsultResultV2 } from './proforma-consult-result-v2.entity';
 import Axios from 'axios';
-import { PickcookSmallCategoryService } from '../data/pickcook-small-category-info/pickcook-small-category-info.service';
 import { ModifiedRevenueTracker } from '../modified-revenue-tracker/modified-revenue-tracker.entity';
 import {
   RandomRevenueGenerator,
@@ -31,6 +24,15 @@ import {
 } from 'src/common/utils';
 import { ModifiedTrajectoryTracker } from '../modified-trajectory-tracker/modified-trajectory-tracker.entity';
 import { ProformaEventTrackerService } from '../proforma-event-tracker/proforma-event-tracker.service';
+import { AdminProformaConsultResultV2ListDto } from './dto/admin-proforma-consult-result-v2-list.dto';
+import { ConsultResultV2 } from '../consult-result-v2/consult-result-v2.entity';
+import { SScoreListDto } from '../data/s-score/dto/s-score-list.dto';
+import { CodeHdong } from '../code-hdong/code-hdong.entity';
+import { DELIVERY_OR_RESTAURANT } from '../../shared/common-code.type';
+import {
+  PaginatedRequest,
+  PaginatedResponse,
+} from '../../common/interfaces/pagination.type';
 
 class CScoreAggregateClass {
   menuscore: number;
@@ -38,10 +40,25 @@ class CScoreAggregateClass {
   initialCostScore: number;
 }
 
+// for new fnb owner
+// May 17 2021
 class ProformaConsultV2ResponseClass {
   menuRecommedations: any;
   deliveryRatio?: any;
   // revenueData?: any;
+  otherMenuRecommendations?: any;
+}
+
+// for cur fnb owner
+// May 17 2021
+class ProformaConsultResultV2ResponseClassForCurFnbOwer {
+  selectedMenuRecommendation?: SScoreRestaurant | SScoreDelivery;
+  deliveryRatio?: number;
+  otherMenuRecommendations?: SScoreRestaurant[] | SScoreDelivery[];
+  estimatedRevenue?: number;
+  hdong?: CodeHdong;
+  id?: number;
+  deliveryOrRestaurantType?: DELIVERY_GRADE_TYPE;
 }
 
 @Injectable()
@@ -54,12 +71,86 @@ export class ProformaConsultResultV2Service extends BaseService {
     private readonly cScoreService: CScoreService,
     private readonly codeHdongService: CodeHdongService,
     private readonly sScoreService: SScoreService,
-    private readonly pickcookSmallCategoryInfoService: PickcookSmallCategoryService,
     private readonly proformaEventTrackerService: ProformaEventTrackerService,
   ) {
     super();
   }
 
+  /**
+   * find all for admin
+   * @param adminProformaConsultResultV2ListDto
+   * @param pagination
+   * @returns
+   */
+  async findAllForAdmin(
+    adminProformaConsultResultV2ListDto: AdminProformaConsultResultV2ListDto,
+    pagination: PaginatedRequest,
+  ): Promise<PaginatedResponse<ProformaConsultResultV2>> {
+    const qb = this.proformaConsultRepo
+      .createQueryBuilder('proforma')
+      .CustomInnerJoinAndSelect(['fnbOwnerCodeStatus', 'cScoreAttribute'])
+      .AndWhereLike(
+        'proforma',
+        'fnbOwnerStatus',
+        adminProformaConsultResultV2ListDto.fnbOwnerStatus,
+        adminProformaConsultResultV2ListDto.exclude('fnbOwnerStatus'),
+      )
+      .AndWhereLike(
+        'proforma',
+        'isConsultYn',
+        adminProformaConsultResultV2ListDto.isConsultYn,
+        adminProformaConsultResultV2ListDto.exclude('isConsultYn'),
+      )
+      .AndWhereLike(
+        'proforma',
+        'selectedKbMediumCategory',
+        adminProformaConsultResultV2ListDto.selectedKbMediumCategory,
+        adminProformaConsultResultV2ListDto.exclude('selectedKbMediumCategory'),
+      );
+    if (adminProformaConsultResultV2ListDto.hdongCode) {
+      qb.AndWhereEqual(
+        'proforma',
+        'hdongCode',
+        adminProformaConsultResultV2ListDto.hdongCode,
+        adminProformaConsultResultV2ListDto.exclude('hdongCode'),
+      );
+    }
+    qb.Paginate(pagination);
+    qb.WhereAndOrder(adminProformaConsultResultV2ListDto);
+
+    const [items, totalCount] = await qb.getManyAndCount();
+
+    return { items, totalCount };
+  }
+
+  /**
+   * proforma find one
+   * @param id
+   */
+  async findOneForAdmin(id: number): Promise<ProformaConsultResultV2> {
+    const qb = await this.proformaConsultRepo
+      .createQueryBuilder('proforma')
+      // .CustomLeftJoinAndSelect(['consult'])
+      .CustomInnerJoinAndSelect(['fnbOwnerCodeStatus', 'cScoreAttribute'])
+      .where('proforma.id = :id', { id: id })
+      .getOne();
+
+    /**
+     * if has consult
+     */
+    if (qb.isConsultYn === YN.YES) {
+      qb.consult = await this.entityManager
+        .getRepository(ConsultResultV2)
+        .findOne({ proformaConsultResultId: qb.id });
+    }
+    return qb;
+  }
+
+  /**
+   * create proforma for user
+   * @param proformaConsultResultQueryDto
+   * @returns
+   */
   async findResponseToQuestion(
     proformaConsultResultQueryDto: ProformaConsultResultV2QueryDto,
   ) {
@@ -133,9 +224,10 @@ export class ProformaConsultResultV2Service extends BaseService {
     let newProforma = new ProformaConsultResultV2(
       proformaConsultResultQueryDto,
     );
-    console.log(questionScores);
+
     newProforma.cScoreAttributeId = cScoreAttributeValue.id;
     newProforma.hdong = hdong;
+    newProforma.hdongCode = proformaConsultResultQueryDto.hdongCode;
     newProforma.totalQuestionInitialCostScore = questionScores.initialCostScore;
     newProforma.totalQuestionManagingScore = questionScores.operationScore;
     newProforma.totalQuestionMenuScore = questionScores.menuscore;
@@ -158,6 +250,161 @@ export class ProformaConsultResultV2Service extends BaseService {
     response.menuRecommedations = appliedCScore;
     response.deliveryRatio = average;
     return newProforma;
+  }
+
+  /**
+   * fnb owner status
+   * @param proformaConsultResultQueryDto
+   * @returns
+   */
+  async findResponseToQuestionsForFnbOwner(
+    proformaConsultResultQueryDto: ProformaConsultResultV2QueryDto,
+  ): Promise<ProformaConsultResultV2ResponseClassForCurFnbOwer> {
+    const lastQuestion = proformaConsultResultQueryDto.questionGivenArray.slice(
+      -1,
+    )[0];
+    const lastTracker = new QuestionV2Tracker();
+    lastTracker.ipAddress = proformaConsultResultQueryDto.ipAddress;
+    lastTracker.questionId = lastQuestion.questionId;
+    lastTracker.isLastQuestion = YN.YES;
+    lastTracker.userType = proformaConsultResultQueryDto.fnbOwnerStatus;
+    lastTracker.uniqueSessionId = proformaConsultResultQueryDto.uniqueSessionId;
+    lastTracker.givenId = lastQuestion.givenId;
+    await this.entityManager.getRepository(QuestionV2Tracker).save(lastTracker);
+
+    //   latest c-score attribute value
+    const cScoreAttributeValue = await this.cScoreService.findValid();
+    const deliveryRatioData = await this.locationAnalysisService.locationInfoDetail(
+      proformaConsultResultQueryDto.hdongCode,
+    );
+    // 평균 배달 및 홀 비중
+    const averageRatioArray: number[] = [];
+    Object.keys(deliveryRatioData).forEach(function(key) {
+      if (deliveryRatioData[key].deliveryRatio === null) {
+        deliveryRatioData[key].deliveryRatio = 0;
+      }
+      // if (
+      //   deliveryRatioData[key] === 'F05' ||
+      //   deliveryRatioData[key] === 'F08' ||
+      //   deliveryRatioData[key] === 'F09' ||
+      //   deliveryRatioData[key] === 'F13' ||
+      //   deliveryRatioData[key] === 'F03'
+      // ) {
+      //   delete deliveryRatioData[key];
+      // }
+      averageRatioArray.push(deliveryRatioData[key].deliveryRatio);
+    });
+    let average = Math.ceil(
+      averageRatioArray.reduce((a, b) => a + b) / averageRatioArray.length,
+    );
+    // needs to randomize later
+    if (average < 10) {
+      average = 11;
+    }
+    const hdong = await this.codeHdongService.findOneByCode(
+      proformaConsultResultQueryDto.hdongCode,
+    );
+
+    // 질문 관련 값
+    const questionScores = await this.__question_c_score_add(
+      proformaConsultResultQueryDto.questionGivenArray,
+    );
+    const newSscoreDto = new SScoreListDto();
+    newSscoreDto.hdongCode = proformaConsultResultQueryDto.hdongCode;
+    newSscoreDto.mediumCategoryCode =
+      proformaConsultResultQueryDto.selectedKbMediumCategory;
+
+    // get both restaurant and delivery data first
+    let sScoreDelivery: SScoreDelivery[] | SScoreRestaurant[];
+    if (average < 30) {
+      sScoreDelivery = await this.sScoreService.findAllWithMediumCategoryCode(
+        newSscoreDto,
+        RESTAURANT_TYPE.RESTAURANT,
+      );
+    } else {
+      sScoreDelivery = await this.sScoreService.findAllWithMediumCategoryCode(
+        newSscoreDto,
+        RESTAURANT_TYPE.DELIVERY,
+      );
+    }
+    // const sScoreDelivery = await this.sScoreService.findAllWithMediumCategoryCode(
+    //   newSscoreDto,
+    //   RESTAURANT_TYPE.DELIVERY,
+    // );
+    // const sScoreRestaurant = await this.sScoreService.findAllWithMediumCategoryCode(
+    //   newSscoreDto,
+    //   RESTAURANT_TYPE.RESTAURANT,
+    // );
+
+    const appliedCScore = await this.__apply_c_score(
+      [sScoreDelivery[0]],
+      questionScores,
+      cScoreAttributeValue,
+      proformaConsultResultQueryDto.fnbOwnerStatus,
+    );
+    // create proforma first
+    let newProforma = new ProformaConsultResultV2(
+      proformaConsultResultQueryDto,
+    );
+
+    newProforma.cScoreAttributeId = cScoreAttributeValue.id;
+    newProforma.hdong = hdong;
+    newProforma.hdongCode = proformaConsultResultQueryDto.hdongCode;
+    newProforma.totalQuestionInitialCostScore = questionScores.initialCostScore;
+    newProforma.totalQuestionManagingScore = questionScores.operationScore;
+    newProforma.totalQuestionMenuScore = questionScores.menuscore;
+    newProforma.rankDataWCScore = appliedCScore;
+    newProforma.deliveryRatioData = {
+      deliveryRatio: average,
+      restaurantRatio: 100 - average,
+    };
+    newProforma = await this.proformaConsultRepo.save(newProforma);
+    // create event tracker through ip
+    this.proformaEventTrackerService.createRecord(newProforma);
+    // create new proforma to question tracker
+    // 동기
+    this.createProformaToQuestionMapper(
+      newProforma.id,
+      proformaConsultResultQueryDto.ipAddress,
+      proformaConsultResultQueryDto.questionGivenArray,
+    );
+    // other menu recommendations
+    const otherMenuRecommendations = await this.sScoreService.findSecondarySScore(
+      newSscoreDto,
+      average < 30 ? RESTAURANT_TYPE.RESTAURANT : RESTAURANT_TYPE.DELIVERY,
+    );
+    const response = new ProformaConsultResultV2ResponseClassForCurFnbOwer();
+    // throw highest revenue among the s score data
+    const sortedDataByEstimatedHighestRevenue = appliedCScore.sort((a, b) =>
+      a.estimatedHighestRevenue > b.estimatedHighestRevenue ? -1 : 1,
+    );
+    response.selectedMenuRecommendation = appliedCScore[0];
+    response.deliveryRatio = average;
+    response.estimatedRevenue =
+      sortedDataByEstimatedHighestRevenue[0].estimatedHighestRevenue;
+    // 다른 메뉴 추천
+    response.otherMenuRecommendations = await this.__apply_c_score(
+      otherMenuRecommendations,
+      questionScores,
+      cScoreAttributeValue,
+      proformaConsultResultQueryDto.fnbOwnerStatus,
+      YN.YES,
+    );
+    response.id = newProforma.id;
+    response.hdong = hdong;
+    // check question for operation type
+    const questionForOperationType = await this.entityManager
+      .getRepository(QuestionProformaMapperV2)
+      .findOne({ proformaConsultResultId: newProforma.id, questionId: 11 });
+    if (questionForOperationType.givenId.includes(38)) {
+      response.deliveryOrRestaurantType = DELIVERY_GRADE_TYPE.DELIVERY_ONLY;
+    } else if (questionForOperationType.givenId.includes(39)) {
+      response.deliveryOrRestaurantType = DELIVERY_GRADE_TYPE.RESTAURANT_ONLY;
+    } else if (questionForOperationType.givenId.includes(40)) {
+      response.deliveryOrRestaurantType =
+        DELIVERY_GRADE_TYPE.RESTAURANT_OR_DELIVERY;
+    }
+    return response;
   }
 
   /**
@@ -244,6 +491,7 @@ export class ProformaConsultResultV2Service extends BaseService {
     questionScore: CScoreAggregateClass,
     cScoreAttributeValid: CScoreAttribute,
     userType: FNB_OWNER,
+    isOtherMenu?: YN,
   ): Promise<SScoreDelivery[] | SScoreRestaurant[]> {
     if (sScoreData && sScoreData.length < 1)
       throw new BrandAiException('proforma.notEnoughData');
@@ -326,15 +574,36 @@ export class ProformaConsultResultV2Service extends BaseService {
       score.appliedNewRanking = sScoreData.indexOf(score) + 1;
       score.mediumCategoryName = KB_FOOD_CATEGORY[score.mediumCategoryCode];
       if (sScoreData.indexOf(score) === 0) {
-        score.appliedFitnessScore = 96 - 100 / score.appliedCScoreRanking;
+        score.appliedFitnessScore =
+          isOtherMenu === YN.YES
+            ? 93 - 100 / score.appliedCScoreRanking
+            : 96 - 100 / score.appliedCScoreRanking;
         // 빅데이터 상권 점수
-        score.bigDataLocationScore = Math.floor(97 - 100 / score.averageScore);
+        score.bigDataLocationScore = Math.floor(
+          isOtherMenu === YN.YES
+            ? 91 - 100 / score.averageScore
+            : 97 - 100 / score.averageScore,
+        );
       } else if (sScoreData.indexOf(score) === 1) {
-        score.appliedFitnessScore = 82 - 100 / score.appliedCScoreRanking;
-        score.bigDataLocationScore = Math.floor(86 - 100 / score.averageScore);
+        score.appliedFitnessScore =
+          isOtherMenu === YN.YES
+            ? 80 - 100 / score.appliedCScoreRanking
+            : 82 - 100 / score.appliedCScoreRanking;
+        score.bigDataLocationScore = Math.floor(
+          isOtherMenu === YN.YES
+            ? 83 - 100 / score.averageScore
+            : 86 - 100 / score.averageScore,
+        );
       } else if (sScoreData.indexOf(score) === 2) {
-        score.appliedFitnessScore = 71 - 100 / score.appliedCScoreRanking;
-        score.bigDataLocationScore = Math.floor(71 - 100 / score.averageScore);
+        score.appliedFitnessScore =
+          isOtherMenu === YN.YES
+            ? 70 - 100 / score.appliedCScoreRanking
+            : 72 - 100 / score.appliedCScoreRanking;
+        score.bigDataLocationScore = Math.floor(
+          isOtherMenu === YN.YES
+            ? 69 - 100 / score.averageScore
+            : 71 - 100 / score.averageScore,
+        );
       }
     });
     return sScoreData;
@@ -408,7 +677,8 @@ export class ProformaConsultResultV2Service extends BaseService {
           !data.data.value[0].deliveryRevenue ||
           data.data.value.length < 1
         ) {
-          const newRevenue = parseInt(`${RandomRevenueGenerator()}0000`);
+          let newRevenue = parseInt(`${RandomRevenueGenerator()}0000`);
+
           const newRevenueTracker = new ModifiedRevenueTracker({
             restaurantType: RESTAURANT_TYPE.RESTAURANT,
             revenue: newRevenue,
@@ -426,7 +696,10 @@ export class ProformaConsultResultV2Service extends BaseService {
         revenue = checkRevenueTracker.revenue;
       }
     }
-
+    //  control large numbers
+    if (revenue > 3300000) {
+      revenue = Math.trunc(revenue / 2.8);
+    }
     return revenue;
   }
 

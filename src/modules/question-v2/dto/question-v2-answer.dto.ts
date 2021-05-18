@@ -1,6 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsArray, IsEnum, IsIP, IsNotEmpty } from 'class-validator';
+import { IsArray, IsEnum, IsIP, IsNotEmpty, IsOptional } from 'class-validator';
 import { Default } from 'src/common';
 import { BaseDto } from 'src/core';
 import { QuestionV2Tracker } from 'src/modules/question-tracker-v2/question-tracker-v2.entity';
@@ -26,8 +26,8 @@ export class QuestionV2AnsweredDto extends BaseDto<QuestionV2AnsweredDto>
   @Default('112.169.101.10')
   ipAddress: string;
 
-  @ApiProperty()
-  @IsNotEmpty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @Expose()
   uniqueSessionId: string;
 

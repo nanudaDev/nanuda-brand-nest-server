@@ -1,6 +1,13 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsArray, IsEAN, IsEnum, IsIP, IsNotEmpty } from 'class-validator';
+import {
+  IsArray,
+  IsEAN,
+  IsEnum,
+  IsIP,
+  IsNotEmpty,
+  IsOptional,
+} from 'class-validator';
 import { Default, YN } from 'src/common';
 import { BaseDto } from 'src/core';
 import { QuestionTracker } from 'src/modules/question-tracker/question-tracker.entity';
@@ -26,8 +33,8 @@ export class QuestionAnsweredDto extends BaseDto<QuestionAnsweredDto>
   @Default('112.169.101.10')
   ipAddress: string;
 
-  @ApiProperty()
-  @IsNotEmpty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @Expose()
   uniqueSessionId: string;
 

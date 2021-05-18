@@ -54,8 +54,8 @@ export class ProformaConsultResultV2QueryDto
   @IsIP()
   ipAddress?: string;
 
-  @ApiProperty()
-  @IsNotEmpty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @Expose()
   @Default('IS IN DEVELOPMENT')
   uniqueSessionId: string;

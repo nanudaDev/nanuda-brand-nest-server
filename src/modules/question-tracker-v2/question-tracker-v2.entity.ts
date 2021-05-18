@@ -36,7 +36,6 @@ export class QuestionV2Tracker extends BaseMapperEntity<QuestionV2Tracker> {
 
   @Column({
     name: 'unique_session_id',
-    nullable: false,
     type: 'varchar',
   })
   uniqueSessionId: string;

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
-import { RESTAURANT_TYPE, YN } from 'src/common';
+import { DELIVERY_GRADE_TYPE, RESTAURANT_TYPE, YN } from 'src/common';
 import { BaseService, BrandAiException } from 'src/core';
 import { FNB_OWNER, KB_FOOD_CATEGORY, QUESTION_TYPE } from 'src/shared';
 import { EntityManager, Repository } from 'typeorm';
@@ -28,6 +28,7 @@ import { AdminProformaConsultResultV2ListDto } from './dto/admin-proforma-consul
 import { ConsultResultV2 } from '../consult-result-v2/consult-result-v2.entity';
 import { SScoreListDto } from '../data/s-score/dto/s-score-list.dto';
 import { CodeHdong } from '../code-hdong/code-hdong.entity';
+import { DELIVERY_OR_RESTAURANT } from '../../shared/common-code.type';
 import {
   PaginatedRequest,
   PaginatedResponse,
@@ -57,6 +58,7 @@ class ProformaConsultResultV2ResponseClassForCurFnbOwer {
   estimatedRevenue?: number;
   hdong?: CodeHdong;
   id?: number;
+  deliveryOrRestaurantType?: DELIVERY_GRADE_TYPE;
 }
 
 @Injectable()
@@ -313,17 +315,29 @@ export class ProformaConsultResultV2Service extends BaseService {
       proformaConsultResultQueryDto.selectedKbMediumCategory;
 
     // get both restaurant and delivery data first
-    const sScoreDelivery = await this.sScoreService.findAllWithMediumCategoryCode(
-      newSscoreDto,
-      RESTAURANT_TYPE.DELIVERY,
-    );
-    const sScoreRestaurant = await this.sScoreService.findAllWithMediumCategoryCode(
-      newSscoreDto,
-      RESTAURANT_TYPE.RESTAURANT,
-    );
+    let sScoreDelivery: SScoreDelivery[] | SScoreRestaurant[];
+    if (average < 30) {
+      sScoreDelivery = await this.sScoreService.findAllWithMediumCategoryCode(
+        newSscoreDto,
+        RESTAURANT_TYPE.RESTAURANT,
+      );
+    } else {
+      sScoreDelivery = await this.sScoreService.findAllWithMediumCategoryCode(
+        newSscoreDto,
+        RESTAURANT_TYPE.DELIVERY,
+      );
+    }
+    // const sScoreDelivery = await this.sScoreService.findAllWithMediumCategoryCode(
+    //   newSscoreDto,
+    //   RESTAURANT_TYPE.DELIVERY,
+    // );
+    // const sScoreRestaurant = await this.sScoreService.findAllWithMediumCategoryCode(
+    //   newSscoreDto,
+    //   RESTAURANT_TYPE.RESTAURANT,
+    // );
 
     const appliedCScore = await this.__apply_c_score(
-      average < 30 ? [sScoreRestaurant[0]] : [sScoreDelivery[0]],
+      [sScoreDelivery[0]],
       questionScores,
       cScoreAttributeValue,
       proformaConsultResultQueryDto.fnbOwnerStatus,
@@ -378,6 +392,18 @@ export class ProformaConsultResultV2Service extends BaseService {
     );
     response.id = newProforma.id;
     response.hdong = hdong;
+    // check question for operation type
+    const questionForOperationType = await this.entityManager
+      .getRepository(QuestionProformaMapperV2)
+      .findOne({ proformaConsultResultId: newProforma.id, questionId: 11 });
+    if (questionForOperationType.givenId.includes(38)) {
+      response.deliveryOrRestaurantType = DELIVERY_GRADE_TYPE.DELIVERY_ONLY;
+    } else if (questionForOperationType.givenId.includes(39)) {
+      response.deliveryOrRestaurantType = DELIVERY_GRADE_TYPE.RESTAURANT_ONLY;
+    } else if (questionForOperationType.givenId.includes(40)) {
+      response.deliveryOrRestaurantType =
+        DELIVERY_GRADE_TYPE.RESTAURANT_OR_DELIVERY;
+    }
     return response;
   }
 

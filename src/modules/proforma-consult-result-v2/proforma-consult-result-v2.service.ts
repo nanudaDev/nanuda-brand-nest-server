@@ -378,6 +378,7 @@ export class ProformaConsultResultV2Service extends BaseService {
     const sortedDataByEstimatedHighestRevenue = appliedCScore.sort((a, b) =>
       a.estimatedHighestRevenue > b.estimatedHighestRevenue ? -1 : 1,
     );
+    console.log(sortedDataByEstimatedHighestRevenue);
     response.selectedMenuRecommendation = appliedCScore[0];
     response.deliveryRatio = average;
     response.estimatedRevenue =
@@ -674,7 +675,7 @@ export class ProformaConsultResultV2Service extends BaseService {
       if (!checkRevenueTracker) {
         if (
           data.data.value[0].restaurantRevenue < 1000000 ||
-          !data.data.value[0].deliveryRevenue ||
+          !data.data.value[0].restaurantRevenue ||
           data.data.value.length < 1
         ) {
           let newRevenue = parseInt(`${RandomRevenueGenerator()}0000`);
@@ -690,7 +691,7 @@ export class ProformaConsultResultV2Service extends BaseService {
             .save(newRevenueTracker);
           revenue = newRevenue;
         } else {
-          revenue = data.data.value[0].deliveryRevenue;
+          revenue = data.data.value[0].restaurantRevenue;
         }
       } else {
         revenue = checkRevenueTracker.revenue;

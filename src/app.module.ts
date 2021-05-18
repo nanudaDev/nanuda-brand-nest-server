@@ -6,6 +6,7 @@ import { ScheduleModule } from '@nestjs/schedule/dist/schedule.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { getMetadataArgsStorage } from 'typeorm';
 import { PickcookMailerConfigService, TypeOrmConfigService } from './config';
+import { ProformaEventTrackerModule } from './modules/proforma-event-tracker/proforma-event-tracker.module';
 import {
   HttpExceptionFilter,
   ErrorsInterceptor,
@@ -84,8 +85,8 @@ const env = process.env;
       synchronize: false,
     }),
     AuthModule,
-    FaqModule,
-    AggregateResultResponseModule,
+    // FaqModule,
+    // AggregateResultResponseModule,
     CommonCodeModule,
     CodeHdongModule,
     ConsultResultV2Module,
@@ -96,15 +97,17 @@ const env = process.env;
     LocationAnalysisModule,
     MenuAnalysisModule,
     PickcookUserModule,
-    ProformaConsultResultModule,
-    ResultResponseModule,
-    ReservationModule,
+    // ProformaConsultResultModule,
+    // ResultResponseModule,
+    // ReservationModule,
     BatchReservationModule,
     // Version 2 Modules
     QuestionV2Module,
     ProformaConsultResultV2Module,
     // S-Score Module
     SScoreModule,
+    // Tracker Modules
+    ProformaEventTrackerModule,
   ],
   controllers: [],
   providers: [

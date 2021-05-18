@@ -698,7 +698,7 @@ export class ProformaConsultResultV2Service extends BaseService {
     }
     //  control large numbers
     if (revenue > 3300000) {
-      revenue = revenue / 2.8;
+      revenue = Math.trunc(revenue / 2.8);
     }
     return revenue;
   }

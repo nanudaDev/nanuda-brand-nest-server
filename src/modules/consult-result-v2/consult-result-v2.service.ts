@@ -1,21 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { Request } from 'express';
-import { PaginatedRequest, PaginatedResponse, YN } from 'src/common';
+import {
+  PaginatedRequest,
+  PaginatedResponse,
+  RESTAURANT_TYPE,
+  YN,
+} from 'src/common';
 import {
   encryptString,
   PickcookSlackNotificationService,
 } from 'src/common/utils';
 import { BaseService, BrandAiException } from 'src/core';
-import { BRAND_CONSULT } from 'src/shared';
+import { BRAND_CONSULT, FNB_OWNER } from 'src/shared';
 import { EntityManager, Repository } from 'typeorm';
 import { PlatformAdmin } from '../admin/platform-admin.entity';
+import { SScoreListDto } from '../data/s-score/dto';
 import { ProformaConsultResultV2 } from '../proforma-consult-result-v2/proforma-consult-result-v2.entity';
 import { QuestionGivenV2 } from '../question-given-v2/question-given-v2.entity';
 import { QuestionProformaGivenMapperV2 } from '../question-proforma-given-mapper-v2/question-proforma-given-mapper-v2.entity';
 import { QuestionProformaMapperV2 } from '../question-proforma-mapper-v2/question-proforma-mapper-v2.entity';
 import { SmsNotificationService } from '../sms-notification/sms-notification.service';
 import { ConsultResultV2 } from './consult-result-v2.entity';
+import { SScoreService } from '../data/s-score/s-score.service';
 import {
   AdminConsultResultV2ListDto,
   AdminConsultResultV2UpdateDto,
@@ -32,6 +39,7 @@ export class ConsultResultV2Service extends BaseService {
     private readonly platformAdminRepo: Repository<PlatformAdmin>,
     private readonly smsNotificationService: SmsNotificationService,
     private readonly pickcookSlackNotificationService: PickcookSlackNotificationService,
+    private readonly sScoreService: SScoreService,
   ) {
     super();
   }
@@ -126,6 +134,19 @@ export class ConsultResultV2Service extends BaseService {
     );
     if (qb.adminId) {
       qb.admin = await this.platformAdminRepo.findOne(qb.adminId);
+    }
+    if (qb.fnbOwnerStatus === FNB_OWNER.CUR_FNB_OWNER) {
+      const newSscoreDto = new SScoreListDto();
+      newSscoreDto.hdongCode = qb.proformaConsultResult.hdongCode;
+      newSscoreDto.mediumCategoryCode =
+        qb.proformaConsultResult.selectedKbMediumCategory;
+      const otherMenuRecommendations = await this.sScoreService.findSecondarySScore(
+        newSscoreDto,
+        qb.proformaConsultResult.deliveryRatioData.deliveryRatio < 20
+          ? RESTAURANT_TYPE.RESTAURANT
+          : RESTAURANT_TYPE.DELIVERY,
+      );
+      qb.proformaConsultResult.otherMenuRecommendations = otherMenuRecommendations;
     }
     return qb;
   }

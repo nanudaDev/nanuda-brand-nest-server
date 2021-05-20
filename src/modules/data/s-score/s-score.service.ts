@@ -27,7 +27,7 @@ export class SScoreService extends BaseService {
    * @returns
    */
   async findAll(
-    hdongCode: number,
+    hdongCode: string | number,
     restaurantType: RESTAURANT_TYPE,
   ): Promise<SScoreDelivery[] | SScoreRestaurant[]> {
     let qb;

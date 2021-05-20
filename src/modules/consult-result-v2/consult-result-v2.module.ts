@@ -8,6 +8,7 @@ import { AdminConsultResultV2Controller } from './admin-consult-result-v2.contro
 import { ConsultResultV2Controller } from './consult-result-v2.controller';
 import { ConsultResultV2 } from './consult-result-v2.entity';
 import { ConsultResultV2Service } from './consult-result-v2.service';
+import { SScoreModule } from '../data/s-score/s-score.module';
 
 @Module({
   imports: [
@@ -15,9 +16,10 @@ import { ConsultResultV2Service } from './consult-result-v2.service';
     SmsNotificationModule,
     TypeOrmModule.forFeature([CodeHdong], 'wq'),
     TypeOrmModule.forFeature([PlatformAdmin], 'platform'),
+    SScoreModule,
   ],
   controllers: [AdminConsultResultV2Controller, ConsultResultV2Controller],
   providers: [ConsultResultV2Service, PickcookSlackNotificationService],
   exports: [ConsultResultV2Service],
 })
-export class ConsultResultV2Module { }
+export class ConsultResultV2Module {}

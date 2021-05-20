@@ -143,6 +143,18 @@ export class ProformaConsultResultV2Service extends BaseService {
         .getRepository(ConsultResultV2)
         .findOne({ proformaConsultResultId: qb.id });
     }
+    if (qb.fnbOwnerStatus === FNB_OWNER.CUR_FNB_OWNER) {
+      const newSscoreDto = new SScoreListDto();
+      newSscoreDto.hdongCode = qb.hdongCode;
+      newSscoreDto.mediumCategoryCode = qb.selectedKbMediumCategory;
+      const otherMenuRecommendations = await this.sScoreService.findSecondarySScore(
+        newSscoreDto,
+        qb.deliveryRatioData.deliveryRatio < 20
+          ? RESTAURANT_TYPE.RESTAURANT
+          : RESTAURANT_TYPE.DELIVERY,
+      );
+      qb.otherMenuRecommendations = otherMenuRecommendations;
+    }
     return qb;
   }
 
@@ -373,14 +385,13 @@ export class ProformaConsultResultV2Service extends BaseService {
     // other menu recommendations
     const otherMenuRecommendations = await this.sScoreService.findSecondarySScore(
       newSscoreDto,
-      average < 30 ? RESTAURANT_TYPE.RESTAURANT : RESTAURANT_TYPE.DELIVERY,
+      average < 20 ? RESTAURANT_TYPE.RESTAURANT : RESTAURANT_TYPE.DELIVERY,
     );
     const response = new ProformaConsultResultV2ResponseClassForCurFnbOwer();
     // throw highest revenue among the s score data
     const sortedDataByEstimatedHighestRevenue = appliedCScore.sort((a, b) =>
       a.estimatedHighestRevenue > b.estimatedHighestRevenue ? -1 : 1,
     );
-    console.log(sortedDataByEstimatedHighestRevenue);
     response.selectedMenuRecommendation = appliedCScore[0];
     response.deliveryRatio = average;
     response.estimatedRevenue =

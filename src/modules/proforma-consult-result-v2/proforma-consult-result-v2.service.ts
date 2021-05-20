@@ -315,29 +315,31 @@ export class ProformaConsultResultV2Service extends BaseService {
       proformaConsultResultQueryDto.selectedKbMediumCategory;
 
     // get both restaurant and delivery data first
-    let sScoreDelivery: SScoreDelivery[] | SScoreRestaurant[];
-    if (average < 30) {
-      sScoreDelivery = await this.sScoreService.findAllWithMediumCategoryCode(
-        newSscoreDto,
-        RESTAURANT_TYPE.RESTAURANT,
-      );
-    } else {
-      sScoreDelivery = await this.sScoreService.findAllWithMediumCategoryCode(
-        newSscoreDto,
-        RESTAURANT_TYPE.DELIVERY,
-      );
-    }
+    // let sScoreDelivery: SScoreDelivery[] | SScoreRestaurant[];
+    // if (average < 30) {
+    //   sScoreDelivery = await this.sScoreService.findAllWithMediumCategoryCode(
+    //     newSscoreDto,
+    //     RESTAURANT_TYPE.RESTAURANT,
+    //   );
+    // } else {
+    //   sScoreDelivery = await this.sScoreService.findAllWithMediumCategoryCode(
+    //     newSscoreDto,
+    //     RESTAURANT_TYPE.DELIVERY,
+    //   );
+    // }
     // const sScoreDelivery = await this.sScoreService.findAllWithMediumCategoryCode(
     //   newSscoreDto,
     //   RESTAURANT_TYPE.DELIVERY,
     // );
-    // const sScoreRestaurant = await this.sScoreService.findAllWithMediumCategoryCode(
-    //   newSscoreDto,
-    //   RESTAURANT_TYPE.RESTAURANT,
-    // );
+    // TODO: find replacement for data
+    // 배달 매출이 없는 관계로 일단 식당형 데이터로 대체
+    const sScoreRestaurant = await this.sScoreService.findAllWithMediumCategoryCode(
+      newSscoreDto,
+      RESTAURANT_TYPE.RESTAURANT,
+    );
 
     const appliedCScore = await this.__apply_c_score(
-      [sScoreDelivery[0]],
+      [sScoreRestaurant[0]],
       questionScores,
       cScoreAttributeValue,
       proformaConsultResultQueryDto.fnbOwnerStatus,

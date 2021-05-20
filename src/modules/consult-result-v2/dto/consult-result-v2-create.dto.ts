@@ -1,6 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsNotEmpty, IsPhoneNumber } from 'class-validator';
+import { IsNotEmpty, IsPhoneNumber, IsOptional } from 'class-validator';
 import { BaseDto } from 'src/core';
 import { ConsultResultV2 } from '../consult-result-v2.entity';
 
@@ -17,8 +17,8 @@ export class ConsultResultV2CreateDto extends BaseDto<ConsultResultV2CreateDto>
   @IsNotEmpty()
   phone: string;
 
-  @ApiProperty()
-  @IsNotEmpty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @Expose()
   smsAuthCode: number;
 

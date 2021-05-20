@@ -11,7 +11,7 @@ export class SScoreListDto extends BaseDto<SScoreListDto>
   @ApiProperty()
   @Expose()
   @IsNotEmpty()
-  hdongCode: number;
+  hdongCode: string | number;
 
   @ApiPropertyOptional({ enum: KB_MEDIUM_CATEGORY })
   @IsEnum(KB_MEDIUM_CATEGORY)

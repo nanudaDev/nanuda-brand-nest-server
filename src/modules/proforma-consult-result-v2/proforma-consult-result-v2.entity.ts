@@ -25,6 +25,8 @@ import { Json } from 'aws-sdk/clients/robomaker';
 import { YN } from 'src/common';
 import { QuestionV2 } from '../question-v2/question-v2.entity';
 import { ConsultResultV2 } from '../consult-result-v2/consult-result-v2.entity';
+import { SScoreRestaurant } from '../data/entities/s-score-restaurant.entity';
+import { SScoreDelivery } from '../data/entities/s-score-delivery.entity';
 
 @Entity({ name: 'proforma_consult_result_v2' })
 export class ProformaConsultResultV2 extends BaseEntity<
@@ -132,6 +134,8 @@ export class ProformaConsultResultV2 extends BaseEntity<
     inverseJoinColumn: { name: 'question_id' },
   })
   questions?: QuestionV2[];
+
+  otherMenuRecommendations?: SScoreRestaurant[] | SScoreDelivery[];
 
   consult?: ConsultResultV2;
 }

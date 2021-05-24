@@ -7,6 +7,7 @@ import { ProformaConsultResultV2 } from '../proforma-consult-result-v2/proforma-
 import { BrandAiException } from '../../core/errors/brand-ai.exception';
 import { ORDER_BY_VALUE } from '../../common/interfaces/order-by-value.type';
 import { AdminProformaEventTrackerListDto } from './dto/admin-proforma-event-tracker-list.dto';
+import { ProformaConsultResultV3 } from '../proforma-consult-result-v3/proforma-consult-result-v3.entity';
 import {
   PaginatedRequest,
   PaginatedResponse,
@@ -105,7 +106,7 @@ export class ProformaEventTrackerService extends BaseService {
    * @returns
    */
   async createRecord(
-    proforma: ProformaConsultResultV2,
+    proforma: ProformaConsultResultV2 | ProformaConsultResultV3,
   ): Promise<ProformaEventTracker> {
     let newRecord = new ProformaEventTracker();
     if (!proforma.ipAddress) {
@@ -131,7 +132,10 @@ export class ProformaEventTrackerService extends BaseService {
         newRecord = await this.proformaEventTrackerRepo.save(newRecord);
       }
     }
-
+    if (proforma instanceof ProformaConsultResultV3) {
+      // TODO: 가변적으로 가져가는 것을 만든다
+      newRecord.versionNumber = 3;
+    }
     return newRecord;
   }
 

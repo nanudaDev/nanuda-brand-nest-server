@@ -7,6 +7,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { getMetadataArgsStorage } from 'typeorm';
 import { PickcookMailerConfigService, TypeOrmConfigService } from './config';
 import { ProformaEventTrackerModule } from './modules/proforma-event-tracker/proforma-event-tracker.module';
+import { ConsultResultV3Module } from './modules/consult-result-v3/consult-result-v3.module';
+import { ProformaConsultResultV3Module } from './modules/proforma-consult-result-v3/proforma-consult-result-v3.module';
 import {
   HttpExceptionFilter,
   ErrorsInterceptor,
@@ -89,7 +91,8 @@ const env = process.env;
     // AggregateResultResponseModule,
     CommonCodeModule,
     CodeHdongModule,
-    ConsultResultV2Module,
+    // ConsultResultV2Module,
+    ConsultResultV3Module,
     ConsultResultModule,
     // FileUploadModule,
     // GlobalModule,
@@ -103,7 +106,8 @@ const env = process.env;
     BatchReservationModule,
     // Version 2 Modules
     QuestionV2Module,
-    ProformaConsultResultV2Module,
+    // ProformaConsultResultV2Module,
+    ProformaConsultResultV3Module,
     // S-Score Module
     SScoreModule,
     // Tracker Modules

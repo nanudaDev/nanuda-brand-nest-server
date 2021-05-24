@@ -19,6 +19,12 @@ export class ProformaEventTracker extends BaseMapperEntity<
   })
   proformaConsultId: number;
 
+  @Column({
+    name: 'version_number',
+    nullable: true,
+  })
+  versionNumber?: number;
+
   @OneToOne(type => ConsultResultV2)
   @JoinColumn({
     name: 'proforma_consult_id',

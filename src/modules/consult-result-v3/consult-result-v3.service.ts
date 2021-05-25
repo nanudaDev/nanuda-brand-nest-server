@@ -11,6 +11,7 @@ import { BrandAiException } from '../../core/errors/brand-ai.exception';
 import { SmsNotificationService } from '../sms-notification/sms-notification.service';
 import { PickcookSlackNotificationService } from '../../common/utils/service/pickcook-slack-notification.service';
 import { YN } from 'src/common';
+import { PlatformAdmin } from '../admin/platform-admin.entity';
 
 @Injectable()
 export class ConsultResultV3Service extends BaseService {
@@ -20,8 +21,33 @@ export class ConsultResultV3Service extends BaseService {
     @InjectEntityManager() private readonly entityManager: EntityManager,
     private readonly smsNotificationService: SmsNotificationService,
     private readonly slackNotificationService: PickcookSlackNotificationService,
+    @InjectRepository(PlatformAdmin, 'platform')
+    private readonly platformAdminRepo: Repository<PlatformAdmin>,
   ) {
     super();
+  }
+
+  /**
+   * find one for admin
+   * @param id
+   * @returns
+   */
+  async findOneForAdmin(id: number): Promise<ConsultResultV3> {
+    const consult = await this.consultRepo
+      .createQueryBuilder('consult')
+      .CustomInnerJoinAndSelect([
+        'fnbOwnerCodeStatus',
+        'consultCodeStatus',
+        'proformaConsultResult',
+      ])
+      .where('consult.id = :id', { id: id })
+      .getOne();
+
+    if (consult.adminId) {
+      consult.admin = await this.platformAdminRepo.findOne(consult.adminId);
+    }
+
+    return consult;
   }
 
   /**
@@ -36,6 +62,12 @@ export class ConsultResultV3Service extends BaseService {
   ): Promise<ConsultResultV3> {
     const consult = await this.entityManager.transaction(
       async entityManager => {
+        const checkConsult = await this.consultRepo.findOne({
+          proformaConsultResultId:
+            consultResultCreateDto.proformaConsultResultId,
+        });
+        if (checkConsult)
+          throw new BrandAiException('consultResult.proformaExist');
         let proforma = await entityManager
           .getRepository(ProformaConsultResultV3)
           .findOne(consultResultCreateDto.proformaConsultResultId);

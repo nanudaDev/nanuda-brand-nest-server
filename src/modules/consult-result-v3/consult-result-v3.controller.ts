@@ -1,0 +1,29 @@
+import { Body, Controller, Post, Req } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { Request } from 'express';
+import { BaseController } from '../../core/base.controller';
+import { ConsultResultV3 } from './consult-result-v3.entity';
+import { ConsultResultV3Service } from './consult-result-v3.service';
+import { ConsultResultV3CreateDto } from './dto';
+
+@Controller('v3')
+@ApiTags('CONSULT RESULT V3')
+export class ConsultResultV3Controller extends BaseController {
+  constructor(private readonly consultService: ConsultResultV3Service) {
+    super();
+  }
+
+  /**
+   * create for landing page
+   * @param consultCreateDto
+   * @param req
+   * @returns
+   */
+  @Post('/consult-result')
+  async createConsult(
+    @Body() consultCreateDto: ConsultResultV3CreateDto,
+    @Req() req: Request,
+  ): Promise<ConsultResultV3> {
+    return await this.consultService.createConsult(consultCreateDto, req);
+  }
+}

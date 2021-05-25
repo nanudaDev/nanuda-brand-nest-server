@@ -21,6 +21,10 @@ export * from './question-v2/question-v2.module';
 export * from './proforma-consult-result-v2/proforma-consult-result-v2.module';
 export * from './consult-result-v2/consult-result-v2.module';
 
+// version 3 modules
+export * from './consult-result-v3/consult-result-v3.module';
+export * from './proforma-consult-result-v3/proforma-consult-result-v3.module';
+
 // batch modules
 export * from '../batch-process';
 

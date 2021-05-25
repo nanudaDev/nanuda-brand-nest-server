@@ -3,7 +3,7 @@ import { Expose } from 'class-transformer';
 import { IsEnum, IsOptional } from 'class-validator';
 import { BaseDto } from '../../../core/base.dto';
 import { ConsultResultV3 } from '../consult-result-v3.entity';
-import { FNB_OWNER } from '../../../shared/common-code.type';
+import { FNB_OWNER, BRAND_CONSULT } from '../../../shared/common-code.type';
 import { ORDER_BY_VALUE } from '../../../common/interfaces/order-by-value.type';
 import { Default } from 'src/common';
 export class AdminConsultResultV3ListDto
@@ -14,6 +14,12 @@ export class AdminConsultResultV3ListDto
   @Expose()
   @IsEnum(FNB_OWNER)
   fnbOwnerStatus?: FNB_OWNER;
+
+  @ApiPropertyOptional({ enum: BRAND_CONSULT })
+  @IsOptional()
+  @Expose()
+  @IsEnum(BRAND_CONSULT)
+  consultStatus?: BRAND_CONSULT;
 
   @ApiPropertyOptional()
   @IsOptional()

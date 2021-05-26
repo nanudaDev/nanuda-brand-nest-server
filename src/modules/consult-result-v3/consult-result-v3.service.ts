@@ -115,8 +115,10 @@ export class ConsultResultV3Service extends BaseService {
       ])
       .where('consult.id = :id', { id: id })
       .getOne();
-
-    if (consult.adminId) {
+    if (!consult) {
+      throw new BrandAiException('consultResult.notFound');
+    }
+    if (consult && consult.adminId) {
       consult.admin = await this.platformAdminRepo.findOne(consult.adminId);
     }
 

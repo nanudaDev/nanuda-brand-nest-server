@@ -12,6 +12,12 @@ import { SmsNotificationService } from '../sms-notification/sms-notification.ser
 import { PickcookSlackNotificationService } from '../../common/utils/service/pickcook-slack-notification.service';
 import { YN } from 'src/common';
 import { PlatformAdmin } from '../admin/platform-admin.entity';
+import { AdminConsultResultV3ListDto } from './dto/admin-consult-result-v3-list.dto';
+import { AdminConsultResultV3UpdateDto } from './dto/admin-consult-result-v3-update.dto';
+import {
+  PaginatedRequest,
+  PaginatedResponse,
+} from '../../common/interfaces/pagination.type';
 
 @Injectable()
 export class ConsultResultV3Service extends BaseService {
@@ -25,6 +31,73 @@ export class ConsultResultV3Service extends BaseService {
     private readonly platformAdminRepo: Repository<PlatformAdmin>,
   ) {
     super();
+  }
+
+  /**
+   * find all for admin
+   * @param adminConsultResultV3ListDto
+   * @param pagination
+   * @returns
+   */
+  async findAllForAdmin(
+    adminConsultResultV3ListDto: AdminConsultResultV3ListDto,
+    pagination: PaginatedRequest,
+  ): Promise<PaginatedResponse<ConsultResultV3>> {
+    const qb = await this.consultRepo
+      .createQueryBuilder('consult')
+      .CustomInnerJoinAndSelect([
+        'fnbOwnerCodeStatus',
+        'consultCodeStatus',
+        'proformaConsultResult',
+      ])
+      .AndWhereLike(
+        'consult',
+        'name',
+        adminConsultResultV3ListDto.name,
+        adminConsultResultV3ListDto.exclude('name'),
+      )
+      .AndWhereLike(
+        'consult',
+        'phone',
+        adminConsultResultV3ListDto.phone,
+        adminConsultResultV3ListDto.exclude('phone'),
+      )
+      .AndWhereLike(
+        'consult',
+        'fnbOwnerStatus',
+        adminConsultResultV3ListDto.fnbOwnerStatus,
+        adminConsultResultV3ListDto.exclude('fnbOwnerStatus'),
+      )
+      .AndWhereLike(
+        'consult',
+        'consultStatus',
+        adminConsultResultV3ListDto.consultStatus,
+        adminConsultResultV3ListDto.exclude('consultStatus'),
+      )
+      .Paginate(pagination)
+      .WhereAndOrder(adminConsultResultV3ListDto)
+      .getManyAndCount();
+
+    const [items, totalCount] = await qb;
+
+    return { items, totalCount };
+  }
+
+  /**
+   * update for admin
+   * @param id
+   * @param adminConsultResultV3UpdateDto
+   * @returns
+   */
+  async updateForAdmin(
+    id: number,
+    adminConsultResultV3UpdateDto: AdminConsultResultV3UpdateDto,
+  ): Promise<ConsultResultV3> {
+    let consult = await this.consultRepo.findOne(id);
+    if (!consult) throw new BrandAiException('consultResult.notFound');
+    consult = consult.set(adminConsultResultV3UpdateDto);
+    consult = await this.consultRepo.save(consult);
+    return consult;
   }
 
   /**
@@ -47,6 +120,20 @@ export class ConsultResultV3Service extends BaseService {
       consult.admin = await this.platformAdminRepo.findOne(consult.adminId);
     }
 
+    return consult;
+  }
+
+  /**
+   * assign myself admin
+   * @param id
+   * @param adminId
+   * @returns
+   */
+  async assignMyself(id: number, adminId: number): Promise<ConsultResultV3> {
+    let consult = await this.consultRepo.findOne(id);
+    if (!consult) throw new BrandAiException('consultResult.notFound');
+    consult.adminId = adminId;
+    consult = await this.consultRepo.save(consult);
     return consult;
   }
 

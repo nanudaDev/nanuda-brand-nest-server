@@ -1,5 +1,5 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { BaseController } from 'src/core';
 import { CodeHdong } from './code-hdong.entity';
 import { CodeHdongService } from './code-hdong.service';
@@ -15,6 +15,7 @@ export class CodeHdongController extends BaseController {
   /**
    * find all sido
    */
+  @ApiOperation({ description: '도시별로 행정동 검색' })
   @Get('/code-hdong/sido')
   async findAllSido(): Promise<CodeHdong[]> {
     return await this.codeHdongService.findAllSido();
@@ -24,6 +25,7 @@ export class CodeHdongController extends BaseController {
    * find all
    * @param codeHdongListDto
    */
+  @ApiOperation({ description: '구별로 행정동 검색' })
   @Get('/code-hdong/gu-name')
   async findAll(
     @Query() codeHdongListDto: CodeHdongListDto,
@@ -35,6 +37,7 @@ export class CodeHdongController extends BaseController {
    * find all
    * @param codeHdongListDto
    */
+  @ApiOperation({ description: '구별로 행정동 검색' })
   @Get('/code-hdong/hdong-name')
   async findAllDongs(
     @Query() codeHdongListDto: CodeHdongListDto,

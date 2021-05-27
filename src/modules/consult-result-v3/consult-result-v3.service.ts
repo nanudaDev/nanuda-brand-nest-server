@@ -43,7 +43,7 @@ export class ConsultResultV3Service extends BaseService {
     adminConsultResultV3ListDto: AdminConsultResultV3ListDto,
     pagination: PaginatedRequest,
   ): Promise<PaginatedResponse<ConsultResultV3>> {
-    const qb = await this.consultRepo
+    const qb = this.consultRepo
       .createQueryBuilder('consult')
       .CustomInnerJoinAndSelect([
         'fnbOwnerCodeStatus',

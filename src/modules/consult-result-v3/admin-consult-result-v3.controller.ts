@@ -6,7 +6,12 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiTags,
+  ApiOperation,
+  ApiConsumes,
+} from '@nestjs/swagger';
 import { PlatformAuthRolesGuard } from 'src/core';
 import { CONST_ADMIN_USER } from 'src/shared';
 import { BaseController } from '../../core/base.controller';
@@ -33,6 +38,7 @@ export class AdminConsultResultV3Controller extends BaseController {
    * @param pagination
    * @returns
    */
+  @ApiOperation({ description: '관리자 상담 신청서 검색/리스트' })
   @Get('/admin/consult-result-v3')
   async findAll(
     @Query() adminConsultResultV3ListDto: AdminConsultResultV3ListDto,
@@ -49,6 +55,7 @@ export class AdminConsultResultV3Controller extends BaseController {
    * @param id
    * @returns
    */
+  @ApiOperation({ description: '관리자 상담 신청서 찾기' })
   @Get('/admin/consult-result-v3/:id([0-9]+)')
   async findOne(
     @Param('id', ParseIntPipe) id: number,

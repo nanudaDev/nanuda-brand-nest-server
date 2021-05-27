@@ -121,6 +121,7 @@ export class ProformaEventTrackerService extends BaseService {
       .getOne();
     if (!checkIpAddress) {
       newRecord.proformaConsultId = proforma.id;
+      newRecord.fnbOwnerStatus = proforma.fnbOwnerStatus;
       newRecord.ipAddress = proforma.ipAddress;
       newRecord = await this.proformaEventTrackerRepo.save(newRecord);
     }
@@ -129,6 +130,7 @@ export class ProformaEventTrackerService extends BaseService {
       if (checkTime) {
         newRecord.proformaConsultId = proforma.id;
         newRecord.ipAddress = proforma.ipAddress;
+        newRecord.fnbOwnerStatus = proforma.fnbOwnerStatus;
         newRecord = await this.proformaEventTrackerRepo.save(newRecord);
       }
     }

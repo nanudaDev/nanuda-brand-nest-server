@@ -2,6 +2,7 @@ import { BaseMapperEntity } from 'src/core';
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { ProformaConsultResultV2 } from '../proforma-consult-result-v2/proforma-consult-result-v2.entity';
 import { ConsultResultV2 } from '../consult-result-v2/consult-result-v2.entity';
+import { FNB_OWNER } from '../../shared/common-code.type';
 
 @Entity({ name: 'proforma_event_tracker' })
 export class ProformaEventTracker extends BaseMapperEntity<
@@ -18,6 +19,12 @@ export class ProformaEventTracker extends BaseMapperEntity<
     type: 'int',
   })
   proformaConsultId: number;
+
+  @Column({
+    name: 'fnb_owner_status',
+    type: 'varchar',
+  })
+  fnbOwnerStatus?: FNB_OWNER;
 
   @OneToOne(type => ConsultResultV2)
   @JoinColumn({

@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   Param,
@@ -22,6 +23,9 @@ import {
 } from '../../common/interfaces/pagination.type';
 import { ConsultResultV3 } from './consult-result-v3.entity';
 import { ConsultResultV3Service } from './consult-result-v3.service';
+import { Patch } from '@nestjs/common';
+import { UserInfo } from 'src/common';
+import { PlatformAdmin } from '../admin/platform-admin.entity';
 
 @Controller('v3')
 @ApiTags('ADMIN CONSULT RESULT V3')
@@ -61,5 +65,14 @@ export class AdminConsultResultV3Controller extends BaseController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<ConsultResultV3> {
     return await this.consultService.findOneForAdmin(id);
+  }
+
+  @ApiOperation({ description: '관리자 담당자 본인으로 ' })
+  @Patch('/admin/consult-response/:id([0-9]+)/assign-myself')
+  async assignMyself(
+    @UserInfo() admin: PlatformAdmin,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ConsultResultV3> {
+    return await this.consultService.assignMyself(id, admin.no);
   }
 }

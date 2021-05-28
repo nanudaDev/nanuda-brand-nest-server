@@ -7,6 +7,7 @@ import { ConsultResultV3Service } from './consult-result-v3.service';
 import { ConsultResultV3Controller } from './consult-result-v3.controller';
 import { PlatformAdmin } from '../admin/platform-admin.entity';
 import { CodeHdong } from '../code-hdong/code-hdong.entity';
+import { AdminConsultResultV3Controller } from './admin-consult-result-v3.controller';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { CodeHdong } from '../code-hdong/code-hdong.entity';
     TypeOrmModule.forFeature([PlatformAdmin], 'platform'),
     SmsNotificationModule,
   ],
-  controllers: [ConsultResultV3Controller],
+  controllers: [AdminConsultResultV3Controller, ConsultResultV3Controller],
   providers: [ConsultResultV3Service, PickcookSlackNotificationService],
   exports: [ConsultResultV3Service],
 })

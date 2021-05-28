@@ -4,6 +4,7 @@ import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { PlatformAdmin } from '../admin/platform-admin.entity';
 import { CommonCode } from '../common-code/common-code.entity';
 import { ProformaConsultResultV2 } from '../proforma-consult-result-v2/proforma-consult-result-v2.entity';
+import { ProformaConsultResultV3 } from '../proforma-consult-result-v3/proforma-consult-result-v3.entity';
 
 @Entity({ name: 'consult_result_v3' })
 export class ConsultResultV3 extends BaseEntity<ConsultResultV3> {
@@ -65,9 +66,9 @@ export class ConsultResultV3 extends BaseEntity<ConsultResultV3> {
   @JoinColumn({ name: 'fnb_owner_status', referencedColumnName: 'key' })
   fnbOwnerCodeStatus?: CommonCode;
 
-  @OneToOne(type => ProformaConsultResultV2)
+  @OneToOne(type => ProformaConsultResultV3)
   @JoinColumn({ name: 'proforma_consult_result_id' })
-  proformaConsultResult?: ProformaConsultResultV2;
+  proformaConsultResult?: ProformaConsultResultV3;
 
   @OneToOne(type => CommonCode)
   @JoinColumn({ name: 'consult_status', referencedColumnName: 'key' })

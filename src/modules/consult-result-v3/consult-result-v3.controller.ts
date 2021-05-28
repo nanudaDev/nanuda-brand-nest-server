@@ -1,5 +1,5 @@
 import { Body, Controller, Post, Req } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { BaseController } from '../../core/base.controller';
 import { ConsultResultV3 } from './consult-result-v3.entity';
@@ -19,6 +19,7 @@ export class ConsultResultV3Controller extends BaseController {
    * @param req
    * @returns
    */
+  @ApiOperation({ description: '상담 신청하기' })
   @Post('/consult-result')
   async createConsult(
     @Body() consultCreateDto: ConsultResultV3CreateDto,

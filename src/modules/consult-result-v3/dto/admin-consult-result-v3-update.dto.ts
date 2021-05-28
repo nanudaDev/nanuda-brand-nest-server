@@ -4,7 +4,8 @@ import { ConsultResultV3 } from '../consult-result-v3.entity';
 import { FNB_OWNER, BRAND_CONSULT } from '../../../shared/common-code.type';
 import { IsEnum, IsOptional } from 'class-validator';
 import { Expose } from 'class-transformer';
-export class ConsultResultV3UpdateDto extends BaseDto<ConsultResultV3UpdateDto>
+export class AdminConsultResultV3UpdateDto
+  extends BaseDto<AdminConsultResultV3UpdateDto>
   implements Partial<ConsultResultV3> {
   @ApiPropertyOptional()
   @Expose()

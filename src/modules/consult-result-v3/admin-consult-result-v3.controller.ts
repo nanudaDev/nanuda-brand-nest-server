@@ -67,6 +67,12 @@ export class AdminConsultResultV3Controller extends BaseController {
     return await this.consultService.findOneForAdmin(id);
   }
 
+  /**
+   * 본인으로 정하기
+   * @param admin
+   * @param id
+   * @returns
+   */
   @ApiOperation({ description: '관리자 담당자 본인으로 ' })
   @Patch('/admin/consult-response/:id([0-9]+)/assign-myself')
   async assignMyself(

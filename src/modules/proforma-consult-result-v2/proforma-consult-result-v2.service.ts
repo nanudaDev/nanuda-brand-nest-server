@@ -28,7 +28,6 @@ import { AdminProformaConsultResultV2ListDto } from './dto/admin-proforma-consul
 import { ConsultResultV2 } from '../consult-result-v2/consult-result-v2.entity';
 import { SScoreListDto } from '../data/s-score/dto/s-score-list.dto';
 import { CodeHdong } from '../code-hdong/code-hdong.entity';
-import { DELIVERY_OR_RESTAURANT } from '../../shared/common-code.type';
 import {
   PaginatedRequest,
   PaginatedResponse,

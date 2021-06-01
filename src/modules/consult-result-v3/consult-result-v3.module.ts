@@ -8,10 +8,18 @@ import { ConsultResultV3Controller } from './consult-result-v3.controller';
 import { PlatformAdmin } from '../admin/platform-admin.entity';
 import { CodeHdong } from '../code-hdong/code-hdong.entity';
 import { AdminConsultResultV3Controller } from './admin-consult-result-v3.controller';
+import { RandomConsultCountTracker } from '../random-consult-count-tracker/random-consult-count-tracker.entity';
+import { ConsultResult } from '../consult-result/consult-result.entity';
+import { ConsultResultV2 } from '../consult-result-v2/consult-result-v2.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ConsultResultV3]),
+    TypeOrmModule.forFeature([
+      ConsultResultV3,
+      RandomConsultCountTracker,
+      ConsultResult,
+      ConsultResultV2,
+    ]),
     TypeOrmModule.forFeature([CodeHdong], 'wq'),
     TypeOrmModule.forFeature([PlatformAdmin], 'platform'),
     SmsNotificationModule,

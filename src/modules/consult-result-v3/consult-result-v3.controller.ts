@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { BaseController } from '../../core/base.controller';
@@ -26,5 +26,11 @@ export class ConsultResultV3Controller extends BaseController {
     @Req() req: Request,
   ): Promise<ConsultResultV3> {
     return await this.consultService.createConsult(consultCreateDto, req);
+  }
+
+  @ApiOperation({ description: '랜딩 페이지에 상담 완료 카운트 수' })
+  @Get('/consult-result/get-count')
+  async getCount(): Promise<number> {
+    return await this.consultService.getConsultCount();
   }
 }

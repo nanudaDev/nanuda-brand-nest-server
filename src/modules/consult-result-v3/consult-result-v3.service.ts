@@ -14,6 +14,9 @@ import { YN } from 'src/common';
 import { PlatformAdmin } from '../admin/platform-admin.entity';
 import { AdminConsultResultV3ListDto } from './dto/admin-consult-result-v3-list.dto';
 import { AdminConsultResultV3UpdateDto } from './dto/admin-consult-result-v3-update.dto';
+import { RandomConsultCountTracker } from '../random-consult-count-tracker/random-consult-count-tracker.entity';
+import { ConsultResult } from '../consult-result/consult-result.entity';
+import { ConsultResultV2 } from '../consult-result-v2/consult-result-v2.entity';
 import {
   PaginatedRequest,
   PaginatedResponse,
@@ -29,6 +32,10 @@ export class ConsultResultV3Service extends BaseService {
     private readonly slackNotificationService: PickcookSlackNotificationService,
     @InjectRepository(PlatformAdmin, 'platform')
     private readonly platformAdminRepo: Repository<PlatformAdmin>,
+    @InjectRepository(RandomConsultCountTracker)
+    private readonly randomConsultCounTrackerRepo: Repository<
+      RandomConsultCountTracker
+    >,
   ) {
     super();
   }
@@ -174,5 +181,31 @@ export class ConsultResultV3Service extends BaseService {
       },
     );
     return consult;
+  }
+
+  /**
+   * get consult count randomized
+   * @returns
+   */
+  async getConsultCount(): Promise<number> {
+    const randomCount = await this.randomConsultCounTrackerRepo.findOne({
+      isUsedYn: YN.YES,
+    });
+    const consult1Count = await this.entityManager
+      .getRepository(ConsultResult)
+      .find();
+    const consult2Count = await this.entityManager
+      .getRepository(ConsultResultV2)
+      .find();
+    const consult3Count = await this.entityManager
+      .getRepository(ConsultResultV3)
+      .find();
+
+    return (
+      randomCount.value +
+      consult1Count.length +
+      consult2Count.length +
+      consult3Count.length
+    );
   }
 }

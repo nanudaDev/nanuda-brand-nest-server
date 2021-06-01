@@ -106,7 +106,7 @@ const env = process.env;
     BatchReservationModule,
     // Version 2 Modules
     QuestionV2Module,
-    // ProformaConsultResultV2Module,
+    ProformaConsultResultV2Module,
     ProformaConsultResultV3Module,
     // S-Score Module
     SScoreModule,

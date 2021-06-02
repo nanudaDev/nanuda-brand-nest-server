@@ -112,6 +112,8 @@ const env = process.env;
     SScoreModule,
     // Tracker Modules
     ProformaEventTrackerModule,
+    // Batch modules
+    BatchReservationModule,
   ],
   controllers: [],
   providers: [

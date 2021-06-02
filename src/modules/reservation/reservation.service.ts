@@ -21,7 +21,7 @@ import {
   RESERVATION_HOURS,
   RESERVATION_HOURS_JSON,
 } from 'src/shared';
-import { ReservationDeleteReasonDto } from './dto/reservation-delete-reason.dto';
+import { ReservationDeleteReasonDto } from './dto';
 import {
   DateFormatter,
   decryptString,

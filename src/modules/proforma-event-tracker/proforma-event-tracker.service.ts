@@ -176,6 +176,11 @@ export class ProformaEventTrackerService extends BaseService {
       .orderBy('tracker.id', ORDER_BY_VALUE.DESC)
       .getOne();
     if (!checkIpAddress) {
+      if (proforma instanceof ProformaConsultResultV3) {
+        console.log('v3');
+        // TODO: 가변적으로 가져가는 것을 만든다
+        newRecord.versionNumber = 3;
+      }
       newRecord.proformaConsultId = proforma.id;
       newRecord.fnbOwnerStatus = proforma.fnbOwnerStatus;
       newRecord.ipAddress = proforma.ipAddress;
@@ -184,16 +189,18 @@ export class ProformaEventTrackerService extends BaseService {
     if (checkIpAddress) {
       const checkTime = this.__check_if_over_thirty_minutes(checkIpAddress);
       if (checkTime) {
+        if (proforma instanceof ProformaConsultResultV3) {
+          console.log('v3');
+          // TODO: 가변적으로 가져가는 것을 만든다
+          newRecord.versionNumber = 3;
+        }
         newRecord.proformaConsultId = proforma.id;
         newRecord.ipAddress = proforma.ipAddress;
         newRecord.fnbOwnerStatus = proforma.fnbOwnerStatus;
         newRecord = await this.proformaEventTrackerRepo.save(newRecord);
       }
     }
-    if (proforma instanceof ProformaConsultResultV3) {
-      // TODO: 가변적으로 가져가는 것을 만든다
-      newRecord.versionNumber = 3;
-    }
+
     return newRecord;
   }
 

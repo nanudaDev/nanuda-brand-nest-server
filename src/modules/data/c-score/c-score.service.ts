@@ -76,6 +76,10 @@ export class CScoreService extends BaseService {
     return { items, totalCount };
   }
 
+  async findOneForAdmin(id: number): Promise<CScoreAttribute> {
+    return await this.cScoreAttributeRepo.findOne(id);
+  }
+
   /**
    * find recent valid c score attribute
    * @returns

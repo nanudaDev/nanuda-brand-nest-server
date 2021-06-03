@@ -19,6 +19,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PlatformAuthRolesGuard } from '../../core/guards/platform-auth-roles.guard';
 import { CONST_ADMIN_ROLES } from 'src/shared';
 import { CONST_ADMIN_USER } from '../../shared/platform-common-code.type';
+import { AdminProformaEventTrackerCountDto } from './dto/admin-proforma-event-tracker-count.dto';
 
 @Controller('v2')
 @ApiTags('ADMIN PROFORMA EVENT TRACKER')
@@ -35,7 +36,7 @@ export class AdminProformEventTrackerController extends BaseController {
    * find all for admin
    * @param adminProformaEventTrackerListDto
    * @param pagination
-   * @returns
+   * @returns pagination proforma event tracker
    */
   @Get('/admin/proforma-event-tracker')
   async findAllForAdmin(
@@ -51,12 +52,27 @@ export class AdminProformEventTrackerController extends BaseController {
   /**
    * find one for admin
    * @param id
-   * @returns
+   * @returns proforma event tracker
    */
-  @Get('admin/proforma-event-tracker/:id([0-9]+)')
+  @Get('/admin/proforma-event-tracker/:id([0-9]+)')
   async findOneForAdmin(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<ProformaEventTracker> {
     return await this.proformaEventTrackerService.findOneForAdmin(id);
+  }
+
+  /**
+   * get counts
+   * @param adminProformaEventTrackerCountDto
+   * @returns number
+   */
+  @Get('/admin/proforma-event-tracker/get-count')
+  async findCount(
+    @Query()
+    adminProformaEventTrackerCountDto: AdminProformaEventTrackerCountDto,
+  ) {
+    return await this.proformaEventTrackerService.findCounts(
+      adminProformaEventTrackerCountDto,
+    );
   }
 }

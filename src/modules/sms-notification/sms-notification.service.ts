@@ -13,6 +13,7 @@ import { BrandAiException } from 'src/core';
 import { UserType } from '../auth';
 import { Reservation } from '../reservation/reservation.entity';
 import { ConsultResultV2 } from '../consult-result-v2/consult-result-v2.entity';
+import { ConsultResultV3 } from '../consult-result-v3/consult-result-v3.entity';
 
 class AligoAuth {
   key: string;
@@ -80,7 +81,10 @@ export class SmsNotificationService {
 
   // send to user to notify
   // TODO: add reservation code
-  async sendConsultNotificationV2(consultData: ConsultResultV2, req: Request) {
+  async sendConsultNotificationV2(
+    consultData: ConsultResultV2 | ConsultResultV3,
+    req: Request,
+  ) {
     const smsContent = await this.__get_auth_body();
     // console.log(
     //   `${process.env.PICKCOOK_SITE_URL}reservation?reservationCode=${consultData.reservationCode}`,

@@ -26,6 +26,7 @@ import { ConsultResultV3Service } from './consult-result-v3.service';
 import { Patch } from '@nestjs/common';
 import { UserInfo } from 'src/common';
 import { PlatformAdmin } from '../admin/platform-admin.entity';
+import { AdminConsultResultV3UpdateDto } from './dto/admin-consult-result-v3-update.dto';
 
 @Controller('v3')
 @ApiTags('ADMIN CONSULT RESULT V3')
@@ -43,7 +44,7 @@ export class AdminConsultResultV3Controller extends BaseController {
    * @returns
    */
   @ApiOperation({ description: '관리자 상담 신청서 검색/리스트' })
-  @Get('/admin/consult-result-v3')
+  @Get('/admin/consult-response')
   async findAll(
     @Query() adminConsultResultV3ListDto: AdminConsultResultV3ListDto,
     @Query() pagination: PaginatedRequest,
@@ -60,7 +61,7 @@ export class AdminConsultResultV3Controller extends BaseController {
    * @returns
    */
   @ApiOperation({ description: '관리자 상담 신청서 찾기' })
-  @Get('/admin/consult-result-v3/:id([0-9]+)')
+  @Get('/admin/consult-response/:id([0-9]+)')
   async findOne(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<ConsultResultV3> {
@@ -80,5 +81,17 @@ export class AdminConsultResultV3Controller extends BaseController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<ConsultResultV3> {
     return await this.consultService.assignMyself(id, admin.no);
+  }
+
+  @ApiOperation({ description: '관리자 상담 업데이트' })
+  @Patch('/admin/consult-response/:id([0-9]+)')
+  async updateForAdmin(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() adminConsultResultV3UpdateDto: AdminConsultResultV3UpdateDto,
+  ): Promise<ConsultResultV3> {
+    return await this.consultService.updateForAdmin(
+      id,
+      adminConsultResultV3UpdateDto,
+    );
   }
 }

@@ -91,7 +91,7 @@ const env = process.env;
     // AggregateResultResponseModule,
     CommonCodeModule,
     CodeHdongModule,
-    // ConsultResultV2Module,
+    ConsultResultV2Module,
     ConsultResultV3Module,
     ConsultResultModule,
     // FileUploadModule,

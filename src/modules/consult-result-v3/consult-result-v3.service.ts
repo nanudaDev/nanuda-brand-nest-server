@@ -17,6 +17,7 @@ import { AdminConsultResultV3UpdateDto } from './dto/admin-consult-result-v3-upd
 import { RandomConsultCountTracker } from '../random-consult-count-tracker/random-consult-count-tracker.entity';
 import { ConsultResult } from '../consult-result/consult-result.entity';
 import { ConsultResultV2 } from '../consult-result-v2/consult-result-v2.entity';
+import { BRAND_CONSULT } from '../../shared/common-code.type';
 import {
   PaginatedRequest,
   PaginatedResponse,
@@ -103,6 +104,12 @@ export class ConsultResultV3Service extends BaseService {
     let consult = await this.consultRepo.findOne(id);
     if (!consult) throw new BrandAiException('consultResult.notFound');
     consult = consult.set(adminConsultResultV3UpdateDto);
+    if (consult.consultStatus === BRAND_CONSULT.CONSULT_COMPLETE) {
+      consult.consultCompleteDate = new Date();
+    }
+    if (consult.consultStatus === BRAND_CONSULT.CONSULT_DROPPED) {
+      consult.consultDropDate = new Date();
+    }
     consult = await this.consultRepo.save(consult);
     return consult;
   }

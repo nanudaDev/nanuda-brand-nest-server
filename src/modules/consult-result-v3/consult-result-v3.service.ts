@@ -104,12 +104,13 @@ export class ConsultResultV3Service extends BaseService {
     let consult = await this.consultRepo.findOne(id);
     if (!consult) throw new BrandAiException('consultResult.notFound');
     consult = consult.set(adminConsultResultV3UpdateDto);
-    if (consult.consultStatus === BRAND_CONSULT.CONSULT_COMPLETE) {
+    if (consult.consultStatus === BRAND_CONSULT.CONSULT_CONTRACTED) {
       consult.consultCompleteDate = new Date();
     }
     if (consult.consultStatus === BRAND_CONSULT.CONSULT_DROPPED) {
       consult.consultDropDate = new Date();
     }
+    console.log(consult);
     consult = await this.consultRepo.save(consult);
     return consult;
   }

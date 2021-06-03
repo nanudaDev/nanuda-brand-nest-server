@@ -43,7 +43,7 @@ export class AdminConsultResultV3Controller extends BaseController {
    * @returns
    */
   @ApiOperation({ description: '관리자 상담 신청서 검색/리스트' })
-  @Get('/admin/consult-result-v3')
+  @Get('/admin/consult-response')
   async findAll(
     @Query() adminConsultResultV3ListDto: AdminConsultResultV3ListDto,
     @Query() pagination: PaginatedRequest,
@@ -60,7 +60,7 @@ export class AdminConsultResultV3Controller extends BaseController {
    * @returns
    */
   @ApiOperation({ description: '관리자 상담 신청서 찾기' })
-  @Get('/admin/consult-result-v3/:id([0-9]+)')
+  @Get('/admin/consult-response/:id([0-9]+)')
   async findOne(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<ConsultResultV3> {

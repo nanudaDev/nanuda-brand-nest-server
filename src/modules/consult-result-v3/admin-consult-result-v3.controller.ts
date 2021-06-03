@@ -26,6 +26,7 @@ import { ConsultResultV3Service } from './consult-result-v3.service';
 import { Patch } from '@nestjs/common';
 import { UserInfo } from 'src/common';
 import { PlatformAdmin } from '../admin/platform-admin.entity';
+import { AdminConsultResultV3UpdateDto } from './dto/admin-consult-result-v3-update.dto';
 
 @Controller('v3')
 @ApiTags('ADMIN CONSULT RESULT V3')
@@ -80,5 +81,17 @@ export class AdminConsultResultV3Controller extends BaseController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<ConsultResultV3> {
     return await this.consultService.assignMyself(id, admin.no);
+  }
+
+  @ApiOperation({ description: '관리자 상담 업데이트' })
+  @Patch('/admin/consult-response/:id([0-9]+)')
+  async updateForAdmin(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() adminConsultResultV3UpdateDto: AdminConsultResultV3UpdateDto,
+  ): Promise<ConsultResultV3> {
+    return await this.consultService.updateForAdmin(
+      id,
+      adminConsultResultV3UpdateDto,
+    );
   }
 }

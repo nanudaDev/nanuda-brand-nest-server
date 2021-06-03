@@ -1,5 +1,5 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { BaseController } from 'src/core';
 import { CommonCode } from './common-code.entity';
 import { CommonCodeService } from './common-code.service';
@@ -16,6 +16,7 @@ export class CommonCodeController extends BaseController {
    * find all for user
    * @param commonCodeListDto
    */
+  @ApiOperation({ description: '공통 코드 검색' })
   @Get('/common-code')
   async findAll(
     @Query() commonCodeListDto: CommonCodeListDto,

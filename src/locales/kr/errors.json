@@ -38,7 +38,8 @@
     "consultResult": {
         "notFound": "Consult response not found",
         "exceedTimeSlot": "이미 가입된 시간대입니다. 죄송합니다.",
-        "exceedMaxAlotted": "하루에 두 시간대만 신청 가능합니다."
+        "exceedMaxAlotted": "하루에 두 시간대만 신청 가능합니다.",
+        "proformaExist": "Already a registered proforma."
     },
     "reservation": {
         "notFound": "예약 기록을 찾을 수 없습니다",

@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { ConsultResult } from 'src/modules/consult-result/consult-result.entity';
 import * as Slack from 'slack-node';
 import { ConsultResultV2 } from 'src/modules/consult-result-v2/consult-result-v2.entity';
+import { ConsultResultV3 } from '../../../modules/consult-result-v3/consult-result-v3.entity';
 
 enum SLACK_TYPE {
   PICKCOOK_SERVICE = 'PICKCOOK_SERVICE',
@@ -47,7 +48,9 @@ export class PickcookSlackNotificationService {
    * send slack for pickcook consult v2
    * @param consultData
    */
-  async sendAdminConsultNoticationV2(consultData: ConsultResultV2) {
+  async sendAdminConsultNoticationV2(
+    consultData: ConsultResultV2 | ConsultResultV3,
+  ) {
     const message = {
       text: `픽쿡 상담 신청 안내`,
       attachments: [

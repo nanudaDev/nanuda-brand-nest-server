@@ -21,6 +21,12 @@ export class ProformaEventTracker extends BaseMapperEntity<
   proformaConsultId: number;
 
   @Column({
+    name: 'version_number',
+    nullable: true,
+  })
+  versionNumber?: number;
+
+  @Column({
     name: 'fnb_owner_status',
     type: 'varchar',
   })

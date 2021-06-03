@@ -6,7 +6,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PaginatedRequest, PaginatedResponse, UserInfo } from 'src/common';
 import {
   AuthRolesGuard,
@@ -33,6 +33,7 @@ export class AdminCommonCodeController extends BaseController {
    * @param adminCommonCodeListDto
    * @param pagination
    */
+  @ApiOperation({ description: '관리자 공통 코드 리스트' })
   @Get('/admin/common-code')
   async findAll(
     @Query() adminCommonCodeListDto: AdminCommonCodeListDto,
@@ -48,6 +49,7 @@ export class AdminCommonCodeController extends BaseController {
    * find one
    * @param id
    */
+  @ApiOperation({ description: '관리자 공통 코드 찾기' })
   @Get('/admin/common-code/:id([0-9]+)')
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<CommonCode> {
     return await this.commonCodeService.findOneForAdmin(id);

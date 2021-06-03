@@ -161,24 +161,24 @@ export class ConsultResultV2Service extends BaseService {
     id: number,
     adminConsultResultV2UpdateDto: AdminConsultResultV2UpdateDto,
   ): Promise<ConsultResultV2> {
-    let result = await this.consultResultV2Repo.findOne(id);
-    result = result.set(adminConsultResultV2UpdateDto);
+    let consult = await this.consultResultV2Repo.findOne(id);
+    consult = consult.set(adminConsultResultV2UpdateDto);
     // complete date
     if (
       adminConsultResultV2UpdateDto.consultStatus ===
-      BRAND_CONSULT.CONSULT_COMPLETE
+      BRAND_CONSULT.CONSULT_CONTRACTED
     ) {
-      result.consultCompleteDate = new Date();
+      consult.consultCompleteDate = new Date();
     }
     // consult drop date
     if (
       adminConsultResultV2UpdateDto.consultStatus ===
       BRAND_CONSULT.CONSULT_DROPPED
     ) {
-      result.consultDropDate = new Date();
+      consult.consultDropDate = new Date();
     }
-    result = await this.consultResultV2Repo.save(result);
-    return result;
+    consult = await this.consultResultV2Repo.save(consult);
+    return consult;
   }
 
   /**

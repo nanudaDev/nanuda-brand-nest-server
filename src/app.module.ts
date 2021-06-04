@@ -1,4 +1,5 @@
 require('dotenv').config();
+// process.env.NODE_ENV = EnvironmentType.DEVELOPMENT
 import { MailerModule } from '@nest-modules/mailer';
 import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
@@ -9,6 +10,7 @@ import { PickcookMailerConfigService, TypeOrmConfigService } from './config';
 import { ProformaEventTrackerModule } from './modules/proforma-event-tracker/proforma-event-tracker.module';
 import { ConsultResultV3Module } from './modules/consult-result-v3/consult-result-v3.module';
 import { ProformaConsultResultV3Module } from './modules/proforma-consult-result-v3/proforma-consult-result-v3.module';
+import { BatchRandomConsultCountTrackerModule } from './batch-process/random-consult-count-tracker/batch-random-consult-count-tracker.module';
 import {
   HttpExceptionFilter,
   ErrorsInterceptor,
@@ -113,7 +115,7 @@ const env = process.env;
     // Tracker Modules
     ProformaEventTrackerModule,
     // Batch modules
-    BatchReservationModule,
+    BatchRandomConsultCountTrackerModule,
   ],
   controllers: [],
   providers: [

@@ -10,7 +10,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthRolesGuard, BaseController } from 'src/core';
 import { CONST_ADMIN_ROLES } from 'src/shared';
 import { AdminFaqCreateDto, AdminFaqUpdateDto } from './dto';
-import { Faq } from './faq.entity';
+import { Faq } from './faq.model';
 import { FaqService } from './faq.service';
 
 @Controller()

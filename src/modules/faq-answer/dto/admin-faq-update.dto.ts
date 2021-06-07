@@ -2,7 +2,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { IsOptional } from 'class-validator';
 import { BaseDto } from 'src/core';
-import { Faq } from '../faq.entity';
+import { Faq } from '../faq.model';
 
 export class AdminFaqUpdateDto extends BaseDto<AdminFaqUpdateDto>
   implements Partial<Faq> {

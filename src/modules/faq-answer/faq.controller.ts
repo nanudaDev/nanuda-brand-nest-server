@@ -3,7 +3,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { PaginatedRequest, PaginatedResponse } from 'src/common';
 import { BaseController } from 'src/core';
 import { FaqAnswerListDto } from './dto';
-import { Faq } from './faq.entity';
+import { Faq } from './faq.model';
 import { FaqService } from './faq.service';
 
 @Controller()

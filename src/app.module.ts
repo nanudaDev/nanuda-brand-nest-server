@@ -36,11 +36,13 @@ import {
   ProformaConsultResultV2Module,
   ConsultResultV2Module,
 } from './modules';
+import { GraphQLModule } from '@nestjs/graphql';
 const env = process.env;
 @Module({
   imports: [
     MailerModule.forRootAsync({ useClass: PickcookMailerConfigService }),
     ScheduleModule.forRoot(),
+    GraphQLModule.forRoot({ autoSchemaFile: true }),
     TypeOrmModule.forRootAsync({
       useClass: TypeOrmConfigService,
     }),
@@ -87,7 +89,7 @@ const env = process.env;
       synchronize: false,
     }),
     AuthModule,
-    // FaqModule,
+    FaqModule,
     // AggregateResultResponseModule,
     CommonCodeModule,
     CodeHdongModule,

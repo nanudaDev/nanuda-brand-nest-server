@@ -3,7 +3,7 @@ import { Expose } from 'class-transformer';
 import { IsEnum, IsOptional } from 'class-validator';
 import { Default, ORDER_BY_VALUE } from 'src/common';
 import { BaseDto } from 'src/core';
-import { Faq } from '../faq.entity';
+import { Faq } from '../faq.model';
 
 export class FaqAnswerListDto extends BaseDto<FaqAnswerListDto>
   implements Partial<Faq> {

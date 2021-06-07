@@ -4,7 +4,7 @@ import { PaginatedRequest, PaginatedResponse } from 'src/common';
 import { BaseService, BrandAiException } from 'src/core';
 import { EntityManager, Repository } from 'typeorm';
 import { AdminFaqCreateDto, AdminFaqUpdateDto, FaqAnswerListDto } from './dto';
-import { Faq } from './faq.entity';
+import { Faq } from './faq.model';
 
 @Injectable()
 export class FaqService extends BaseService {
@@ -45,6 +45,10 @@ export class FaqService extends BaseService {
       return newFaq;
     });
     return newFaq;
+  }
+
+  async findOne(id: number): Promise<Faq> {
+    return await this.faqRepo.findOne(id);
   }
 
   /**

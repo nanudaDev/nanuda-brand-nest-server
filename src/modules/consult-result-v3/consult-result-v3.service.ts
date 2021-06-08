@@ -88,6 +88,14 @@ export class ConsultResultV3Service extends BaseService {
 
     const [items, totalCount] = await qb;
 
+    await Promise.all(
+      items.map(async item => {
+        if (item.adminId) {
+          item.admin = await this.platformAdminRepo.findOne(item.adminId);
+        }
+      }),
+    );
+
     return { items, totalCount };
   }
 

@@ -270,10 +270,10 @@ export class ConsultResultV3Service extends BaseService {
     messageDto: AdminConsultResultV3SendMessageDto,
     req: Request,
   ): Promise<ConsultResultV3> {
-    const consult = await this.findOneForAdmin(id);
-    const sendMessage = await this.entityManager.transaction(
+    const consult = await this.entityManager.transaction(
       async entityManager => {
         // 문자 보낸다
+        const consult = await this.findOneForAdmin(id);
         await this.smsNotificationService.sendMessageConsultResultV3(
           consult,
           messageDto.message,
@@ -287,6 +287,8 @@ export class ConsultResultV3Service extends BaseService {
           adminId,
           messageDto.message,
         );
+
+        return consult;
       },
     );
     return consult;

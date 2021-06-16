@@ -124,6 +124,15 @@ export class AdminConsultResultV3Controller extends BaseController {
     );
   }
 
+  /**
+   * send message to users
+   * @param id
+   * @param adminConsultResultV3MessageLogDto
+   * @param admin
+   * @param req
+   * @returns
+   */
+  @ApiOperation({ description: '관리자가 사용자한테 문자 보내기' })
   @Post('/admin/consult-response/:id([0-9]+)/send-message')
   async sendMessage(
     @Param('id', ParseIntPipe) id: number,

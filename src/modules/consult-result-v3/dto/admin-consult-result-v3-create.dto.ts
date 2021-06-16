@@ -1,6 +1,12 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsEnum, IsNotEmpty, IsPhoneNumber } from 'class-validator';
+import {
+  IsEnum,
+  IsIP,
+  IsNotEmpty,
+  IsOptional,
+  IsPhoneNumber,
+} from 'class-validator';
 import { BaseDto } from '../../../core/base.dto';
 import { ConsultResultV3 } from '../consult-result-v3.entity';
 import { FNB_OWNER } from '../../../shared/common-code.type';
@@ -18,6 +24,11 @@ export class AdminConsultResultV3CreateDto
   @IsNotEmpty()
   fnbOwnerStatus: FNB_OWNER;
 
+  @ApiPropertyOptional()
+  @Expose()
+  @IsOptional()
+  description?: string;
+
   @ApiProperty()
   @IsPhoneNumber('KR', { message: '올바른 전화번호를 입력해주세요' })
   @IsNotEmpty()
@@ -25,7 +36,12 @@ export class AdminConsultResultV3CreateDto
   phone: string;
 
   @ApiProperty()
+  @IsIP()
   @IsNotEmpty()
   @Expose()
-  proformaConsultResultId: number;
+  ipAddress: string;
+  // @ApiProperty()
+  // @IsNotEmpty()
+  // @Expose()
+  // proformaConsultResultId: number;
 }

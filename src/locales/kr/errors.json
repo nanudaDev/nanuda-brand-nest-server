@@ -27,7 +27,8 @@
     "proforma": {
         "notFound":"Proforma not found",
         "notEnoughData": "Not enough S-Score data",
-        "noIpAddress": "No ip address"
+        "noIpAddress": "No ip address",
+        "failedCreate": "Proforma failed to be inserted"
     },
     "response": {
         "notFound": "결과가 없습니다"

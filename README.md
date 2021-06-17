@@ -4,15 +4,9 @@
 
 ## Description
 
-[Pickcook] 픽쿡 서비스 Nest.JS + TypeORM 서비스 서버
+[Pickcook] 픽쿡 서비스 Nest.JS + TypeORM 픽쿡 서버
 
-## Installation
-
-```bash
-$ npm install
-```
-
-## Running the app
+## 서버 실행
 
 ```bash
 # development
@@ -25,9 +19,21 @@ $ npm run start:dev
 $ npm run start
 ```
 
-## GraphQL
+## Environments
 
-- 크롬에서 GraphQL playground 플러그인 설치 후 진행
+- .env 파일 루트에서 생성하고 서버 가동
+
+```bash
+# development
+  - NODE_ENV=development
+
+#staging
+  - NODE_ENV=staging
+
+#production
+  - NODE_ENV=production
+
+```
 
 ## Controller/Service Method Naming Conventions
 
@@ -48,8 +54,12 @@ $ npm run start
 # Admin Endpoint
 
   - /admin/{entityName}...
-    - @Get('/admin/consult-response')
+    - @Get('/admin/common-code')
+      async findAllCommonCodeForAdmin() ...
 
+  - /{entityName}
+    - @Get('/common-code')
+      async findAllCommonCode()...
 ```
 
 ## Scaffolding
@@ -59,8 +69,13 @@ $ npm run start
 # Basic structure
   - src
     - shared
-      - common code enum
+      - common code
     - core
+      - errors
+      - interceptors
+      - typeorm
+        - select-query-builder.declaration.ts
+      - guards
     - common
     - config
     - locales
@@ -77,6 +92,17 @@ $ npm run start
     - {entityName}.controller.ts
     - {entityName}.service.ts
 
+```
+
+## Branches
+
+```bash
+
+# Default Branch
+  - development
+
+# Production Branch
+  - master
 ```
 
 ## Footnote

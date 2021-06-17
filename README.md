@@ -38,11 +38,11 @@ $ npm run start
 ## Controller/Service Method Naming Conventions
 
 ```bash
-# Admin Resolver
+# Admin Controller
  - {methodName}{entityName}ForAdmin
     - findAllCommonCodeForAdmin()
 
-# Common Resolver
+# Common Controller
  - {methodName}{entityName}
     - findallCommonCode()
 ```

@@ -40,8 +40,4 @@ export class AdminConsultResultV3CreateDto
   @IsNotEmpty()
   @Expose()
   ipAddress: string;
-  // @ApiProperty()
-  // @IsNotEmpty()
-  // @Expose()
-  // proformaConsultResultId: number;
 }

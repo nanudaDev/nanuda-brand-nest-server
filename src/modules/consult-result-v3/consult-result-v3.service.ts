@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { BaseDto } from '../../core/base.dto';
 import { ConsultResultV3 } from './consult-result-v3.entity';
 import { BaseService } from '../../core/base.service';
 import { InjectRepository, InjectEntityManager } from '@nestjs/typeorm';

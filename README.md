@@ -57,9 +57,20 @@ $ npm run start
     - @Get('/admin/common-code')
       async findAllCommonCodeForAdmin() ...
 
+# Common Endpoint
   - /{entityName}
     - @Get('/common-code')
       async findAllCommonCode()...
+```
+
+## Pagination
+
+```bash
+# Pagination Request
+  - PaginatedRequest 클래스를 사용해서 쿼리단에다가 삽입
+
+# Pagination 결과
+  - PaginatedResponse<ENTITY>로 결과값 받는다
 ```
 
 ## Scaffolding

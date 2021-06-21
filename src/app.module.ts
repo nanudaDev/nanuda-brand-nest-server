@@ -7,10 +7,6 @@ import { ScheduleModule } from '@nestjs/schedule/dist/schedule.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { getMetadataArgsStorage } from 'typeorm';
 import { PickcookMailerConfigService, TypeOrmConfigService } from './config';
-import { ProformaEventTrackerModule } from './modules/proforma-event-tracker/proforma-event-tracker.module';
-import { ConsultResultV3Module } from './modules/consult-result-v3/consult-result-v3.module';
-import { ProformaConsultResultV3Module } from './modules/proforma-consult-result-v3/proforma-consult-result-v3.module';
-import { BatchRandomConsultCountTrackerModule } from './batch-process/random-consult-count-tracker/batch-random-consult-count-tracker.module';
 import {
   HttpExceptionFilter,
   ErrorsInterceptor,
@@ -21,6 +17,7 @@ import {
   CommonCodeModule,
   QuestionModule,
   FaqModule,
+  PickcookSalesModule,
   LocationAnalysisModule,
   MenuAnalysisModule,
   CodeHdongModule,
@@ -37,6 +34,10 @@ import {
   QuestionV2Module,
   ProformaConsultResultV2Module,
   ConsultResultV2Module,
+  BatchRandomConsultCountTrackerModule,
+  ProformaConsultResultV3Module,
+  ConsultResultV3Module,
+  ProformaEventTrackerModule,
 } from './modules';
 const env = process.env;
 @Module({
@@ -57,8 +58,8 @@ const env = process.env;
       database: env.ANALYSIS_DB_DATABASE,
       // won't need to keep alive
       //   keepConnectionAlive: true,
-      bigNumberStrings: false,
-      supportBigNumbers: false,
+      bigNumberStrings: true,
+      supportBigNumbers: true,
       entities: getMetadataArgsStorage().tables.map(tbl => tbl.target),
 
       // migrations: [],
@@ -112,6 +113,8 @@ const env = process.env;
     ProformaConsultResultV3Module,
     // S-Score Module
     SScoreModule,
+    // Pickcook Sales Module
+    PickcookSalesModule,
     // Tracker Modules
     ProformaEventTrackerModule,
     // Batch modules

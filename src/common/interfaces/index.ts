@@ -3,3 +3,7 @@ export * from './order-by-value.type';
 export * from './yn.type';
 export * from './restaurant.type';
 export * from './delivery-grade-type.type';
+export * from './pickcook-sales-store-type.type';
+export * from './pickcook-sales-revenue-per-order-type.type';
+export * from './pickcook-sales-gender-type.type';
+export * from './pickcook-sakles-age-group.type';

@@ -273,6 +273,7 @@ export class ConsultResultV3Service extends BaseService {
       async entityManager => {
         // 문자 보낸다
         const consult = await this.findOneForAdmin(id);
+        consult.googleMeetUrl = messageDto.googleMeetUrl;
         await this.smsNotificationService.sendMessageConsultResultV3(
           consult,
           messageDto.message,

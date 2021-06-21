@@ -3,8 +3,8 @@ import {
   PICKCOOK_SALES_REVENUE_PER_ORDER,
   PICKCOOK_SALES_AGE_GROUP,
   PICKCOOK_SALES_GENDER_TYPE,
+  PICKCOOK_SALES_GU_DONG,
 } from 'src/common';
-import { KB_FOOD_CATEGORY } from 'src/shared';
 import {
   Column,
   Entity,
@@ -98,7 +98,7 @@ export class PickcookSales extends BaseWqEntity<PickcookSales> {
   @Column({
     type: 'varchar',
   })
-  guDongType: string;
+  guDongType: PICKCOOK_SALES_GU_DONG;
 
   @Column({
     type: 'double',

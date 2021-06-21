@@ -6,4 +6,5 @@ export * from './delivery-grade-type.type';
 export * from './pickcook-sales-store-type.type';
 export * from './pickcook-sales-revenue-per-order-type.type';
 export * from './pickcook-sales-gender-type.type';
-export * from './pickcook-sakles-age-group.type';
+export * from './pickcook-sales-age-group.type';
+export * from './pickcook-sales-gu-dong-type.type';

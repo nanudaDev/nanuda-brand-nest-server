@@ -20,6 +20,7 @@ export class PickcookSalesService extends BaseService {
    * @param adminPickcookSalesQueryDto
    * @returns
    */
+  // TODO: 행정동에 존재하지 않는 데이터 조인
   async findPickcookSales(
     adminPickcookSalesQueryDto: AdminPickcookSalesQueryDto,
   ): Promise<PickcookSales> {
@@ -36,11 +37,13 @@ export class PickcookSalesService extends BaseService {
         'mediumCategoryCode',
         adminPickcookSalesQueryDto.mediumCategoryCode,
       )
-      //   .where('pickcookSales.hdongCode = :hdongCode', {
-      //     hdongCode: adminPickcookSalesQueryDto.hdongCode,
-      //   })
+      .AndWhereEqual(
+        'pickcookSales',
+        'storeType',
+        adminPickcookSalesQueryDto.storeType,
+      )
       .getOne();
-    console.log(qb);
+
     if (!qb) throw new BrandAiException('pickcookSales.notFound');
 
     return qb;

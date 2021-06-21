@@ -10,4 +10,9 @@ export class AdminConsultResultV3SendMessageDto
   @IsNotEmpty()
   @Expose()
   message: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @Expose()
+  googleMeetUrl: string;
 }

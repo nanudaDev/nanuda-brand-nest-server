@@ -111,7 +111,7 @@ export class SmsNotificationService {
   ) {
     const smsContent = await this.__get_auth_body();
     smsContent.body.receiver = consultData.phone;
-    smsContent.body.msg = `안녕하세요, ${consultData.name}님. 픽쿡입니다.\n${message}`;
+    smsContent.body.msg = `안녕하세요, ${consultData.name}님. 픽쿡입니다.\n${message}\n\n구글 미트 주소: ${consultData.googleMeetUrl}`;
     req.body = smsContent.body;
     const sms = await aligoapi.send(req, smsContent.auth);
     if (process.env.NODE_ENV !== ENVIRONMENT.PRODUCTION) {

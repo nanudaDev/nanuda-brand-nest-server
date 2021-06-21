@@ -90,4 +90,6 @@ export class ConsultResultV3 extends BaseEntity<ConsultResultV3> {
   messages?: ConsultResultV3MessageLog[];
 
   admin?: PlatformAdmin;
+
+  googleMeetUrl?: string;
 }

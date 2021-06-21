@@ -1,0 +1,4 @@
+export enum PICKCOOK_SALES_GENDER_TYPE {
+  MALE = 1,
+  FEMALE = 2,
+}

@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { BaseDto } from '../../core/base.dto';
 import { ConsultResultV3 } from './consult-result-v3.entity';
 import { BaseService } from '../../core/base.service';
 import { InjectRepository, InjectEntityManager } from '@nestjs/typeorm';
@@ -18,6 +17,10 @@ import { RandomConsultCountTracker } from '../random-consult-count-tracker/rando
 import { ConsultResult } from '../consult-result/consult-result.entity';
 import { ConsultResultV2 } from '../consult-result-v2/consult-result-v2.entity';
 import { BRAND_CONSULT } from '../../shared/common-code.type';
+import { ProformaConsultResultV3Service } from '../proforma-consult-result-v3/proforma-consult-result-v3.service';
+import { AdminConsultResultV3CreateDto } from './dto/admin-consult-result-v3-create.dto';
+import { ConsultResultV3MessageLogService } from '../consult-result-v3-message-log/consult-result-v3-message-log.service';
+import { AdminConsultResultV3SendMessageDto } from './dto/admin-consult-result-v3-send-message.dto';
 import {
   PaginatedRequest,
   PaginatedResponse,
@@ -37,6 +40,8 @@ export class ConsultResultV3Service extends BaseService {
     private readonly randomConsultCounTrackerRepo: Repository<
       RandomConsultCountTracker
     >,
+    private readonly proformaConsultService: ProformaConsultResultV3Service,
+    private readonly messageLogService: ConsultResultV3MessageLogService,
   ) {
     super();
   }
@@ -136,6 +141,7 @@ export class ConsultResultV3Service extends BaseService {
         'consultCodeStatus',
         'proformaConsultResult',
       ])
+      .CustomLeftJoinAndSelect(['messages'])
       .where('consult.id = :id', { id: id })
       .getOne();
     if (!consult) {
@@ -223,5 +229,67 @@ export class ConsultResultV3Service extends BaseService {
       consult2Count.length +
       consult3Count.length
     );
+  }
+
+  /**
+   * create for admin
+   * @param adminConsultResultV3CreateDto
+   * @param adminId
+   * @returns
+   */
+  async createForAdmin(
+    adminConsultResultV3CreateDto: AdminConsultResultV3CreateDto,
+    adminId: number,
+  ): Promise<ConsultResultV3> {
+    const proforma = await this.proformaConsultService.createProforma(
+      adminConsultResultV3CreateDto,
+      adminId,
+    );
+    if (!proforma) throw new BrandAiException('proforma.failedCreate');
+    let newConsult = new ConsultResultV3(adminConsultResultV3CreateDto);
+    // proforma id, admin id
+    newConsult.proformaConsultResultId = proforma.id;
+    newConsult.adminId = adminId;
+    newConsult = await this.consultRepo.save(newConsult);
+
+    return newConsult;
+  }
+
+  /**
+   * send message
+   * @param id
+   * @param adminId
+   * @param messageDto
+   * @param req
+   * @returns
+   */
+  async sendMessageForAdmin(
+    id: number,
+    adminId: number,
+    messageDto: AdminConsultResultV3SendMessageDto,
+    req: Request,
+  ): Promise<ConsultResultV3> {
+    const consult = await this.entityManager.transaction(
+      async entityManager => {
+        // 문자 보낸다
+        const consult = await this.findOneForAdmin(id);
+        await this.smsNotificationService.sendMessageConsultResultV3(
+          consult,
+          messageDto.message,
+          req,
+        );
+        consult.isMessageSentYn = YN.YES;
+        await entityManager.save(consult);
+        // 기록 남긴다
+        this.messageLogService.createLog(
+          consult.id,
+          adminId,
+          messageDto.message,
+        );
+
+        return consult;
+      },
+    );
+    return consult;
   }
 }

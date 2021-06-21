@@ -5,6 +5,8 @@ import { ProformaConsultResultV3 } from './proforma-consult-result-v3.entity';
 import { Repository, EntityManager } from 'typeorm';
 import { ProformaConsultResultV3CreateDto } from './dto/proforma-consult-result-v3-create.dto';
 import { ProformaEventTrackerService } from '../proforma-event-tracker/proforma-event-tracker.service';
+import { AdminConsultResultV3CreateDto } from '../consult-result-v3/dto/admin-consult-result-v3-create.dto';
+import { YN } from 'src/common';
 
 @Injectable()
 export class ProformaConsultResultV3Service extends BaseService {
@@ -23,13 +25,24 @@ export class ProformaConsultResultV3Service extends BaseService {
    * @returns
    */
   async createProforma(
-    proformaConsultResultV3CreateDto: ProformaConsultResultV3CreateDto,
+    proformaConsultResultV3CreateDto:
+      | ProformaConsultResultV3CreateDto
+      | AdminConsultResultV3CreateDto,
+    adminId?: number,
   ): Promise<ProformaConsultResultV3> {
     const proforma = await this.entityManager.transaction(
       async entityManager => {
         let proforma = new ProformaConsultResultV3(
           proformaConsultResultV3CreateDto,
         );
+        if (
+          proformaConsultResultV3CreateDto instanceof
+          AdminConsultResultV3CreateDto
+        ) {
+          proforma.isAdminYn = YN.YES;
+          proforma.adminId = adminId;
+          proforma.isConsultYn = YN.YES;
+        }
         proforma = await entityManager.save(proforma);
         //   create new tracker
         this.proformaTrackerService.createRecord(proforma);

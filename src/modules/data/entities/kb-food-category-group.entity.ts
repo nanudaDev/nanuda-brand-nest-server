@@ -2,6 +2,7 @@ import { BaseEntity, BaseMapperEntity } from 'src/core';
 import { KB_FOOD_CATEGORY } from 'src/shared';
 import { Column, Entity, OneToMany } from 'typeorm';
 import { KbOfflineSpacePurchaseRecord } from './kb-offline-space-purchase-record.entity';
+import { PickcookSales } from './pickcook-sales.entity';
 
 @Entity({ name: 'kb_food_category_group' })
 export class KbFoodCategoryGroup extends BaseEntity<KbFoodCategoryGroup> {
@@ -64,4 +65,13 @@ export class KbFoodCategoryGroup extends BaseEntity<KbFoodCategoryGroup> {
     type: 'varchar',
   })
   mediumSmallCategoryNm: string;
+
+  /**
+   * 자동화 픽쿡 데이터 조인
+   */
+  @OneToMany(
+    type => PickcookSales,
+    pickcooksales => pickcooksales.kbCategory,
+  )
+  pickcookSales?: PickcookSales;
 }

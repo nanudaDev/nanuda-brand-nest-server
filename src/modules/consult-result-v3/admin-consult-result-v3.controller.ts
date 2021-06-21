@@ -5,6 +5,7 @@ import {
   Param,
   ParseIntPipe,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -23,10 +24,13 @@ import {
 } from '../../common/interfaces/pagination.type';
 import { ConsultResultV3 } from './consult-result-v3.entity';
 import { ConsultResultV3Service } from './consult-result-v3.service';
-import { Patch } from '@nestjs/common';
+import { Patch, Post } from '@nestjs/common';
 import { UserInfo } from 'src/common';
 import { PlatformAdmin } from '../admin/platform-admin.entity';
 import { AdminConsultResultV3UpdateDto } from './dto/admin-consult-result-v3-update.dto';
+import { AdminConsultResultV3CreateDto } from './dto/admin-consult-result-v3-create.dto';
+import { Request } from 'express';
+import { AdminConsultResultV3SendMessageDto } from './dto/admin-consult-result-v3-send-message.dto';
 
 @Controller('v3')
 @ApiTags('ADMIN CONSULT RESULT V3')
@@ -83,6 +87,12 @@ export class AdminConsultResultV3Controller extends BaseController {
     return await this.consultService.assignMyself(id, admin.no);
   }
 
+  /**
+   * update consult for admin
+   * @param id
+   * @param adminConsultResultV3UpdateDto
+   * @returns
+   */
   @ApiOperation({ description: '관리자 상담 업데이트' })
   @Patch('/admin/consult-response/:id([0-9]+)')
   async updateForAdmin(
@@ -92,6 +102,50 @@ export class AdminConsultResultV3Controller extends BaseController {
     return await this.consultService.updateForAdmin(
       id,
       adminConsultResultV3UpdateDto,
+    );
+  }
+
+  /**
+   * create for admin
+   * @param adminConsultResultV3CreateDto
+   * @param admin
+   * @returns
+   */
+  @ApiOperation({ description: '관리자 상담 생성' })
+  @Post('/admin/consult-response')
+  async createForAdmin(
+    @Body() adminConsultResultV3CreateDto: AdminConsultResultV3CreateDto,
+    @UserInfo() admin: PlatformAdmin,
+    @Req() req: Request,
+  ): Promise<ConsultResultV3> {
+    return await this.consultService.createForAdmin(
+      adminConsultResultV3CreateDto,
+      admin.no,
+    );
+  }
+
+  /**
+   * send message to users
+   * @param id
+   * @param adminConsultResultV3MessageLogDto
+   * @param admin
+   * @param req
+   * @returns
+   */
+  @ApiOperation({ description: '관리자가 사용자한테 문자 보내기' })
+  @Post('/admin/consult-response/:id([0-9]+)/send-message')
+  async sendMessage(
+    @Param('id', ParseIntPipe) id: number,
+    @Body()
+    adminConsultResultV3MessageLogDto: AdminConsultResultV3SendMessageDto,
+    @UserInfo() admin: PlatformAdmin,
+    @Req() req: Request,
+  ): Promise<ConsultResultV3> {
+    return await this.consultService.sendMessageForAdmin(
+      id,
+      admin.no,
+      adminConsultResultV3MessageLogDto,
+      req,
     );
   }
 }

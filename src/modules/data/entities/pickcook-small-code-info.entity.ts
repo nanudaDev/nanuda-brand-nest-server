@@ -1,7 +1,10 @@
 import { BaseWqEntity } from 'src/core';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 
 @Entity({ name: 'pickcook_category_group_mapper' })
+@Index('idx_pickcook_category_group_mapper_sSmallCategoryCode', [
+  'sSmallCategoryCode',
+])
 export class PickcookSmallCategoryInfo extends BaseWqEntity<
   PickcookSmallCategoryInfo
 > {

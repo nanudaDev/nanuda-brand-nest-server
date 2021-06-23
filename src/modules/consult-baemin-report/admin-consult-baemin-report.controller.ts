@@ -27,6 +27,7 @@ export class AdminConsultBaeminReportController extends BaseController {
   }
 
   /**
+   * create for admin
    * @param consultId
    * @param adminConsultBaeminReportCreateDto
    * @returns

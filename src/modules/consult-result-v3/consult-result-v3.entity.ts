@@ -7,6 +7,7 @@ import { ProformaConsultResultV2 } from '../proforma-consult-result-v2/proforma-
 import { ProformaConsultResultV3 } from '../proforma-consult-result-v3/proforma-consult-result-v3.entity';
 import { YN } from '../../common/interfaces/yn.type';
 import { ConsultResultV3MessageLog } from '../consult-result-v3-message-log/consult-result-v3-message-log.entity';
+import { ConsultBaeminReport } from '../consult-baemin-report/consult-baemin-report.entity';
 
 @Entity({ name: 'consult_result_v3' })
 export class ConsultResultV3 extends BaseEntity<ConsultResultV3> {
@@ -91,5 +92,12 @@ export class ConsultResultV3 extends BaseEntity<ConsultResultV3> {
 
   admin?: PlatformAdmin;
 
+  // 구글 미트 주소
   googleMeetUrl?: string;
+
+  @OneToOne(
+    type => ConsultBaeminReport,
+    baeminReport => baeminReport.consult,
+  )
+  consultBaeminReport?: ConsultBaeminReport;
 }

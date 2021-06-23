@@ -141,7 +141,7 @@ export class ConsultResultV3Service extends BaseService {
         'consultCodeStatus',
         'proformaConsultResult',
       ])
-      .CustomLeftJoinAndSelect(['messages'])
+      .CustomLeftJoinAndSelect(['messages', 'consultBaeminReport'])
       .where('consult.id = :id', { id: id })
       .getOne();
     if (!consult) {

@@ -24,36 +24,42 @@ export class ConsultBaeminReport extends BaseEntity<ConsultBaeminReport> {
   })
   mediumCategoryCode: KB_MEDIUM_CATEGORY | string;
 
+  //   평점
   @Column({
     name: 'average_score',
     type: 'int',
   })
   averageScore: number;
 
+  //   평균  주문수
   @Column({
     name: 'average_order_rate',
     type: 'int',
   })
   averageOrderRate: number;
 
+  //   월 평균 주문수
   @Column({
     name: 'average_monthly_order_rate',
     type: 'int',
   })
   averageMonthlyOrderRate: number;
 
+  //   최소 주문금액
   @Column({
     name: 'minimum_order_price',
     type: 'int',
   })
   minimumOrderPrice?: number;
 
+  //   배달팁
   @Column({
     name: 'average_delivery_tip',
     type: 'int',
   })
   averageDeliveryTip: number;
 
+  //   찜 수
   @Column({
     name: 'average_like_rate',
     type: 'int',

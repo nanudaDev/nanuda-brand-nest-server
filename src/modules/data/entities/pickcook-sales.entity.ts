@@ -76,6 +76,16 @@ export class PickcookSales extends BaseWqEntity<PickcookSales> {
   mainGagu: number;
 
   @Column({
+    type: 'double',
+  })
+  mainGaguRatio: number;
+
+  @Column({
+    type: 'double',
+  })
+  mainAgeGroupRatio: number;
+
+  @Column({
     type: 'json',
   })
   ageRatio: any;

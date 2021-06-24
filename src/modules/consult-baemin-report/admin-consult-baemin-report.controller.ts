@@ -14,6 +14,8 @@ import { ConsultBaeminReport } from './consult-baemin-report.entity';
 import { ConsultBaeminReportService } from './consult-baemin-report.service';
 import { CONST_ADMIN_USER } from '../../shared/platform-common-code.type';
 import { AdminConsultBaeminReportCreateDto } from './dto/admin-consult-baemin-report-create.dto';
+import { Patch } from '@nestjs/common';
+import { AdminConsultBaeminReportUpdateDto } from './dto/admin-consult-baemin-report-update.dto';
 
 @Controller('v3')
 @ApiBearerAuth()
@@ -32,15 +34,33 @@ export class AdminConsultBaeminReportController extends BaseController {
    * @param adminConsultBaeminReportCreateDto
    * @returns
    */
-  @Post('/admin/consult-result/:id([0-9]+)/consult-baemin-report')
+  @Post('/admin/consult-result/:consultId([0-9]+)/consult-baemin-report')
   async createForAdmin(
-    @Param('id', ParseIntPipe) consultId: number,
+    @Param('consultId', ParseIntPipe) consultId: number,
     @Body()
     adminConsultBaeminReportCreateDto: AdminConsultBaeminReportCreateDto,
   ): Promise<ConsultBaeminReport> {
     return await this.consultBaeminReportService.createReportForAdmin(
       consultId,
       adminConsultBaeminReportCreateDto,
+    );
+  }
+
+  /**
+   * update for admin
+   * @param id
+   * @param adminConsultBaeminReportUpdateDto
+   * @returns
+   */
+  @Patch('/admin/consult-baemin-report/:id([0-9]+)')
+  async updateForAdmin(
+    @Param('id', ParseIntPipe) id: number,
+    @Body()
+    adminConsultBaeminReportUpdateDto: AdminConsultBaeminReportUpdateDto,
+  ): Promise<ConsultBaeminReport> {
+    return await this.consultBaeminReportService.updateReportForAdmin(
+      id,
+      adminConsultBaeminReportUpdateDto,
     );
   }
 }

@@ -40,5 +40,10 @@ export class AdminConsultBaeminReportCreateDto
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
+  hdongCode: string | number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @Expose()
   mediumCategoryCode: KB_MEDIUM_CATEGORY | string;
 }

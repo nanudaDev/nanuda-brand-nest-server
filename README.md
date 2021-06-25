@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="http://www.pickcook.kr/" target="blank"><img src="https://www.pickcook.kr/img/logo.ae204840.svg" width="320" alt="Nest Logo" /></a>
+  <a href="http://www.pickcook.kr/" target="blank"><img src="https://www.pickcook.kr/img/logo.ae204840.svg" width="320" alt="픽쿡" /></a>
 </p>
 
 ## Description
@@ -44,7 +44,7 @@ $ npm run start
 
 # Common Controller
  - {methodName}{entityName}
-    - findallCommonCode()
+    - findAllCommonCode()
 ```
 
 ## Controller Endpoint Scheming Conventions

@@ -48,6 +48,11 @@ export class PickcookSales extends BaseWqEntity<PickcookSales> {
   @Column({
     type: 'bigint',
   })
+  medianRevenue: number;
+
+  @Column({
+    type: 'bigint',
+  })
   maxRevenue: number;
 
   @Column({

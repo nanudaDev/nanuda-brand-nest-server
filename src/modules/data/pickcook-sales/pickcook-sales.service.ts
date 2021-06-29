@@ -5,12 +5,15 @@ import { PickcookSales } from '../entities/pickcook-sales.entity';
 import { Repository } from 'typeorm';
 import { AdminPickcookSalesQueryDto } from './dto';
 import { BrandAiException } from '../../../core/errors/brand-ai.exception';
+import { SScoreService } from '../s-score/s-score.service';
+import { SScoreListDto } from '../s-score/dto';
 
 @Injectable()
 export class PickcookSalesService extends BaseService {
   constructor(
     @InjectRepository(PickcookSales, 'wq')
     private readonly pickCookSalesRepo: Repository<PickcookSales>,
+    private readonly sScoreService: SScoreService,
   ) {
     super();
   }

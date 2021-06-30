@@ -1,41 +1,124 @@
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
+  <a href="http://www.pickcook.kr/" target="blank"><img src="https://www.pickcook.kr/img/logo.ae204840.svg" width="320" alt="픽쿡" /></a>
 </p>
-
-[travis-image]: https://api.travis-ci.org/nestjs/nest.svg?branch=master
-[travis-url]: https://travis-ci.org/nestjs/nest
-[linux-image]: https://img.shields.io/travis/nestjs/nest/master.svg?label=linux
-[linux-url]: https://travis-ci.org/nestjs/nest
 
 ## Description
 
-- [픽쿡 / PICKCOOK] 위대한상사 픽쿡 백엔드 서버
-- NEST.JS + TYPEORM + MYSQL 8.0+
-- NAVER CLOUD 바탕으로 업로드 진행
+[Pickcook] 픽쿡 서비스 Nest.JS + TypeORM 픽쿡 서버
 
-## Running the app
+## 서버 실행
 
-````bash
+```bash
 # development
 $ npm run start
 
-# watch mode and development
+# watch mode
 $ npm run start:dev
 
-## Test
+# production mode
+$ npm run start
+```
+
+## Environments
+
+- .env 파일 루트에서 생성하고 서버 가동
 
 ```bash
-# unit tests
-$ npm run test
+# development
+  - NODE_ENV=development
 
-# e2e tests
-$ npm run test:e2e
+#staging
+  - NODE_ENV=staging
 
-# test coverage
-$ npm run test:cov
-````
+#production
+  - NODE_ENV=production
 
-## Other information
+```
 
-- Author - 이상준 백엔드 개발자 illumeweb@gmail.com
-- Website - [https://www.pickcook.kr]
+## Controller/Service Method Naming Conventions
+
+```bash
+# Admin Controller
+ - {methodName}{entityName}ForAdmin
+    - findAllCommonCodeForAdmin()
+
+# Common Controller
+ - {methodName}{entityName}
+    - findAllCommonCode()
+```
+
+## Controller Endpoint Scheming Conventions
+
+```bash
+
+# Admin Endpoint
+
+  - /admin/{entityName}...
+    - @Get('/admin/common-code')
+      async findAllCommonCodeForAdmin() ...
+
+# Common Endpoint
+  - /{entityName}
+    - @Get('/common-code')
+      async findAllCommonCode()...
+```
+
+## Pagination
+
+```bash
+# Pagination Request
+  - PaginatedRequest 클래스를 사용해서 쿼리단에다가 삽입
+
+# Pagination 결과
+  - PaginatedResponse<ENTITY>로 결과값 받는다
+```
+
+## Scaffolding
+
+```bash
+
+# Basic structure
+  - src
+    - shared
+      - common code
+    - core
+      - errors
+      - interceptors
+      - typeorm
+        - select-query-builder.declaration.ts
+      - guards
+    - common
+    - config
+    - locales
+      - kr
+    - modules
+
+# Module folder structure (src/modules)
+  - {camelCaseEntityName}
+    - dto
+      - admin-{entityName}-{requestMethod}.dto.ts
+      - index.ts
+    - {entityName}.entity.ts
+    - admin-{entityName}.controller.ts
+    - {entityName}.controller.ts
+    - {entityName}.service.ts
+
+```
+
+## Branches
+
+```bash
+
+# Default Branch
+  - development
+
+# Production Branch
+  - master
+```
+
+## Footnote
+
+- Author - [이상준] illumeweb@gmail.com
+- Website - [https://www.pickcook.kr](https://www.pickcook.kr)
+- NestJS - [https://nestjs.com](https://nestjs.com/)
+- TypeORM - [https://typeorm.io/#/](https://typeorm.io/#/)

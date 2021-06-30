@@ -15,6 +15,7 @@ export * from './pickcook-user/pickcook-user.module';
 export * from './proforma-consult-result/proforma-consult-result.module';
 export * from './reservation/reservation.module';
 export * from './global/global.module';
+export * from './consult-baemin-report/consult-baemin-report.module';
 
 // version 2 modules
 export * from './question-v2/question-v2.module';

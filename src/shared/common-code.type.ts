@@ -25,6 +25,7 @@ export enum KB_MEDIUM_CATEGORY {
   F01 = 'F01',
   F12 = 'F12',
   F14 = 'F14',
+  F02 = 'F02',
   F15 = 'F15',
   F10 = 'F10',
   F16 = 'F16',

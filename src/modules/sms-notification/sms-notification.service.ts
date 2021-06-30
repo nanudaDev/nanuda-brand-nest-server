@@ -99,6 +99,27 @@ export class SmsNotificationService {
   }
 
   /**
+   * 상담 v3 문자 보내기
+   * @param consultData
+   * @param message
+   * @param req
+   */
+  async sendMessageConsultResultV3(
+    consultData: ConsultResultV3,
+    message: string,
+    req: Request,
+  ) {
+    const smsContent = await this.__get_auth_body();
+    smsContent.body.receiver = consultData.phone;
+    smsContent.body.msg = `안녕하세요, ${consultData.name}님. 픽쿡입니다.\n${message}\n\n구글 미트 주소: ${consultData.googleMeetUrl}`;
+    req.body = smsContent.body;
+    const sms = await aligoapi.send(req, smsContent.auth);
+    if (process.env.NODE_ENV !== ENVIRONMENT.PRODUCTION) {
+      console.log(sms);
+    }
+  }
+
+  /**
    * get auth
    */
   private async __get_auth_body(): Promise<MessageObject> {

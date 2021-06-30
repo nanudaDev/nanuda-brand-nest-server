@@ -27,7 +27,8 @@
     "proforma": {
         "notFound":"Proforma not found",
         "notEnoughData": "Not enough S-Score data",
-        "noIpAddress": "No ip address"
+        "noIpAddress": "No ip address",
+        "failedCreate": "Proforma failed to be inserted"
     },
     "response": {
         "notFound": "결과가 없습니다"
@@ -41,6 +42,9 @@
         "exceedMaxAlotted": "하루에 두 시간대만 신청 가능합니다.",
         "proformaExist": "Already a registered proforma."
     },
+    "consultBaeminReport": {
+        "notFound": "Consult baemin report not found"
+    },
     "reservation": {
         "notFound": "예약 기록을 찾을 수 없습니다",
         "notFoundOrCancelled": "예약 기록을 찾을 수 없거나 취소 된 예약입니다",
@@ -51,6 +55,9 @@
         "usernameTaken": "이미 사용중인 사용자명입니다",
         "emailTaken": "이미 가입된 이메일 계정입니다. 로그인 해주세요",
         "phoneTaken": "이미 가입된 휴대폰 번호입니다. 로그인 해주세요"
+    },
+    "pickcookSales": {
+        "notFound": "데이터를 찾지 못헸습니다."
     },
     "popup": {
         "notFound": "Popup not found",

@@ -41,6 +41,7 @@ export class ErrorsInterceptor implements NestInterceptor {
       }),
     );
   }
+
   private __send_slack(message: object) {
     this.slackUrl = process.env.PICKCOOK_ERROR_NOTIFICATION_SLACK_URL;
     this.slack.setWebhook(this.slackUrl);

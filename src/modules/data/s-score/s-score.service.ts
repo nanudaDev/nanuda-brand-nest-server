@@ -76,9 +76,22 @@ export class SScoreService extends BaseService {
         .where('restaurant.hdongCode = :hdongCode', {
           hdongCode: sScoreListdto.hdongCode,
         })
-        .andWhere('restaurant.mediumCategoryCode = :mediumCategoryCode', {
-          mediumCategoryCode: sScoreListdto.mediumCategoryCode,
-        })
+        // .andWhere('restaurant.mediumCategoryCode = :mediumCategoryCode', {
+        //   mediumCategoryCode: sScoreListdto.mediumCategoryCode,
+        // })
+        .AndWhereLike(
+          'restaurant',
+          'mediumCategoryCode',
+          sScoreListdto.mediumCategoryCode,
+          sScoreListdto.exclude('mediumCategoryCode'),
+        )
+        .AndWhereLike(
+          'restaurant',
+          'sSmallCategoryCode',
+          sScoreListdto.sSmallCategoryCode,
+          sScoreListdto.exclude('sSmallCategoryCode'),
+        )
+
         .limit(3)
         .orderBy('restaurant.averageScore', ORDER_BY_VALUE.DESC)
         .getMany();
@@ -91,9 +104,19 @@ export class SScoreService extends BaseService {
         .where('delivery.hdongCode = :hdongCode', {
           hdongCode: sScoreListdto.hdongCode,
         })
-        .andWhere('delivery.mediumCategoryCode = :mediumCategoryCode', {
-          mediumCategoryCode: sScoreListdto.mediumCategoryCode,
-        })
+        .AndWhereLike(
+          'delivery',
+          'mediumCategoryCode',
+          sScoreListdto.mediumCategoryCode,
+          sScoreListdto.exclude('mediumCategoryCode'),
+        )
+        .AndWhereLike(
+          'delivery',
+          'sSmallCategoryCode',
+          sScoreListdto.sSmallCategoryCode,
+          sScoreListdto.exclude('sSmallCategoryCode'),
+        )
+
         .limit(3)
         .orderBy('delivery.averageScore', ORDER_BY_VALUE.DESC)
         .getMany();

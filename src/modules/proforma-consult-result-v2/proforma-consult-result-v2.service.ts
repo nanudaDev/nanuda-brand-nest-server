@@ -144,7 +144,7 @@ export class ProformaConsultResultV2Service extends BaseService {
     }
     if (qb.fnbOwnerStatus === FNB_OWNER.CUR_FNB_OWNER) {
       const newSscoreDto = new SScoreListDto();
-      newSscoreDto.hdongCode = qb.hdongCode;
+      newSscoreDto.hdongCode = Number(qb.hdongCode);
       newSscoreDto.mediumCategoryCode = qb.selectedKbMediumCategory;
       const otherMenuRecommendations = await this.sScoreService.findSecondarySScore(
         newSscoreDto,

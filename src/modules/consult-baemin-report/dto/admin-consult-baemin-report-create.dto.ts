@@ -4,6 +4,7 @@ import { IsNotEmpty } from 'class-validator';
 import { Expose } from 'class-transformer';
 import { ConsultBaeminReport } from '../consult-baemin-report.entity';
 import { KB_MEDIUM_CATEGORY } from '../../../shared/common-code.type';
+import { BAEMIN_CATEGORY_CODE } from 'src/common';
 export class AdminConsultBaeminReportCreateDto
   extends BaseDto<AdminConsultBaeminReportCreateDto>
   implements Partial<ConsultBaeminReport> {
@@ -46,4 +47,9 @@ export class AdminConsultBaeminReportCreateDto
   @IsNotEmpty()
   @Expose()
   mediumCategoryCode: KB_MEDIUM_CATEGORY | string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @Expose()
+  baeminCategoryCode: BAEMIN_CATEGORY_CODE | string;
 }

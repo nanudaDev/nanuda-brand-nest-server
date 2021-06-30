@@ -11,13 +11,18 @@ export class SScoreListDto extends BaseDto<SScoreListDto>
   @ApiProperty()
   @Expose()
   @IsNotEmpty()
-  hdongCode: string | number;
+  hdongCode: number;
 
   @ApiPropertyOptional({ enum: KB_MEDIUM_CATEGORY })
   @IsEnum(KB_MEDIUM_CATEGORY)
   @Expose()
   @IsOptional()
   mediumCategoryCode?: KB_MEDIUM_CATEGORY;
+
+  @ApiPropertyOptional()
+  @Expose()
+  @IsOptional()
+  sSmallCategoryCode?: string;
 
   @ApiPropertyOptional({ enum: RESTAURANT_TYPE })
   @IsEnum(RESTAURANT_TYPE)

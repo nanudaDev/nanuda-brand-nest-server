@@ -1,3 +1,4 @@
+import { BAEMIN_CATEGORY_CODE } from 'src/common';
 import { Entity, Column, Index, OneToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '../../core';
 import { KB_MEDIUM_CATEGORY } from '../../shared';
@@ -65,6 +66,12 @@ export class ConsultBaeminReport extends BaseEntity<ConsultBaeminReport> {
     type: 'int',
   })
   averageLikeRate: number;
+
+  @Column({
+    name: 'baemin_category_code',
+    type: 'varchar',
+  })
+  baeminCategoryCode: BAEMIN_CATEGORY_CODE | string;
 
   @OneToOne(
     type => ConsultResultV3,

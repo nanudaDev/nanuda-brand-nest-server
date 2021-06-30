@@ -8,3 +8,4 @@ export * from './pickcook-sales-revenue-per-order-type.type';
 export * from './pickcook-sales-gender-type.type';
 export * from './pickcook-sales-age-group.type';
 export * from './pickcook-sales-gu-dong-type.type';
+export * from './baemin-category-code.type';

@@ -17,6 +17,8 @@ import { BaseWqEntity } from '../../../core/base-wq.entity';
 import { CodeHdong } from '../../code-hdong/code-hdong.entity';
 import { KbFoodCategoryGroup } from './kb-food-category-group.entity';
 import { KB_MEDIUM_CATEGORY } from '../../../shared/common-code.type';
+import { SScoreRestaurant } from './s-score-restaurant.entity';
+import { SScoreDelivery } from './s-score-delivery.entity';
 
 @Entity({ name: 'pickcook_sales' })
 // TODO: ADD INDEX for hdongCode and mediumCategorycode
@@ -180,10 +182,10 @@ export class PickcookSales extends BaseWqEntity<PickcookSales> {
   })
   recommendedMenu: any;
 
-  @Column({
-    type: 'json',
-  })
-  scoreValues: any;
+  // @Column({
+  //   type: 'json',
+  // })
+  // scoreValues: any;
 
   @Column({
     type: 'varchar',
@@ -204,6 +206,8 @@ export class PickcookSales extends BaseWqEntity<PickcookSales> {
     type: 'json',
   })
   recommendMenuHdong: any;
+
+  sScoreMenus?: SScoreRestaurant[] | SScoreDelivery[];
 
   @OneToOne(type => CodeHdong)
   @JoinColumn({ name: 'hdongCode', referencedColumnName: 'hdongCode' })

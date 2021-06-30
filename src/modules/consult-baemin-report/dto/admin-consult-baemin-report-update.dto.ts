@@ -4,6 +4,7 @@ import { IsOptional } from 'class-validator';
 import { Expose } from 'class-transformer';
 import { ConsultBaeminReport } from '../consult-baemin-report.entity';
 import { KB_MEDIUM_CATEGORY } from 'src/shared';
+import { BAEMIN_CATEGORY_CODE } from 'src/common';
 export class AdminConsultBaeminReportUpdateDto
   extends BaseDto<AdminConsultBaeminReportUpdateDto>
   implements Partial<ConsultBaeminReport> {
@@ -41,4 +42,9 @@ export class AdminConsultBaeminReportUpdateDto
   @IsOptional()
   @Expose()
   mediumCategoryCode: KB_MEDIUM_CATEGORY | string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Expose()
+  baeminCategoryCode: BAEMIN_CATEGORY_CODE | string;
 }

@@ -15,6 +15,7 @@ import {
 import {
   AuthModule,
   CommonCodeModule,
+  PosfeedModule,
   QuestionModule,
   FaqModule,
   PickcookSalesModule,
@@ -121,6 +122,7 @@ const env = process.env;
     ProformaEventTrackerModule,
     // Batch modules
     BatchRandomConsultCountTrackerModule,
+    PosfeedModule,
   ],
   controllers: [],
   providers: [

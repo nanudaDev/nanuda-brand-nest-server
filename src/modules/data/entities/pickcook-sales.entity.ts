@@ -48,6 +48,11 @@ export class PickcookSales extends BaseWqEntity<PickcookSales> {
   @Column({
     type: 'bigint',
   })
+  medianRevenue: number;
+
+  @Column({
+    type: 'bigint',
+  })
   maxRevenue: number;
 
   @Column({
@@ -74,6 +79,16 @@ export class PickcookSales extends BaseWqEntity<PickcookSales> {
     type: 'int',
   })
   mainGagu: number;
+
+  @Column({
+    type: 'double',
+  })
+  mainGaguRatio: number;
+
+  @Column({
+    type: 'double',
+  })
+  mainAgeGroupRatio: number;
 
   @Column({
     type: 'json',

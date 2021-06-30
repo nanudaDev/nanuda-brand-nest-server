@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, Param } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { BaseController } from 'src/core';
 import { CodeHdong } from './code-hdong.entity';
@@ -43,5 +43,13 @@ export class CodeHdongController extends BaseController {
     @Query() codeHdongListDto: CodeHdongListDto,
   ): Promise<CodeHdong[]> {
     return await this.codeHdongService.findAllDongs(codeHdongListDto);
+  }
+
+  @ApiOperation({ description: '행정동으로 행정동 검색' })
+  @Get('/code-hdong/:hdongCode')
+  async findOneCode(
+    @Param('hdongCode') hdongCode: string
+  ): Promise<CodeHdong> {
+    return await this.codeHdongService.findOneByCode(hdongCode);
   }
 }

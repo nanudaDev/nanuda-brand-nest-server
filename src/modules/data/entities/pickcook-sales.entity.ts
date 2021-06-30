@@ -182,10 +182,10 @@ export class PickcookSales extends BaseWqEntity<PickcookSales> {
   })
   recommendedMenu: any;
 
-  @Column({
-    type: 'json',
-  })
-  scoreValues: any;
+  // @Column({
+  //   type: 'json',
+  // })
+  // scoreValues: any;
 
   @Column({
     type: 'varchar',

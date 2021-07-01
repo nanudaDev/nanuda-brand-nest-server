@@ -320,10 +320,6 @@ export class ProformaConsultResultV2Service extends BaseService {
     const questionScores = await this.__question_c_score_add(
       proformaConsultResultQueryDto.questionGivenArray,
     );
-    const newSscoreDto = new SScoreListDto();
-    newSscoreDto.hdongCode = proformaConsultResultQueryDto.hdongCode;
-    newSscoreDto.mediumCategoryCode =
-      proformaConsultResultQueryDto.selectedKbMediumCategory;
 
     // get both restaurant and delivery data first
     // let sScoreDelivery: SScoreDelivery[] | SScoreRestaurant[];
@@ -344,13 +340,20 @@ export class ProformaConsultResultV2Service extends BaseService {
     // );
     // TODO: find replacement for data
     // 배달 매출이 없는 관계로 일단 식당형 데이터로 대체
+    let newSscoreDto = new SScoreListDto();
+    newSscoreDto.hdongCode = proformaConsultResultQueryDto.hdongCode;
+    newSscoreDto.mediumCategoryCode =
+      proformaConsultResultQueryDto.selectedKbMediumCategory;
     const sScoreRestaurant = await this.sScoreService.findAllWithMediumCategoryCode(
-      newSscoreDto,
+      {
+        hdongCode: proformaConsultResultQueryDto.hdongCode,
+        mediumCategoryCode:
+          proformaConsultResultQueryDto.selectedKbMediumCategory,
+      },
       RESTAURANT_TYPE.RESTAURANT,
     );
-
     const appliedCScore = await this.__apply_c_score(
-      [sScoreRestaurant[0]],
+      sScoreRestaurant,
       questionScores,
       cScoreAttributeValue,
       proformaConsultResultQueryDto.fnbOwnerStatus,
@@ -382,9 +385,14 @@ export class ProformaConsultResultV2Service extends BaseService {
       proformaConsultResultQueryDto.questionGivenArray,
     );
     // other menu recommendations
+    // const otherMenuRecommendations = await this.sScoreService.findSecondarySScore(
+    //   newSscoreDto,
+    //   average < 20 ? RESTAURANT_TYPE.RESTAURANT : RESTAURANT_TYPE.DELIVERY,
+    // );
+
     const otherMenuRecommendations = await this.sScoreService.findSecondarySScore(
       newSscoreDto,
-      average < 20 ? RESTAURANT_TYPE.RESTAURANT : RESTAURANT_TYPE.DELIVERY,
+      RESTAURANT_TYPE.RESTAURANT,
     );
     const response = new ProformaConsultResultV2ResponseClassForCurFnbOwer();
     // throw highest revenue among the s score data
@@ -506,8 +514,9 @@ export class ProformaConsultResultV2Service extends BaseService {
     userType: FNB_OWNER,
     isOtherMenu?: YN,
   ): Promise<SScoreDelivery[] | SScoreRestaurant[]> {
-    if (sScoreData && sScoreData.length < 1)
+    if (sScoreData && sScoreData.length < 1) {
       throw new BrandAiException('proforma.notEnoughData');
+    }
     await Promise.all(
       sScoreData.map(async data => {
         const menuPercentageGrade = Math.ceil(

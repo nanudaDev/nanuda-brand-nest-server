@@ -64,7 +64,7 @@ export class SScoreService extends BaseService {
    * @returns
    */
   async findAllWithMediumCategoryCode(
-    sScoreListdto: SScoreListDto,
+    sScoreListdto: any,
     restaurantType: RESTAURANT_TYPE,
   ): Promise<SScoreRestaurant[] | SScoreDelivery[]> {
     let qb;
@@ -83,13 +83,13 @@ export class SScoreService extends BaseService {
           'restaurant',
           'mediumCategoryCode',
           sScoreListdto.mediumCategoryCode,
-          sScoreListdto.exclude('mediumCategoryCode'),
+          // sScoreListdto.exclude('mediumCategoryCode'),
         )
         .AndWhereLike(
           'restaurant',
           'sSmallCategoryCode',
           sScoreListdto.sSmallCategoryCode,
-          sScoreListdto.exclude('sSmallCategoryCode'),
+          // sScoreListdto.exclude('sSmallCategoryCode'),
         )
 
         .limit(3)
@@ -108,13 +108,13 @@ export class SScoreService extends BaseService {
           'delivery',
           'mediumCategoryCode',
           sScoreListdto.mediumCategoryCode,
-          sScoreListdto.exclude('mediumCategoryCode'),
+          // sScoreListdto.exclude('mediumCategoryCode'),
         )
         .AndWhereLike(
           'delivery',
           'sSmallCategoryCode',
           sScoreListdto.sSmallCategoryCode,
-          sScoreListdto.exclude('sSmallCategoryCode'),
+          // sScoreListdto.exclude('sSmallCategoryCode'),
         )
 
         .limit(3)
@@ -136,11 +136,15 @@ export class SScoreService extends BaseService {
     restaurantType: RESTAURANT_TYPE,
   ): Promise<SScoreRestaurant[] | SScoreDelivery[]> {
     let qb;
+    console.log(sScoreListDto, 'secondary space dto');
     if (restaurantType === RESTAURANT_TYPE.RESTAURANT) {
       qb = this.scoreRestaurantRepo
         .createQueryBuilder('restaurant')
-        .CustomInnerJoinAndSelect(['attributeValues'])
-        .CustomLeftJoinAndSelect(['pickcookSmallCategoryInfo'])
+        // .CustomInnerJoinAndSelect(['attributeValues'])
+        .CustomLeftJoinAndSelect([
+          'pickcookSmallCategoryInfo',
+          'attributeValues',
+        ])
         .where('restaurant.hdongCode = :hdongCode', {
           hdongCode: sScoreListDto.hdongCode,
         })
@@ -154,8 +158,11 @@ export class SScoreService extends BaseService {
     if (restaurantType === RESTAURANT_TYPE.DELIVERY) {
       qb = this.scoreDeliveryRepo
         .createQueryBuilder('delivery')
-        .CustomInnerJoinAndSelect(['attributeValues'])
-        .CustomLeftJoinAndSelect(['pickcookSmallCategoryInfo'])
+        // .CustomInnerJoinAndSelect(['attributeValues'])
+        .CustomLeftJoinAndSelect([
+          'pickcookSmallCategoryInfo',
+          'attributeValues',
+        ])
         .where('delivery.hdongCode = :hdongCode', {
           hdongCode: sScoreListDto.hdongCode,
         })
@@ -166,7 +173,7 @@ export class SScoreService extends BaseService {
         .orderBy('delivery.averageScore', ORDER_BY_VALUE.DESC)
         .getMany();
     }
-
+    console.log(await qb);
     return await qb;
   }
 }

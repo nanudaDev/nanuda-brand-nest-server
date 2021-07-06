@@ -28,7 +28,7 @@ export class ConsultBaeminReport extends BaseEntity<ConsultBaeminReport> {
   //   평점
   @Column({
     name: 'average_score',
-    type: 'int',
+    type: 'double',
   })
   averageScore: number;
 

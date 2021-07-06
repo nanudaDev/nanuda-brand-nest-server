@@ -41,6 +41,11 @@ export class AdminConsultBaeminReportUpdateDto
   @ApiPropertyOptional()
   @IsOptional()
   @Expose()
+  hdongCode: string | number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Expose()
   mediumCategoryCode: KB_MEDIUM_CATEGORY | string;
 
   @ApiPropertyOptional()

@@ -31,6 +31,11 @@ export class AdminConsultResultV3ListDto
   @Expose()
   phone?: string;
 
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Expose()
+  meetingDate?: Date;
+
   @ApiPropertyOptional({ enum: ORDER_BY_VALUE })
   @IsOptional()
   @IsEnum(ORDER_BY_VALUE)

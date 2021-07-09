@@ -25,6 +25,7 @@ import {
   PaginatedRequest,
   PaginatedResponse,
 } from '../../common/interfaces/pagination.type';
+import { MeetingsRequestDto, MeetingsResponseDto } from './dto';
 
 @Injectable()
 export class ConsultResultV3Service extends BaseService {
@@ -292,5 +293,32 @@ export class ConsultResultV3Service extends BaseService {
       },
     );
     return consult;
+  }
+  /**
+   *
+   * @param date
+   */
+  async getMeetings(
+    meetingsRequestDto: MeetingsRequestDto,
+  ): Promise<MeetingsResponseDto[]> {
+    const consults = await this.consultRepo
+      .createQueryBuilder('consult')
+      .where('YEAR(consult.meeting_date) = :year', {
+        year: meetingsRequestDto.year,
+      })
+      .andWhere('MONTH(consult.meeting_date) = :month', {
+        month: meetingsRequestDto.month,
+      })
+      .getMany();
+    console.log('consults', consults);
+    let meetings: MeetingsResponseDto[] = [];
+    meetings = consults.map(e => {
+      const tempObj = new MeetingsResponseDto();
+      tempObj.title = `${e.id}_${e.name}(${e.consultStatus})`;
+      tempObj.start = `${e.meetingDate}T${e.meetingTime}:00`;
+      return tempObj;
+    });
+    console.log('meetings', meetings);
+    return meetings;
   }
 }

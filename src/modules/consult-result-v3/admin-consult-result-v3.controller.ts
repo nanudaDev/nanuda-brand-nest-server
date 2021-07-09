@@ -31,6 +31,7 @@ import { AdminConsultResultV3UpdateDto } from './dto/admin-consult-result-v3-upd
 import { AdminConsultResultV3CreateDto } from './dto/admin-consult-result-v3-create.dto';
 import { Request } from 'express';
 import { AdminConsultResultV3SendMessageDto } from './dto/admin-consult-result-v3-send-message.dto';
+import { MeetingsRequestDto, MeetingsResponseDto } from './dto';
 
 @Controller('v3')
 @ApiTags('ADMIN CONSULT RESULT V3')
@@ -147,5 +148,19 @@ export class AdminConsultResultV3Controller extends BaseController {
       adminConsultResultV3MessageLogDto,
       req,
     );
+  }
+
+  /**
+   *
+   * @param meetingsRequestDto
+   * @returns
+   */
+  @ApiOperation({ description: '해당 년, 월 미팅 리스트' })
+  @Get('/admin/consult-response/get-meetings')
+  async getMeetings(
+    @Query() meetingsRequestDto: MeetingsRequestDto,
+  ): Promise<MeetingsResponseDto[]> {
+    console.log('query date', meetingsRequestDto);
+    return await this.consultService.getMeetings(meetingsRequestDto);
   }
 }

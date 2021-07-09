@@ -5,3 +5,5 @@ export * from './admin-consult-result-v3-list.dto';
 export * from './admin-consult-result-v3-create.dto';
 export * from './admin-consult-result-v3-update.dto';
 export * from './admin-consult-result-v3-send-message.dto';
+export * from './admin-meetings-response.dto';
+export * from './admin-meetings-request.dto';

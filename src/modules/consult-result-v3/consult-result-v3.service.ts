@@ -25,7 +25,11 @@ import {
   PaginatedRequest,
   PaginatedResponse,
 } from '../../common/interfaces/pagination.type';
-import { MeetingsRequestDto, MeetingsResponseDto } from './dto';
+import {
+  AdminConsultResultV3BetweenDto,
+  MeetingsResponseDto,
+  MonthlyRequestDto,
+} from './dto';
 
 @Injectable()
 export class ConsultResultV3Service extends BaseService {
@@ -298,9 +302,10 @@ export class ConsultResultV3Service extends BaseService {
    *
    * @param date
    */
-  async getMeetings(
-    meetingsRequestDto: MeetingsRequestDto,
+  async getMeetingsMonthly(
+    meetingsRequestDto: MonthlyRequestDto,
   ): Promise<MeetingsResponseDto[]> {
+    console.log('meetingsRequestDto', meetingsRequestDto);
     const consults = await this.consultRepo
       .createQueryBuilder('consult')
       .where('YEAR(consult.meeting_date) = :year', {
@@ -320,5 +325,35 @@ export class ConsultResultV3Service extends BaseService {
     });
     console.log('meetings', meetings);
     return meetings;
+  }
+
+  async getConsultsMonthly(
+    meetingsRequestDto: MonthlyRequestDto,
+  ): Promise<ConsultResultV3[]> {
+    const consults = await this.consultRepo
+      .createQueryBuilder('consult')
+      .where('YEAR(consult.created) = :year', {
+        year: meetingsRequestDto.year,
+      })
+      .andWhere('MONTH(consult.created) = :month', {
+        month: meetingsRequestDto.month,
+      })
+      .getMany();
+    return consults;
+  }
+
+  async getConsultsBetweenDates(
+    adminConsultResultV3BetweenDto: AdminConsultResultV3BetweenDto,
+  ): Promise<ConsultResultV3[]> {
+    const consults = await this.consultRepo
+      .createQueryBuilder('consult')
+      .where('created >= :startDate', {
+        startDate: adminConsultResultV3BetweenDto.startDate,
+      })
+      .andWhere('created < :endDate', {
+        endDate: adminConsultResultV3BetweenDto.endDate,
+      })
+      .getMany();
+    return consults;
   }
 }

@@ -31,7 +31,11 @@ import { AdminConsultResultV3UpdateDto } from './dto/admin-consult-result-v3-upd
 import { AdminConsultResultV3CreateDto } from './dto/admin-consult-result-v3-create.dto';
 import { Request } from 'express';
 import { AdminConsultResultV3SendMessageDto } from './dto/admin-consult-result-v3-send-message.dto';
-import { MeetingsRequestDto, MeetingsResponseDto } from './dto';
+import {
+  AdminConsultResultV3BetweenDto,
+  MeetingsResponseDto,
+  MonthlyRequestDto,
+} from './dto';
 
 @Controller('v3')
 @ApiTags('ADMIN CONSULT RESULT V3')
@@ -156,11 +160,31 @@ export class AdminConsultResultV3Controller extends BaseController {
    * @returns
    */
   @ApiOperation({ description: '해당 년, 월 미팅 리스트' })
-  @Get('/admin/consult-response/get-meetings')
-  async getMeetings(
-    @Query() meetingsRequestDto: MeetingsRequestDto,
+  @Get('/admin/consult-response/get-meetings-monthly')
+  async getMeetingsMonthly(
+    @Query() monthlyRequestDto: MonthlyRequestDto,
   ): Promise<MeetingsResponseDto[]> {
-    console.log('query date', meetingsRequestDto);
-    return await this.consultService.getMeetings(meetingsRequestDto);
+    console.log('query date', monthlyRequestDto);
+    return await this.consultService.getMeetingsMonthly(monthlyRequestDto);
+  }
+
+  @ApiOperation({ description: '해당 년, 월 상담 리스트' })
+  @Get('/admin/consult-response/get-consults-monthly')
+  async getConsultsMonthly(
+    @Query() monthlyRequestDto: MonthlyRequestDto,
+  ): Promise<ConsultResultV3[]> {
+    console.log('query date', monthlyRequestDto);
+    return await this.consultService.getConsultsMonthly(monthlyRequestDto);
+  }
+
+  @ApiOperation({ description: '시작일부터 종료일까지 상담 리스트' })
+  @Get('/admin/consult-response/get-consults-between')
+  async getConsultsBetweenDates(
+    @Query() adminConsultResultV3BetweenDto: AdminConsultResultV3BetweenDto,
+  ): Promise<ConsultResultV3[]> {
+    console.log('query date', adminConsultResultV3BetweenDto);
+    return await this.consultService.getConsultsBetweenDates(
+      adminConsultResultV3BetweenDto,
+    );
   }
 }

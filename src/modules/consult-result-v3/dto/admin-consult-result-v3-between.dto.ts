@@ -1,15 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsDate, IsNotEmpty } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
 import { BaseDto } from 'src/core';
 
-export class MonthlyRequestDto extends BaseDto<MonthlyRequestDto> {
+export class AdminConsultResultV3BetweenDto extends BaseDto<
+  AdminConsultResultV3BetweenDto
+> {
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
-  year: number;
+  startDate: string;
   @ApiProperty()
   @IsNotEmpty()
   @Expose()
-  month: number;
+  endDate: string;
 }

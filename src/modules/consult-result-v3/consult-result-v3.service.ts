@@ -305,9 +305,9 @@ export class ConsultResultV3Service extends BaseService {
   async getMeetingsMonthly(
     meetingsRequestDto: MonthlyRequestDto,
   ): Promise<MeetingsResponseDto[]> {
-    console.log('meetingsRequestDto', meetingsRequestDto);
     const consults = await this.consultRepo
       .createQueryBuilder('consult')
+      .CustomLeftJoinAndSelect(['consultCodeStatus'])
       .where('YEAR(consult.meeting_date) = :year', {
         year: meetingsRequestDto.year,
       })
@@ -315,15 +315,14 @@ export class ConsultResultV3Service extends BaseService {
         month: meetingsRequestDto.month,
       })
       .getMany();
-    console.log('consults', consults);
+
     let meetings: MeetingsResponseDto[] = [];
     meetings = consults.map(e => {
       const tempObj = new MeetingsResponseDto();
-      tempObj.title = `${e.id}_${e.name}(${e.consultStatus})`;
+      tempObj.title = `${e.id}_${e.name}(${e.consultCodeStatus.comment})`;
       tempObj.start = `${e.meetingDate}T${e.meetingTime}:00`;
       return tempObj;
     });
-    console.log('meetings', meetings);
     return meetings;
   }
 

@@ -25,6 +25,11 @@ import {
   PaginatedRequest,
   PaginatedResponse,
 } from '../../common/interfaces/pagination.type';
+import {
+  AdminConsultResultV3BetweenDto,
+  MeetingsResponseDto,
+  MonthlyRequestDto,
+} from './dto';
 
 @Injectable()
 export class ConsultResultV3Service extends BaseService {
@@ -292,5 +297,62 @@ export class ConsultResultV3Service extends BaseService {
       },
     );
     return consult;
+  }
+  /**
+   *
+   * @param date
+   */
+  async getMeetingsMonthly(
+    meetingsRequestDto: MonthlyRequestDto,
+  ): Promise<MeetingsResponseDto[]> {
+    const consults = await this.consultRepo
+      .createQueryBuilder('consult')
+      .CustomLeftJoinAndSelect(['consultCodeStatus'])
+      .where('YEAR(consult.meeting_date) = :year', {
+        year: meetingsRequestDto.year,
+      })
+      .andWhere('MONTH(consult.meeting_date) = :month', {
+        month: meetingsRequestDto.month,
+      })
+      .getMany();
+
+    let meetings: MeetingsResponseDto[] = [];
+    meetings = consults.map(e => {
+      const tempObj = new MeetingsResponseDto();
+      tempObj.title = `${e.id}_${e.name}(${e.consultCodeStatus.comment})`;
+      tempObj.start = `${e.meetingDate}T${e.meetingTime}:00`;
+      return tempObj;
+    });
+    return meetings;
+  }
+
+  async getConsultsMonthly(
+    meetingsRequestDto: MonthlyRequestDto,
+  ): Promise<ConsultResultV3[]> {
+    const consults = await this.consultRepo
+      .createQueryBuilder('consult')
+      .where('YEAR(consult.created) = :year', {
+        year: meetingsRequestDto.year,
+      })
+      .andWhere('MONTH(consult.created) = :month', {
+        month: meetingsRequestDto.month,
+      })
+      .getMany();
+    return consults;
+  }
+
+  async getConsultsBetweenDates(
+    adminConsultResultV3BetweenDto: AdminConsultResultV3BetweenDto,
+  ): Promise<ConsultResultV3[]> {
+    const consults = await this.consultRepo
+      .createQueryBuilder('consult')
+      .where('created >= :startDate', {
+        startDate: adminConsultResultV3BetweenDto.startDate,
+      })
+      .andWhere('created < :endDate', {
+        endDate: adminConsultResultV3BetweenDto.endDate,
+      })
+      .getMany();
+    return consults;
   }
 }

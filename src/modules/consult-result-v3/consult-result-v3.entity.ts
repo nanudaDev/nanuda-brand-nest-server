@@ -72,6 +72,18 @@ export class ConsultResultV3 extends BaseEntity<ConsultResultV3> {
   })
   isMessageSentYn?: YN;
 
+  @Column({
+    name: 'meeting_date',
+    type: 'date',
+  })
+  meetingDate: Date;
+
+  @Column({
+    name: 'meeting_time',
+    type: 'varchar',
+  })
+  meetingTime: string;
+
   @OneToOne(type => CommonCode)
   @JoinColumn({ name: 'fnb_owner_status', referencedColumnName: 'key' })
   fnbOwnerCodeStatus?: CommonCode;

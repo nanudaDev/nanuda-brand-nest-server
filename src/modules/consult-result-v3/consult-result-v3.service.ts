@@ -320,7 +320,10 @@ export class ConsultResultV3Service extends BaseService {
     meetings = consults.map(e => {
       const tempObj = new MeetingsResponseDto();
       tempObj.title = `${e.id}_${e.name}(${e.consultCodeStatus.comment})`;
-      tempObj.start = `${e.meetingDate}T${e.meetingTime}:00`;
+      e.meetingTime
+        ? (tempObj.start = `${e.meetingDate}T${e.meetingTime}:00`)
+        : (tempObj.start = `${e.meetingDate}`);
+
       return tempObj;
     });
     return meetings;
